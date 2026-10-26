@@ -1,0 +1,303 @@
+{
+    "image":  "public/assets/solargon-atlas-v2.png",
+    "width":  1774,
+    "height":  887,
+    "frames":  {
+                   "right":  [
+                                 {
+                                     "x":  0,
+                                     "y":  0,
+                                     "width":  222,
+                                     "height":  240,
+                                     "groundX":  0.5,
+                                     "groundY":  0.075,
+                                     "touchesSide":  true
+                                 },
+                                 {
+                                     "x":  222,
+                                     "y":  0,
+                                     "width":  222,
+                                     "height":  240,
+                                     "groundX":  0.5,
+                                     "groundY":  0.075,
+                                     "touchesSide":  true
+                                 },
+                                 {
+                                     "x":  444,
+                                     "y":  0,
+                                     "width":  221,
+                                     "height":  240,
+                                     "groundX":  0.5,
+                                     "groundY":  0.075,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  665,
+                                     "y":  0,
+                                     "width":  222,
+                                     "height":  240,
+                                     "groundX":  0.5,
+                                     "groundY":  0.06667,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  887,
+                                     "y":  0,
+                                     "width":  222,
+                                     "height":  240,
+                                     "groundX":  0.5,
+                                     "groundY":  0.0625,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  1109,
+                                     "y":  0,
+                                     "width":  221,
+                                     "height":  240,
+                                     "groundX":  0.5,
+                                     "groundY":  0.0625,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  1330,
+                                     "y":  0,
+                                     "width":  222,
+                                     "height":  240,
+                                     "groundX":  0.5,
+                                     "groundY":  0.13333,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  1552,
+                                     "y":  0,
+                                     "width":  222,
+                                     "height":  240,
+                                     "groundX":  0.5,
+                                     "groundY":  0.06667,
+                                     "touchesSide":  false
+                                 }
+                             ],
+                   "left":  [
+                                {
+                                    "x":  0,
+                                    "y":  240,
+                                    "width":  222,
+                                    "height":  223,
+                                    "groundX":  0.5,
+                                    "groundY":  0.13004,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  222,
+                                    "y":  240,
+                                    "width":  222,
+                                    "height":  223,
+                                    "groundX":  0.5,
+                                    "groundY":  0.13004,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  444,
+                                    "y":  240,
+                                    "width":  221,
+                                    "height":  223,
+                                    "groundX":  0.5,
+                                    "groundY":  0.13004,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  665,
+                                    "y":  240,
+                                    "width":  222,
+                                    "height":  223,
+                                    "groundX":  0.5,
+                                    "groundY":  0.12108,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  887,
+                                    "y":  240,
+                                    "width":  222,
+                                    "height":  223,
+                                    "groundX":  0.5,
+                                    "groundY":  0.12108,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  1109,
+                                    "y":  240,
+                                    "width":  221,
+                                    "height":  223,
+                                    "groundX":  0.5,
+                                    "groundY":  0.12108,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  1330,
+                                    "y":  240,
+                                    "width":  222,
+                                    "height":  223,
+                                    "groundX":  0.5,
+                                    "groundY":  0.19731,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  1552,
+                                    "y":  240,
+                                    "width":  222,
+                                    "height":  223,
+                                    "groundX":  0.5,
+                                    "groundY":  0.11211,
+                                    "touchesSide":  true
+                                }
+                            ],
+                   "front":  [
+                                 {
+                                     "x":  0,
+                                     "y":  463,
+                                     "width":  222,
+                                     "height":  200,
+                                     "groundX":  0.5,
+                                     "groundY":  0.095,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  222,
+                                     "y":  463,
+                                     "width":  222,
+                                     "height":  200,
+                                     "groundX":  0.5,
+                                     "groundY":  0.095,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  444,
+                                     "y":  463,
+                                     "width":  221,
+                                     "height":  200,
+                                     "groundX":  0.5,
+                                     "groundY":  0.085,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  665,
+                                     "y":  463,
+                                     "width":  222,
+                                     "height":  200,
+                                     "groundX":  0.5,
+                                     "groundY":  0.08,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  887,
+                                     "y":  463,
+                                     "width":  222,
+                                     "height":  200,
+                                     "groundX":  0.5,
+                                     "groundY":  0.095,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  1109,
+                                     "y":  463,
+                                     "width":  221,
+                                     "height":  200,
+                                     "groundX":  0.5,
+                                     "groundY":  0.09,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  1330,
+                                     "y":  463,
+                                     "width":  222,
+                                     "height":  200,
+                                     "groundX":  0.5,
+                                     "groundY":  0.17,
+                                     "touchesSide":  false
+                                 },
+                                 {
+                                     "x":  1552,
+                                     "y":  463,
+                                     "width":  222,
+                                     "height":  200,
+                                     "groundX":  0.5,
+                                     "groundY":  0.08,
+                                     "touchesSide":  false
+                                 }
+                             ],
+                   "back":  [
+                                {
+                                    "x":  0,
+                                    "y":  663,
+                                    "width":  222,
+                                    "height":  224,
+                                    "groundX":  0.5,
+                                    "groundY":  0.20982,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  222,
+                                    "y":  663,
+                                    "width":  222,
+                                    "height":  224,
+                                    "groundX":  0.5,
+                                    "groundY":  0.20982,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  444,
+                                    "y":  663,
+                                    "width":  221,
+                                    "height":  224,
+                                    "groundX":  0.5,
+                                    "groundY":  0.21429,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  665,
+                                    "y":  663,
+                                    "width":  222,
+                                    "height":  224,
+                                    "groundX":  0.5,
+                                    "groundY":  0.21429,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  887,
+                                    "y":  663,
+                                    "width":  222,
+                                    "height":  224,
+                                    "groundX":  0.5,
+                                    "groundY":  0.21429,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  1109,
+                                    "y":  663,
+                                    "width":  221,
+                                    "height":  224,
+                                    "groundX":  0.5,
+                                    "groundY":  0.21429,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  1330,
+                                    "y":  663,
+                                    "width":  222,
+                                    "height":  224,
+                                    "groundX":  0.5,
+                                    "groundY":  0.27679,
+                                    "touchesSide":  true
+                                },
+                                {
+                                    "x":  1552,
+                                    "y":  663,
+                                    "width":  222,
+                                    "height":  224,
+                                    "groundX":  0.5,
+                                    "groundY":  0.20536,
+                                    "touchesSide":  false
+                                }
+                            ]
+               }
+}

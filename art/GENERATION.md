@@ -1,0 +1,20 @@
+# Solargon sprite generation
+
+Generated with the built-in image generation tool, with a genuinely transparent background. No API key or fallback CLI was used. The reference image was extracted from the user-supplied Word document; it was used for character identity, not pasted into the game.
+
+## Files
+
+- Reference: `art/references/solargon-concept.png`.
+- First draft: `art/drafts/solargon-atlas-v1.png`.
+- Active second draft: `public/assets/solargon-atlas-v2.png`.
+- Runtime rectangle/ground-anchor audit: `art/solargon-atlas-v2.audit.json`.
+
+The generated atlas is 1774 × 887. It does not have exact integer-sized 8 × 4 cells or the requested generous margins. The runtime therefore uses measured row boundaries and pixel rectangles instead of assuming a perfect grid. This handles alignment; it does not repair missing or clipped artwork. See the README for the remaining visual-review items.
+
+## First prompt
+
+Create a production pixel-art GAME SPRITE ATLAS of SOLARGON based on the supplied reference (reference for character identity only, exclude all poster text). Transparent background. Exactly 8 columns by 4 rows of equal square cells. Every cell contains ONE complete full-body gold dragon kaiju with SIX legs, FOUR small wings, red eyes, crown horns, layered golden scales, and a star/sun-tipped tail. Cute sturdy plush-like proportions translated into clean hand-placed-looking pixel clusters, warm gold outline, cream belly, limited palette, no soft gradients, no lighting bloom, no shadows outside feet, no text, no grid lines. Consistent character scale and ground foot baseline in every cell, entire silhouette contained within each cell with generous transparent padding; at most 80 percent cell width and height. Row 1 faces screen right; row 2 faces screen left; row 3 faces camera (front view); row 4 faces away (back view). In EACH row: column 1 idle neutral, column 2 idle breathing; columns 3-6 a clear four-frame six-legged running cycle, column 7 jumping legs tucked and wings raised slightly, column 8 landing crouched legs and wings relaxed. Camera sees character at a slight angle from above to suit an isometric 3D platformer. This is one unified exact regular 8x4 sprite atlas, NOT a poster or concept sheet. Keep anatomy, horns, wing count and star tail consistent across all 32 sprites. Actual transparent alpha background, no checkerboard.
+
+## Second prompt
+
+Use case: game asset. Create an EXACT REGULAR 8 COLUMN x 4 ROW transparent sprite atlas for SOLARGON the cute GOLD DRAGON from the reference. No text. IMPORTANT: each character must occupy only the central SIXTY PERCENT of each square cell: leave at least TWENTY PERCENT EMPTY TRANSPARENT MARGIN on every edge of every cell. Never let wings, horns or tail touch cell boundaries. Every cell identical scale and every character's feet rest on a consistent baseline at 78% down the cell. This spacing is essential for the game UV animation. Clearly pixel art: low-resolution pixel clusters like a 96x96 sprite, hard pixel edges, warm brown outline, gold scales, cream belly, red eyes, crown horns, four compact wings, six legs, star-tipped tail. Based on reference identity, not its photographic texture. Row1 entire row faces screen right. Row2 entire row faces screen left. Row3 entire row faces front toward camera. Row4 entire row faces back away from camera. In EACH row: cols1-2 idle breathing frames; cols3-6 FOUR DIFFERENT RUNNING POSES with limbs alternating in clear gait; col7 jump pose, feet tucked but same ground anchor baseline; col8 crouched landing pose. All 32 silhouettes must be complete and SEPARATED by wide transparent gutters, no silhouette crosses an invisible square grid cell edge. No typography, no grid lines, no shadows, actual transparent alpha background. Atlas canvas aspect ratio exactly 2:1. Consistent recognisable anatomy and size across all32 sprites.

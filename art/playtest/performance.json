@@ -1,0 +1,32 @@
+{
+  "position": {
+    "x": -2.500000238418579,
+    "y": 0.7649655342102051,
+    "z": 1.0000004768371582
+  },
+  "velocity": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+  },
+  "grounded": true,
+  "animation": "idle",
+  "direction": "front",
+  "screen": "playing",
+  "time": 5.016666666666654,
+  "elapsed": 5.016666666666654,
+  "falls": 0,
+  "jumps": 1,
+  "dashes": 0,
+  "dashing": false,
+  "dashCooldown": 0,
+  "landings": 2,
+  "section": 0,
+  "gatesPassed": 0,
+  "drawCalls": 193,
+  "fps": 239.99040038398462,
+  "frameP95": 4.300000000000182,
+  "samples": 600,
+  "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti Laptop GPU (0x00002F18) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "browser": "Microsoft Edge headless, 1280 × 720 viewport, 640 × 360 WebGL canvas"
+}
