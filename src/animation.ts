@@ -24,14 +24,14 @@ export const SOLARGON: CharacterManifest = {
     landing: { frames: [7], fps: 10, loop: false },
   },
 };
-export class CharacterSprite {
+export class CharacterSprite<State extends string = AnimationState> {
   readonly sprite: THREE.Sprite;
   readonly occludedSprite: THREE.Sprite;
   private projected = new THREE.Vector3();
   private time = 0;
-  private state: AnimationState = "idle";
+  private state: State | null = null;
   constructor(
-    private manifest: CharacterManifest,
+    private manifest: CharacterManifest<State>,
     private texture: THREE.Texture,
   ) {
     texture.magFilter = THREE.NearestFilter;
@@ -52,22 +52,24 @@ export class CharacterSprite {
     this.sprite.scale.setScalar(manifest.size);
     // Show only the pixels hidden by closer geometry; visible sprite pixels
     // retain their normal colors and depth. This does not alter collision.
-    this.occludedSprite = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: texture,
-      color: "#fff0bc",
-      transparent: true,
-      opacity: 0.35,
-      alphaTest: 0.1,
-      depthTest: true,
-      depthWrite: false,
-      depthFunc: THREE.GreaterDepth,
-      toneMapped: false,
-    }));
+    this.occludedSprite = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: texture,
+        color: "#fff0bc",
+        transparent: true,
+        opacity: 0.35,
+        alphaTest: 0.1,
+        depthTest: true,
+        depthWrite: false,
+        depthFunc: THREE.GreaterDepth,
+        toneMapped: false,
+      }),
+    );
     this.occludedSprite.renderOrder = 1;
   }
   update(
     position: Vec3,
-    state: AnimationState,
+    state: State,
     direction: Direction,
     dt: number,
     camera: THREE.Camera,
@@ -101,11 +103,10 @@ export class CharacterSprite {
         1 - (rect.y + rect.height - 0.5) / image.height,
       );
       this.sprite.center.set(rect.groundX, rect.groundY);
-      this.sprite.scale.set(
-        this.manifest.size,
-        (this.manifest.size * rect.height) / rect.width,
-        1,
-      );
+      const width = this.manifest.pixelsPerUnit
+        ? rect.width / this.manifest.pixelsPerUnit
+        : this.manifest.size;
+      this.sprite.scale.set(width, (width * rect.height) / rect.width, 1);
     } else {
       this.texture.repeat.set(
         1 / this.manifest.columns - 2 * insetX,
@@ -118,11 +119,9 @@ export class CharacterSprite {
           insetY,
       );
     }
-    const projected = this.projected.set(
-      position.x,
-      position.y,
-      position.z,
-    ).applyMatrix4(camera.matrixWorldInverse);
+    const projected = this.projected
+      .set(position.x, position.y, position.z)
+      .applyMatrix4(camera.matrixWorldInverse);
     projected.x = Math.round(projected.x / pixelSize) * pixelSize;
     projected.y = Math.round(projected.y / pixelSize) * pixelSize;
     projected.applyMatrix4(camera.matrixWorld);

@@ -30,7 +30,7 @@ export interface SpriteFrame {
   groundX: number;
   groundY: number;
 }
-export interface CharacterManifest {
+export interface CharacterManifest<State extends string = AnimationState> {
   name: string;
   atlas: string;
   columns: number;
@@ -38,7 +38,8 @@ export interface CharacterManifest {
   size: number;
   groundAnchor: readonly [number, number];
   directions: Record<Direction, number>;
-  animations: Record<AnimationState, AnimationClip>;
+  animations: Record<State, AnimationClip>;
+  pixelsPerUnit?: number;
   frames?: Record<Direction, readonly SpriteFrame[]>;
 }
 export interface PlatformSpec {

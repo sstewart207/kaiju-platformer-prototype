@@ -1,5 +1,15 @@
 # QA results — October 27, 2026
 
+## Zombie kaiju candidate (local branch)
+
+- One optional encounter at world (18, -11), north of the starting runway. Bite has a 0.45-second windup; fireball aim locks during a 0.65-second charge. Jump/dodge or use two separate dashes to defeat it. Three player hits restart the course and clear attacks.
+- Scale was checked beside Solargon, then corrected to remove an unrequested small-enemy size bias. The atlas uses a constant 90 pixels per world unit across all directions/poses; measured feet anchors, collision capsule and contact shadow share the ground plane. [Scale capture](art/playtest/enemy-scale.png).
+- 31 unit/physics checks pass. The full 16-check browser run passed; a subsequently added active-combat performance scenario and the two fight scenarios also pass. Coverage includes thin-wall projectile collision, melee dodge/window, one hit per dash, defeat/restart, three-hit player reset, pause with a fireball in flight and both original keyboard routes.
+- Full course with the enemy present: 143.8 FPS average, 7.1 ms p95, no frames over 33.4 ms. Active fireball fight: 144.0 FPS, 7.1 ms p95, no console errors. Both are Edge headless at 1920 × 1080 on this laptop. [Course measurement](art/playtest/performance/enemy-1080p.json) · [Active fight](art/playtest/performance/enemy-combat.json).
+- Generated four-direction sprite sheet remains draft art: two walking frames and individual attack/hit/defeat poses; anatomy/motion polish still needs visual review. No runner/heavy gameplay, drops, elemental powers or multiplayer were added. Physical DualSense and Chromebook checks remain pending.
+
+[Atlas and generation notes](art/concepts/zombies/WALKER_ATLAS_PROMPT.md). The live GitHub Pages build is unchanged until this candidate is merged.
+
 Base: `c2a6265`. Current approved build uses 1920 × 1080 by default. The earlier 640 × 360 measurements below are retained as historical evidence.
 
 ## Recovery fix

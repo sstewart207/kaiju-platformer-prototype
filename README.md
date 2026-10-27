@@ -11,6 +11,7 @@ A browser platformer featuring Patrick's kaiju characters. Solargon is playable 
 - One single-player course with jumping, dashing, a moving platform and a finish timer.
 - Keyboard and DualSense controls, pause, restart and replay.
 - 1080p graphics with pixel-art characters.
+- One zombie kaiju encounter beside the starting route: dodge bites and fireballs, and dash through it twice to defeat it. Three hits restart the course.
 
 The latest course test ran at 144 FPS on our development laptop. Chromebook performance and a real DualSense still need testing. Character artwork is a draft.
 
@@ -26,7 +27,7 @@ The latest course test ran at 144 FPS on our development laptop. Chromebook perf
 
 ## What's next
 
-Improve movement and the course from playtest feedback, then work on character selection and zombies. More characters and co-op are planned; they aren't playable yet.
+Improve movement, the course and the first enemy from playtest feedback. Character selection, more characters, more enemy types and co-op are planned; they aren't playable yet.
 
 ## Team notes
 

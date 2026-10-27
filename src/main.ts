@@ -19,11 +19,16 @@ import { UI } from "./ui";
 import { FixedClock } from "./timestep";
 import type { Vec3 } from "./types";
 import { RENDER_WIDTH, RENDER_HEIGHT } from "./rendering";
+import { Combat } from "./combat";
+import { EnemyView, ZOMBIE_WALKER } from "./enemy-view";
 
 const ui = new UI();
 async function boot() {
   await RAPIER.init();
-  const texture = await new THREE.TextureLoader().loadAsync(SOLARGON.atlas);
+  const [texture, enemyTexture] = await Promise.all([
+    new THREE.TextureLoader().loadAsync(SOLARGON.atlas),
+    new THREE.TextureLoader().loadAsync(ZOMBIE_WALKER.atlas),
+  ]);
   const canvas = document.getElementById("world") as HTMLCanvasElement;
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -43,6 +48,8 @@ async function boot() {
     camera = new FollowCamera(),
     world = new RuinsWorld();
   const character = new CharacterSprite(SOLARGON, texture);
+  const combat = new Combat(physics);
+  const enemyView = new EnemyView(world.scene, enemyTexture);
   world.scene.add(character.sprite, character.occludedSprite);
   const shadow = new THREE.Mesh(
     new THREE.CircleGeometry(0.52, 20),
@@ -93,6 +100,7 @@ async function boot() {
         platform.delta = { x: 0, y: 0, z: 0 };
       }
     player.reset();
+    combat.reset();
     physics.step();
     camera.update(SPAWN, { x: 0, y: 0, z: 0 }, 0, true);
     ui.show("playing");
@@ -142,13 +150,20 @@ async function boot() {
     time += FIXED_DT;
     elapsed += FIXED_DT;
     physics.updatePlatforms(time);
+    combat.beginStep();
     player.update(input.read());
     physics.step();
+    combat.update(player);
+    if (combat.health <= 0) {
+      restart();
+      return;
+    }
     const position = player.position;
     if (position.y < -12) {
       falls++;
       input.clear();
       player.reset();
+      combat.reset();
       physics.step();
       camera.update(SPAWN, { x: 0, y: 0, z: 0 }, 0, true);
       void ui.respawnFlash();
@@ -200,6 +215,14 @@ async function boot() {
       camera.camera,
       camera.pixelSize,
     );
+    character.sprite.material.opacity =
+      combat.invulnerable > 0
+        ? Math.floor(combat.invulnerable * 14) % 2
+          ? 0.3
+          : 1
+        : 1;
+    enemyView.update(combat, camera.camera, camera.pixelSize, dt, alpha);
+    ui.updateHealth(combat.health);
     const ground = physics.groundBelow(current, player.collider);
     shadow.visible = !!ground;
     if (ground) {
@@ -244,14 +267,17 @@ async function boot() {
   // Upload textures and compile materials before accepting Start, rather than
   // doing that work when their part of the course first enters the camera.
   const textures = new Set<THREE.Texture>();
-  world.scene.traverse(object => {
-    if (!(object instanceof THREE.Mesh || object instanceof THREE.Sprite)) return;
-    for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
+  world.scene.traverse((object) => {
+    if (!(object instanceof THREE.Mesh || object instanceof THREE.Sprite))
+      return;
+    for (const material of Array.isArray(object.material)
+      ? object.material
+      : [object.material]) {
       const map = (material as THREE.MeshLambertMaterial).map;
       if (map) textures.add(map);
     }
   });
-  textures.forEach(texture => renderer.initTexture(texture));
+  textures.forEach((texture) => renderer.initTexture(texture));
   await renderer.compileAsync(world.scene, camera.camera);
   render(0, 1);
   last = performance.now();
@@ -277,6 +303,23 @@ async function boot() {
         landings: player.landings,
         section,
         gatesPassed,
+        combat: {
+          health: combat.health,
+          enemyHp: combat.hp,
+          enemyPosition: combat.position,
+          action: combat.action,
+          actionTime: combat.actionTime,
+          facing: combat.facing,
+          windup: combat.windup,
+          projectiles: combat.projectiles,
+          shots: combat.shots,
+          meleeHits: combat.meleeHits,
+          projectileHits: combat.projectileHits,
+          wallHits: combat.wallHits,
+          spriteWidth: enemyView.character.sprite.scale.x,
+          spriteHeight: enemyView.character.sprite.scale.y,
+          playerSpriteWidth: character.sprite.scale.x,
+        },
         drawCalls: renderer.info.render.calls,
         fps: samples.length
           ? 1000 / (samples.reduce((a, b) => a + b, 0) / samples.length)

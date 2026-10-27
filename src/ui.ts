@@ -14,6 +14,7 @@ export class UI {
   private unsupported = false;
   private selection = 0;
   private readyToStart = false;
+  private health = -1;
   constructor() {
     element("primary-button").onclick = () =>
       this.screen === "paused"
@@ -36,6 +37,15 @@ export class UI {
     const button = element<HTMLButtonElement>("primary-button");
     button.disabled = false;
     button.textContent = "START";
+  }
+  updateHealth(health: number) {
+    if (health === this.health) return;
+    this.health = health;
+    const display = element("health");
+    display.textContent = Array.from({ length: 3 }, (_, i) =>
+      i < health ? "♥" : "♡",
+    ).join(" ");
+    display.setAttribute("aria-label", `Health ${health} of 3`);
   }
   confirm() {
     if (this.screen === "playing" || !this.readyToStart) return;

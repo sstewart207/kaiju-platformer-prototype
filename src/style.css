@@ -76,6 +76,13 @@ button:focus-visible {
   letter-spacing: 2px;
   opacity: 0.8;
 }
+#health {
+  font-size: 20px;
+  line-height: 1.1;
+  letter-spacing: 3px;
+  color: #ffdc92;
+  margin-top: 5px;
+}
 .stage {
   text-align: center;
   margin-left: -90px;
