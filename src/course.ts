@@ -1,13 +1,27 @@
 import type { PlatformSpec, Vec3 } from "./types";
+import {
+  EXTENSION_PLATFORMS,
+  EXTENSION_GATES,
+  EXTENSION_WALLS,
+  EXTENSION_ROUTE_WAYPOINTS,
+  EXTENSION_FLAGS,
+  EXTENDED_FINISH,
+  EXTENSION_RECOVERY_RAMPS,
+} from "./course-extension";
 
 export const SPAWN: Vec3 = { x: -2.5, y: 0.86, z: 1 };
-export const GROUND = { x: 90, z: -22, top: -0.08, width: 380, depth: 180 };
+export const GROUND = { x: 200, z: -15, top: -0.08, width: 680, depth: 230 };
 export const SECTIONS = [
   { name: "Start" },
   { name: "Walls" },
   { name: "Ramp" },
   { name: "Platform" },
   { name: "Garden" },
+  { name: "Hurdles" },
+  { name: "Turns" },
+  { name: "Walls" },
+  { name: "Hurdles" },
+  { name: "Turns" },
   { name: "Finish" },
 ];
 export const PLATFORMS: PlatformSpec[] = [
@@ -67,8 +81,9 @@ export const PLATFORMS: PlatformSpec[] = [
     depth: 16,
     section: 5,
   },
+  ...EXTENSION_PLATFORMS,
 ];
-export const FINISH = { x: 192, y: 1.5, z: -42 };
+export const FINISH = EXTENDED_FINISH;
 export interface CourseGate {
   x: number;
   z: number;
@@ -83,6 +98,7 @@ export const COURSE_GATES: CourseGate[] = [
   { x: 120, z: -24, radius: 6, minY: 2.1 },
   { x: 140, z: -42, radius: 7 },
   { x: 174, z: -42, radius: 7 },
+  ...EXTENSION_GATES,
 ];
 export interface RoutePoint {
   x: number;
@@ -109,6 +125,7 @@ export const MAIN_ROUTE_WAYPOINTS: RoutePoint[] = [
   { x: 151, z: -46.5 },
   { x: 182, z: -46.5 },
   { x: 192, z: -42 },
+  ...EXTENSION_ROUTE_WAYPOINTS.slice(1),
 ];
 export const SHORTCUT_ROUTE = {
   galleryJumps: [
@@ -191,6 +208,7 @@ export const RUIN_WALLS: RuinWall[] = [
   { x: 155, y: 1.9, z: -42, width: 1.3, height: 0.8, depth: 6, kind: "hurdle" },
   { x: 169, y: 1.9, z: -42, width: 1.3, height: 0.8, depth: 6, kind: "hurdle" },
   { x: 179, y: 1.9, z: -42, width: 1.3, height: 0.8, depth: 6, kind: "hurdle" },
+  ...EXTENSION_WALLS,
 ];
 export const ROUTE_FLAGS: RoutePoint[] = [
   { x: 9, z: -4 },
@@ -211,6 +229,7 @@ export const ROUTE_FLAGS: RoutePoint[] = [
   { x: 151, z: -47 },
   { x: 182, z: -47 },
   { x: 189, z: -46 },
+  ...EXTENSION_FLAGS,
 ];
 export interface PathRamp {
   start: Vec3;
@@ -266,7 +285,7 @@ export const PATH_RAMPS: PathRamp[] = CONNECTIONS.map(([from, to]) => {
     },
     width: 7,
   };
-});
+}).concat(EXTENSION_RECOVERY_RAMPS);
 export function rampMesh(ramp: PathRamp) {
   const dx = ramp.end.x - ramp.start.x,
     dz = ramp.end.z - ramp.start.z,
@@ -287,7 +306,9 @@ export function rampMesh(ramp: PathRamp) {
     ramp.end.y,
     ramp.end.z - rz,
   ];
-  const bottom = top.map((n, i) => (i % 3 === 1 ? n - 0.25 : n));
+  const bottom = top.map((n, i) =>
+    i % 3 === 1 ? Math.min(n - 0.25, GROUND.top - 0.3) : n,
+  );
   return {
     vertices: new Float32Array([...top, ...bottom]),
     indices: new Uint32Array([
@@ -299,7 +320,9 @@ export function rampMesh(ramp: PathRamp) {
 }
 
 export function ruinPillars(spec: PlatformSpec) {
-  if (!["courtyard", "staging", "garden", "sanctuary"].includes(spec.id))
+  if (
+    !["courtyard", "staging", "garden", "sanctuary", "finish"].includes(spec.id)
+  )
     return [];
   return [-1, 1].map((sign) => ({
     x: -spec.width / 2 + 1.1,

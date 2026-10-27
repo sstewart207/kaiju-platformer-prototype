@@ -21,6 +21,7 @@ import type { Vec3 } from "./types";
 import { RENDER_WIDTH, RENDER_HEIGHT } from "./rendering";
 import { Combat } from "./combat";
 import { EnemyView, ZOMBIE_WALKER } from "./enemy-view";
+import { CHECKPOINTS } from "./course-extension";
 
 const ui = new UI();
 async function boot() {
@@ -73,6 +74,9 @@ async function boot() {
     gatesPassed = 0,
     manual = false;
   const samples: number[] = [];
+  let checkpoint = -1;
+  let checkpointPosition = { ...SPAWN };
+  let checkpointGates = 0;
   function restart() {
     time = 0;
     elapsed = 0;
@@ -80,6 +84,9 @@ async function boot() {
     section = 0;
     furthest = 0;
     gatesPassed = 0;
+    checkpoint = -1;
+    checkpointPosition = { ...SPAWN };
+    checkpointGates = 0;
     clock.reset();
     input.clear();
     for (const platform of physics.platforms)
@@ -104,6 +111,16 @@ async function boot() {
     physics.step();
     camera.update(SPAWN, { x: 0, y: 0, z: 0 }, 0, true);
     ui.show("playing");
+  }
+  function recover() {
+    input.clear();
+    player.reset(checkpointPosition);
+    combat.reset();
+    physics.step();
+    gatesPassed = checkpointGates;
+    furthest = gatesPassed / COURSE_GATES.length;
+    camera.update(checkpointPosition, { x: 0, y: 0, z: 0 }, 0, true);
+    void ui.respawnFlash();
   }
   function pause() {
     if (ui.screen === "playing") {
@@ -155,18 +172,14 @@ async function boot() {
     physics.step();
     combat.update(player);
     if (combat.health <= 0) {
-      restart();
+      recover();
       return;
     }
     const position = player.position;
     if (position.y < -12) {
       falls++;
-      input.clear();
-      player.reset();
-      combat.reset();
-      physics.step();
-      camera.update(SPAWN, { x: 0, y: 0, z: 0 }, 0, true);
-      void ui.respawnFlash();
+      recover();
+      return;
     }
     let nearestIndex = 0,
       nearest = Infinity;
@@ -189,6 +202,24 @@ async function boot() {
     )
       gatesPassed++;
     furthest = gatesPassed / COURSE_GATES.length;
+    CHECKPOINTS.forEach((point, index) => {
+      if (
+        index > checkpoint &&
+        gatesPassed >= point.requiredGates &&
+        player.grounded &&
+        Math.hypot(position.x - point.x, position.z - point.z) < point.radius &&
+        Math.abs(position.y - FOOT_OFFSET - point.y) < 0.2
+      ) {
+        checkpoint = index;
+        checkpointPosition = {
+          x: point.x,
+          y: point.y + FOOT_OFFSET + 0.04,
+          z: point.z,
+        };
+        checkpointGates = gatesPassed;
+        combat.health = 3;
+      }
+    });
     if (
       player.grounded &&
       gatesPassed === COURSE_GATES.length &&
@@ -303,6 +334,7 @@ async function boot() {
         landings: player.landings,
         section,
         gatesPassed,
+        checkpoint,
         combat: {
           health: combat.health,
           enemyHp: combat.hp,

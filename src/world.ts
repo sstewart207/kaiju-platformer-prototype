@@ -14,6 +14,7 @@ import {
 } from "./course";
 import type { Physics } from "./physics";
 import { batchStaticBoxes } from "./scenery";
+import { CHECKPOINTS } from "./course-extension";
 
 function random(seed: number) {
   return () => {
@@ -450,6 +451,13 @@ export class RuinsWorld {
         this.scene.add(cap);
       }
     }
+    for (const point of CHECKPOINTS) {
+      const ring = new THREE.Mesh(new THREE.RingGeometry(1.05, 1.3, 24), blue);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(point.x, point.y + 0.045, point.z);
+      this.scene.add(ring);
+      pennant(this.scene, point.x - 3.5, point.y, point.z - 3.5);
+    }
     // Broken arch remnants frame the gallery and the two shuttle docks.
     for (const arch of ARCH_REMNANTS) {
       for (const x of [-2.2, 2.2])
@@ -501,12 +509,12 @@ export class RuinsWorld {
     pool.position.z = 2.5;
     this.gate.add(pool);
     const rng = random(92);
-    for (let n = 0; n < 13; n++) {
+    for (let n = 0; n < 39; n++) {
       const backgroundRuin = new THREE.Group();
       backgroundRuin.position.set(
         -16 + n * 13,
         GROUND.top,
-        n % 2 === 0 ? -65 : 15,
+        n < 16 ? (n % 2 === 0 ? -65 : 15) : n % 2 === 0 ? -110 : 85,
       );
       this.scene.add(backgroundRuin);
       const bgMaterial = new THREE.MeshLambertMaterial({
@@ -520,9 +528,16 @@ export class RuinsWorld {
     const bark = new THREE.MeshLambertMaterial({ color: "#847151" });
     const canopy = new THREE.MeshLambertMaterial({ color: "#558c60" });
     const canopyLight = new THREE.MeshLambertMaterial({ color: "#79a46a" });
-    for (let n = 0; n < 48; n++) {
+    for (let n = 0; n < 144; n++) {
       const x = -20 + n * 3.5 + (rng() - 0.5) * 4,
-        z = n % 2 === 0 ? 12 + rng() * 6 : -59 - rng() * 8;
+        z =
+          x < 195
+            ? n % 2 === 0
+              ? 12 + rng() * 6
+              : -59 - rng() * 8
+            : n % 2 === 0
+              ? 85 + rng() * 6
+              : -100 - rng() * 8;
       const tree = new THREE.Group();
       tree.position.set(x, GROUND.top, z);
       this.scene.add(tree);

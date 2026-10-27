@@ -4,6 +4,8 @@ October 27, 2026 · Game title undecided
 
 **Status:** Playable single-player browser prototype. Solargon is the only implemented character. The Ruins course is ready for team playtesting.
 
+**Candidate:** PR #2 extends the walking route to 2:32, adds two checkpoints and a zombie kaiju encounter with bite/fireball attacks. These changes await review before updating the public build.
+
 **Play:** https://sstewart207.github.io/kaiju-platformer-prototype/
 
 **Source:** https://github.com/sstewart207/kaiju-platformer-prototype
@@ -20,7 +22,7 @@ October 27, 2026 · Game title undecided
 - Keep the world grounded and controls aligned with the camera. Interface text is limited to functional labels, controls and results.
 - Preserve the original character designs. Solargon's sprites remain a draft with anatomy/edge cleanup needed; jump and fall share a pose.
 - Planned roster: Solargon, Voidra, Graviton, Toxicraven and provisional fifth character Blizzardon.
-- Not implemented: character selection, other playable characters, elemental abilities, zombies/combat, coins, health/checkpoints, ramen rewards or multiplayer. A ramen bowl remains the planned chapter-completion reward.
+- Not implemented: character selection, other playable characters, elemental abilities, coins, ramen rewards or multiplayer. Combat, three-hit health and checkpoints are in the candidate. A ramen bowl remains the planned chapter-completion reward.
 
 ## Next actions
 

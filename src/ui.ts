@@ -143,7 +143,7 @@ export class UI {
     setTimeout(() => {
       element("fade").style.opacity = "0";
     }, 180);
-    element("announcer").textContent = "Returned to the courtyard.";
+    element("announcer").textContent = "Respawned.";
   }
   error(message: string) {
     element("menu-eyebrow").textContent = "";

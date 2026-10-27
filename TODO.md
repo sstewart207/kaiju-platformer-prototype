@@ -1,6 +1,7 @@
 # Project TODOs
 
 - [x] Approve 1920 × 1080 as the default rendering style; update runtime, camera snapping, tests and art direction. Keep pixel-art character textures crisp.
+- [x] Extend the short course with connected ruin galleries, slalom walls, hurdle bypasses and two checkpoints. Walking route measures 2:32 in deterministic tests; human pace/replay value still needs review.
 
 - [x] Prepare an emailable no-install browser playtest link for the confirmed Chromebook target using the existing public GitHub repo, GitHub Actions and GitHub Pages. Include all runtime assets and verify anonymous browser launch, controls and pause. No Electron wrapper is needed for this delivery.
 - [ ] Have the tester open the hosted build on the actual Chromebook and check performance, keyboard and DualSense behavior. Physical Chromebook/USB/Bluetooth validation remains pending. Offline/PWA packaging is optional later work.

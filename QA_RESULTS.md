@@ -1,5 +1,15 @@
 # QA results — October 27, 2026
 
+## Extended course candidate (PR #2)
+
+The walking line now measures **152.10 seconds** with WASD and arrows; the tested jump/shuttle route measures **149.67 seconds**. This replaces the earlier 37–40-second layout. Movement speed and dash timing are unchanged. These are scripted route timings, not a human playtime guarantee.
+
+Added ten connected stone terraces, twelve slalom barriers, eight jumpable hurdles, wide bypass lanes, four ground-access ramps and two checkpoint zones. Falling or combat defeat returns to the latest checkpoint with full health and saved route progress; the timer continues. Restart clears the checkpoints and starts the course over.
+
+Both keyboard routes finish without falls or jumps. Checkpoint tests cover falls, combat defeat, progress retention and full restart. Existing enemy, controller, shuttle, collision and production-launch checks pass. The unit/physics suite remains 31 passing tests.
+
+Real-time full-course run: **2:14.43**, **144.0 FPS average**, **7.1 ms p95**, one 34.6 ms frame in the starting section, no console errors. Edge headless at 1920 × 1080 on this laptop. [Full measurements](art/playtest/performance/extended-1080p.json). Extended-section screenshots were inspected and flags moved off the walking line to preserve character visibility. Chromebook/physical controller checks remain pending.
+
 ## Zombie kaiju candidate (local branch)
 
 - One optional encounter at world (18, -11), north of the starting runway. Bite has a 0.45-second windup; fireball aim locks during a 0.65-second charge. Jump/dodge or use two separate dashes to defeat it. Three player hits restart the course and clear attacks.

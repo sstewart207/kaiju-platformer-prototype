@@ -21,7 +21,7 @@ function summarize(frames: Frame[]) {
 
 test("real-time full-course frame pacing", async ({ page }) => {
   test.skip(!process.env.COURSE_BENCHMARK, "Opt-in hardware benchmark");
-  test.setTimeout(120000);
+  test.setTimeout(240000);
   const height = 1080;
   const viewport = {width: 1920, height: 1080};
   await page.setViewportSize(viewport);
@@ -59,10 +59,11 @@ test("real-time full-course frame pacing", async ({ page }) => {
       if (Math.hypot(dx, dz) < 0.6) break;
       expect(Date.now(), `reach ${point.x},${point.z}: ${JSON.stringify(s.position)}`).toBeLessThan(deadline);
       const next = new Set<string>();
-      if (dx > 0.25) next.add("KeyD");
-      if (dx < -0.25) next.add("KeyA");
-      if (dz > 0.25) next.add("KeyS");
-      if (dz < -0.25) next.add("KeyW");
+      const length=Math.hypot(dx,dz);
+      if (dx/length > 0.15) next.add("KeyD");
+      if (dx/length < -0.15) next.add("KeyA");
+      if (dz/length > 0.15) next.add("KeyS");
+      if (dz/length < -0.15) next.add("KeyW");
       for (const key of held) if (!next.has(key)) await page.keyboard.up(key);
       for (const key of next) if (!held.has(key)) await page.keyboard.down(key);
       held.clear(); next.forEach(key => held.add(key));
@@ -103,4 +104,20 @@ test("capture front-wall occlusion for visual review", async ({ page }) => {
     window.__solargon.advance(20);
   });
   await page.screenshot({path: `art/playtest/performance/occlusion-${process.env.COURSE_BENCHMARK ?? "current"}.png`});
+});
+
+test("capture extended ruins for visual review", async ({page}) => {
+  await page.setViewportSize({width:1920,height:1080});
+  await page.goto("/?test");
+  await page.waitForFunction(()=>!!window.__solargon);
+  await page.evaluate(()=>window.__solargon.manual(true));
+  await page.getByRole("button",{name:"START",exact:true}).click();
+  for(const point of [
+    {name:"south-gallery",x:229,z:12},
+    {name:"upper-checkpoint",x:324,z:-76.5},
+    {name:"final-turn",x:411,z:8},
+  ]) {
+    await page.evaluate(p=>{window.__solargon.teleport({x:p.x,y:2.3,z:p.z});window.__solargon.advance(20);},point);
+    await page.screenshot({path:`art/playtest/extended-${point.name}.png`});
+  }
 });
