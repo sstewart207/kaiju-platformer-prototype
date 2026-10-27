@@ -27,16 +27,16 @@ test("published game opens anonymously with assets, controls and pause", async (
   expect(response?.status()).toBe(200);
   expect(page.url()).toBe(target.href);
   await atlas;
-  expect(await page.locator("#world").evaluate(el => {
-    const canvas = el as HTMLCanvasElement;
-    return { width: canvas.width, height: canvas.height };
-  })).toEqual({ width: 1920, height: 1080 });
-  expect(await page.evaluate(() => typeof window.__solargon)).toBe("undefined");
   await expect(
     page.getByRole("heading", { name: "UNTITLED", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "START", exact: true }).click();
   await expect(page.locator("#hud")).toBeVisible();
+  expect(await page.locator("#world").evaluate(el => {
+    const canvas = el as HTMLCanvasElement;
+    return { width: canvas.width, height: canvas.height };
+  })).toEqual({ width: 1920, height: 1080 });
+  expect(await page.evaluate(() => typeof window.__solargon)).toBe("undefined");
   await expect(page.locator("#run-time")).not.toHaveText("0:00.00");
   await page.keyboard.down("KeyD");
   await page.keyboard.down("ShiftLeft");
