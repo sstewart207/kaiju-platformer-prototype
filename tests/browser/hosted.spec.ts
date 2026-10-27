@@ -28,7 +28,7 @@ test("published game opens anonymously with assets, controls and pause", async (
   expect(page.url()).toBe(target.href);
   await atlas;
   await expect(
-    page.getByRole("heading", { name: "PLAYTEST", exact: true }),
+    page.getByRole("heading", { name: "UNTITLED", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "START", exact: true }).click();
   await expect(page.locator("#hud")).toBeVisible();
