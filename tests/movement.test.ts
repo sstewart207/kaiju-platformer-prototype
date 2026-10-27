@@ -45,6 +45,25 @@ test("grounded idle remains stable for 20 seconds", () => {
   assert.ok(Math.abs(player.position.y - FOOT_OFFSET - 0.025) < 0.04);
   physics.dispose();
 });
+test("grass recovery steps onto low paths but course hurdles still need a jump", () => {
+  const { physics, player, step } = fixture();
+  player.reset({ x: 104, y: 0.8, z: -13 });
+  physics.step();
+  step({}, 20);
+  step({ z: 1 }, 45);
+  assert.ok(player.position.z > -9, "walk back onto the low path from grass");
+  assert.equal(player.jumps, 0);
+  player.reset({ x: 152, y: 1.5 + FOOT_OFFSET + 0.04, z: -42 });
+  physics.step();
+  step({}, 20);
+  step({ x: 1 }, 60);
+  assert.ok(player.position.x < 154.1, "walking must stop at the first hurdle");
+  step({ x: 1, jumpPressed: true, jumpHeld: true });
+  step({ x: 1, jumpHeld: true }, 40);
+  assert.ok(player.position.x > 156, "jumping can clear the hurdle");
+  physics.dispose();
+});
+
 test("holding jump produces more height than tapping; repeated landings work", () => {
   function height(held: boolean) {
     const { physics, player, step } = fixture();

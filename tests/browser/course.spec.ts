@@ -274,6 +274,43 @@ test("jump and shuttle shortcuts beat the safe ground route", async ({
     `Shortcut ${final.elapsed.toFixed(2)}s versus safe ${safeRouteSeconds.toFixed(2)}s`,
   );
 });
+test("missing the shuttle lands on grass and can recover to finish", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await boot(page);
+  const driver = new Driver(page);
+  for (const point of MAIN_ROUTE_WAYPOINTS.slice(0, 10))
+    await driver.go(point.x, point.z);
+  const ferry = PLATFORMS.find((p) => p.id === "ferry")!;
+  // Leave the dock while the shuttle is departing and deliberately miss it.
+  for (let frame = 0; frame < 400; frame++) {
+    const s = await state(page);
+    if (
+      platformPosition(ferry, s.time).x > 110 &&
+      s.time % ferry.moving!.period < 3.2
+    )
+      break;
+    await advance(page, 1);
+  }
+  await driver.go(99, -24);
+  await driver.stop(60);
+  const landed = await state(page);
+  expect(landed.grounded).toBe(true);
+  expect(landed.position.y).toBeLessThan(1);
+  expect(landed.falls).toBe(0);
+  await page.screenshot({ path: "test-results/missed-shuttle.png" });
+  // Rejoin the low garden path, then use its ramp back up to the arrival dock.
+  await driver.go(104, -7);
+  await page.screenshot({ path: "test-results/shuttle-recovery.png" });
+  for (const point of MAIN_ROUTE_WAYPOINTS.slice(12))
+    await driver.go(point.x, point.z);
+  expect((await state(page)).screen).toBe("finished");
+  expect((await state(page)).falls).toBe(0);
+  expect(errors).toEqual([]);
+});
+
 test("finish requires the route markers, not a grass bypass", async ({
   page,
 }) => {

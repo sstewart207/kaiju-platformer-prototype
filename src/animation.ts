@@ -26,6 +26,8 @@ export const SOLARGON: CharacterManifest = {
 };
 export class CharacterSprite {
   readonly sprite: THREE.Sprite;
+  readonly occludedSprite: THREE.Sprite;
+  private projected = new THREE.Vector3();
   private time = 0;
   private state: AnimationState = "idle";
   constructor(
@@ -48,6 +50,20 @@ export class CharacterSprite {
     );
     this.sprite.center.set(...manifest.groundAnchor);
     this.sprite.scale.setScalar(manifest.size);
+    // Show only the pixels hidden by closer geometry; visible sprite pixels
+    // retain their normal colors and depth. This does not alter collision.
+    this.occludedSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: texture,
+      color: "#fff0bc",
+      transparent: true,
+      opacity: 0.35,
+      alphaTest: 0.1,
+      depthTest: true,
+      depthWrite: false,
+      depthFunc: THREE.GreaterDepth,
+      toneMapped: false,
+    }));
+    this.occludedSprite.renderOrder = 1;
   }
   update(
     position: Vec3,
@@ -102,7 +118,7 @@ export class CharacterSprite {
           insetY,
       );
     }
-    const projected = new THREE.Vector3(
+    const projected = this.projected.set(
       position.x,
       position.y,
       position.z,
@@ -111,5 +127,8 @@ export class CharacterSprite {
     projected.y = Math.round(projected.y / pixelSize) * pixelSize;
     projected.applyMatrix4(camera.matrixWorld);
     this.sprite.position.copy(projected);
+    this.occludedSprite.position.copy(projected);
+    this.occludedSprite.scale.copy(this.sprite.scale);
+    this.occludedSprite.center.copy(this.sprite.center);
   }
 }

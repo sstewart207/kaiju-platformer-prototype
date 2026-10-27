@@ -71,7 +71,8 @@ export class Player {
     this.controller.setMaxSlopeClimbAngle(Math.PI / 4);
     this.controller.setMinSlopeSlideAngle(Math.PI / 3);
     this.controller.enableSnapToGround(0.14);
-    this.controller.enableAutostep(0.28, 0.2, true);
+    // Low paths sit 0.43 above the grass; missed shortcuts must be walkable to rejoin.
+    this.controller.enableAutostep(0.5, 0.2, true);
     physics.step();
   }
   get position(): Vec3 {

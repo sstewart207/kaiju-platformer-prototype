@@ -42,7 +42,7 @@ async function boot() {
     camera = new FollowCamera(),
     world = new RuinsWorld();
   const character = new CharacterSprite(SOLARGON, texture);
-  world.scene.add(character.sprite);
+  world.scene.add(character.sprite, character.occludedSprite);
   const shadow = new THREE.Mesh(
     new THREE.CircleGeometry(0.52, 20),
     new THREE.MeshBasicMaterial({
@@ -55,6 +55,7 @@ async function boot() {
   shadow.rotation.x = -Math.PI / 2;
   world.scene.add(shadow);
   const clock = new FixedClock();
+  const renderFocus = new THREE.Vector3();
   let time = 0,
     elapsed = 0,
     last = performance.now(),
@@ -213,7 +214,7 @@ async function boot() {
     world.update(
       Math.max(0, time - (1 - alpha) * FIXED_DT),
       physics,
-      new THREE.Vector3(position.x, position.y, position.z),
+      renderFocus.set(position.x, position.y, position.z),
     );
     ui.update(section, furthest, elapsed, player.dashCooldown, player.dashing);
     renderer.render(world.scene, camera.camera);
@@ -239,6 +240,20 @@ async function boot() {
     );
   }
   camera.update(SPAWN, { x: 0, y: 0, z: 0 }, 0, true);
+  // Upload textures and compile materials before accepting Start, rather than
+  // doing that work when their part of the course first enters the camera.
+  const textures = new Set<THREE.Texture>();
+  world.scene.traverse(object => {
+    if (!(object instanceof THREE.Mesh || object instanceof THREE.Sprite)) return;
+    for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
+      const map = (material as THREE.MeshLambertMaterial).map;
+      if (map) textures.add(map);
+    }
+  });
+  textures.forEach(texture => renderer.initTexture(texture));
+  await renderer.compileAsync(world.scene, camera.camera);
+  render(0, 1);
+  last = performance.now();
   ui.ready();
   requestAnimationFrame(frame);
   // Only the development server with ?test exposes deterministic browser-test controls.

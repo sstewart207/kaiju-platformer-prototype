@@ -13,6 +13,7 @@ import {
   ARCH_REMNANTS,
 } from "./course";
 import type { Physics } from "./physics";
+import { batchStaticBoxes } from "./scenery";
 
 function random(seed: number) {
   return () => {
@@ -167,12 +168,14 @@ export class RuinsWorld {
   private gate: THREE.Group;
   private motes: THREE.Points;
   private cloudGroups: THREE.Group[] = [];
+  private sunlight: THREE.DirectionalLight;
   constructor() {
     this.scene.background = new THREE.Color("#94ded0");
     this.scene.fog = new THREE.Fog("#94ded0", 40, 125);
     const hemi = new THREE.HemisphereLight("#ffffdf", "#648f7b", 1.6);
     this.scene.add(hemi);
     const sunlight = new THREE.DirectionalLight("#fff0bc", 1.8);
+    this.sunlight = sunlight;
     sunlight.position.set(-12, 28, 12);
     sunlight.castShadow = true;
     sunlight.shadow.mapSize.set(1024, 1024);
@@ -574,6 +577,7 @@ export class RuinsWorld {
       }),
     );
     this.scene.add(this.motes);
+    batchStaticBoxes(this.scene, boxGeo, new Set(this.moving.values()));
   }
   update(time: number, physics: Physics, focus: THREE.Vector3) {
     for (const platform of physics.platforms) {
@@ -585,9 +589,7 @@ export class RuinsWorld {
     }
     this.gate.rotation.y = 0;
     this.motes.position.set(focus.x, Math.sin(time * 0.3) * 0.4, focus.z);
-    const light = this.scene.children.find(
-      (item) => item instanceof THREE.DirectionalLight,
-    ) as THREE.DirectionalLight;
+    const light = this.sunlight;
     light.position.set(focus.x - 12, focus.y + 28, focus.z + 12);
     light.target.position.copy(focus);
     light.target.updateMatrixWorld();
