@@ -1,5 +1,7 @@
 # Project TODOs
 
+- [ ] Prepare a playable build that can be emailed to a tester, without requiring Git, Node.js or development setup. Confirm the recipient's device/OS first, including whether it is a Chromebook/ChromeOS device. Evaluate an Electron wrapper versus a browser/PWA distribution for that target; do not assume Electron is the right ChromeOS package. Bundle all required assets, include short launch/control instructions, check email attachment size limits, and validate the actual launch and DualSense play path on the target platform. If an attachment is unsuitable, provide a downloadable build or hosted play link that can be emailed instead.
+
 - [x] Remove remaining hint sentences and decorative section names after user correction. UI now uses functional labels, controls, time/results and buttons only; preserve this rule in future level/UI changes.
 
 - [ ] Choose a game title together. Current labels are placeholders: Untitled Kaiju Project / Ruins.
