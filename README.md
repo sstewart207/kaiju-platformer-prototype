@@ -1,36 +1,31 @@
 # Untitled kaiju platformer
 
-**[Play the game](https://sstewart207.github.io/kaiju-platformer-prototype/)** in Chrome or Edge. No account or installation needed.
+A browser platformer featuring Patrick's kaiju characters, with 3D ruins and pixel-art sprites. Solargon is playable now. The game has no final name yet.
 
-A browser platformer featuring Patrick's kaiju characters. Solargon is playable in the Ruins course. We haven't chosen the game's name yet.
+**[Play the public build](https://sstewart207.github.io/kaiju-platformer-prototype/)** in Chrome or Edge. No account or installation needed.
 
-![Current game](art/playtest/performance/default-1080p-start.png)
+![Public build](art/playtest/performance/default-1080p-start.png)
 
-## What's playable
+## Current state
 
-- A longer Ruins course with slalom walls, jumpable hurdles, a moving platform and two checkpoints.
-- Keyboard and DualSense controls, pause, restart and replay.
-- 1080p graphics with pixel-art characters.
-- One zombie kaiju encounter beside the starting route: dodge bites and fireballs, and dash through it twice to defeat it. Three hits return you to the last checkpoint.
+**Public build:** one single-player course with jumping, dashing, a moving platform, keyboard/DualSense controls and 1080p graphics.
 
-The walking route has been checked at **2 minutes 32 seconds**, up from about 40 seconds. Faster jump/dash routes and the optional fight change your time.
+**Awaiting review in [draft PR #2](https://github.com/sstewart207/kaiju-platformer-prototype/pull/2):** a longer course with a walking route checked at 2:32, two checkpoints, a zombie kaiju with bite/fireball attacks, and removal of HUD area labels and the visible timer. These changes are not live yet. Enemy sprites await Patrick's approval.
 
-The latest course test ran at 144 FPS on our development laptop. Chromebook performance and a real DualSense still need testing. Character artwork is a draft.
+Course tests run around 144 FPS on the development laptop. Chromebook performance and physical DualSense testing remain pending.
 
 ## Controls
 
 | Action | Keyboard | DualSense |
 | --- | --- | --- |
 | Move | WASD / arrows | Left stick / D-pad |
-| Jump | Space; hold to jump higher | Cross; hold to jump higher |
+| Jump | Space; hold for height | Cross; hold for height |
 | Dash | Shift | Square / R1 |
 | Pause | Escape | Options |
 | Restart | R | Triangle |
 
-## What's next
+## Next
 
-Improve movement, the course and the first enemy from playtest feedback. Character selection, more characters, more enemy types and co-op are planned; they aren't playable yet.
+Review the enemy artwork and playtest the longer course before publishing it. Character selection, more characters/enemies and co-op are planned.
 
-## Team notes
-
-[Test plan and shared feedback](TEST_PLAN.md) · [Current status](SITREP.md) · [To-do list](TODO.md) · [Developer setup and technical details](DEVELOPMENT.md)
+[Test plan](TEST_PLAN.md) · [Backlog](TODO.md) · [Developer setup](DEVELOPMENT.md)
