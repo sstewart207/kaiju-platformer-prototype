@@ -30,7 +30,10 @@ async function boot() {
     powerPreference: "high-performance",
   });
   renderer.setPixelRatio(1);
-  renderer.setSize(640, 360, false);
+  // Development-only comparison; the published pixel-art build stays at 640x360.
+  const renderHeight = import.meta.env.DEV &&
+    new URLSearchParams(location.search).get("render") === "1080" ? 1080 : 360;
+  renderer.setSize(renderHeight * 16 / 9, renderHeight, false);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -39,7 +42,7 @@ async function boot() {
   const physics = new Physics(),
     player = new Player(physics),
     input = new Input(),
-    camera = new FollowCamera(),
+    camera = new FollowCamera(renderHeight),
     world = new RuinsWorld();
   const character = new CharacterSprite(SOLARGON, texture);
   world.scene.add(character.sprite, character.occludedSprite);

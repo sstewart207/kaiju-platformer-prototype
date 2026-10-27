@@ -22,11 +22,19 @@ function summarize(frames: Frame[]) {
 test("real-time full-course frame pacing", async ({ page }) => {
   test.skip(!process.env.COURSE_BENCHMARK, "Opt-in hardware benchmark");
   test.setTimeout(120000);
+  const height = process.env.COURSE_RENDER_HEIGHT === "1080" ? 1080 : 360;
+  const viewport = height === 1080 ? {width: 1920, height: 1080} : {width: 1280, height: 720};
+  await page.setViewportSize(viewport);
   const errors: string[] = [];
   page.on("pageerror", e => errors.push(e.message));
   page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
-  await page.goto("/?test");
+  await page.goto(`/?test&render=${height}`);
   await page.waitForFunction(() => !!window.__solargon);
+  const resolution = await page.locator("#world").evaluate(el => {
+    const canvas = el as HTMLCanvasElement;
+    return {width: canvas.width, height: canvas.height};
+  });
+  expect(resolution).toEqual({width: height * 16 / 9, height});
   await page.evaluate(() => {
     window.__courseFrames = [];
     let last = 0;
@@ -69,7 +77,8 @@ test("real-time full-course frame pacing", async ({ page }) => {
   const frames = await page.evaluate(() => window.__courseFrames);
   const report = {
     label: process.env.COURSE_BENCHMARK,
-    environment: "Edge headless, 1280x720 viewport, 640x360 world; real-time keyboard walking route",
+    environment: `Edge headless, ${viewport.width}x${viewport.height} viewport, ${resolution.width}x${resolution.height} world; real-time keyboard walking route`,
+    resolution,
     gpu: await page.evaluate(() => window.__solargon.gpu()),
     elapsed: final.elapsed,
     fullCourse: summarize(frames),
@@ -84,7 +93,9 @@ test("real-time full-course frame pacing", async ({ page }) => {
 });
 
 test("capture front-wall occlusion for visual review", async ({ page }) => {
-  await page.goto("/?test");
+  const height = process.env.COURSE_RENDER_HEIGHT === "1080" ? 1080 : 360;
+  if (height === 1080) await page.setViewportSize({width: 1920, height: 1080});
+  await page.goto(`/?test&render=${height}`);
   await page.waitForFunction(() => !!window.__solargon);
   await page.evaluate(() => window.__solargon.manual(true));
   await page.getByRole("button", {name: "START", exact: true}).click();

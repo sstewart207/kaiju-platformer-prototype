@@ -44,3 +44,13 @@ Raw measurements: [baseline](art/playtest/performance/baseline.json), [candidate
 ![Front-wall visibility after](art/playtest/performance/occlusion-candidate.png)
 
 Repeat the hardware benchmark in PowerShell with `$env:COURSE_BENCHMARK='review'; npm run test:browser -- performance.spec.ts`. Production preview: `npm run preview -- --port 4173`.
+
+## 1080p comparison
+
+Development-only `?render=1080` renders the world at 1920 × 1080 and adjusts render-only pixel snapping to that resolution. Published/default rendering stays 640 × 360. Physics and artwork are unchanged.
+
+Full-course real-time run at a matching 1920 × 1080 browser viewport: **143.9 FPS average**, **7.0 ms p95**, **27.8 ms longest frame**, **zero frames over 33.4 ms**. Completed without falls or console errors. This meets 60 FPS on the tested RTX 5070 Ti laptop; Chromebook results remain untested.
+
+[Raw 1080p measurements](art/playtest/performance/1080p.json) · [1080p visual capture](art/playtest/performance/occlusion-1080p.png).
+
+Repeat with `$env:COURSE_RENDER_HEIGHT='1080'; $env:COURSE_BENCHMARK='1080p'; npm run test:browser -- performance.spec.ts`. With the development server running, compare `http://127.0.0.1:5173/` and `http://127.0.0.1:5173/?render=1080`.

@@ -1,0 +1,89 @@
+{
+  "label": "1080p",
+  "environment": "Edge headless, 1920x1080 viewport and world; real-time keyboard walking route",
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti Laptop GPU (0x00002F18) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "elapsed": 36.1666666666659,
+  "fullCourse": {
+    "frames": 5204,
+    "fps": 143.9230935168233,
+    "p95": 7,
+    "p99": 7.100000000002183,
+    "max": 27.800000000000068,
+    "over16ms": 1,
+    "over33ms": 0,
+    "averageDrawCalls": 189.89719446579554
+  },
+  "sections": [
+    {
+      "name": "Start",
+      "frames": 680,
+      "fps": 143.37219844398996,
+      "p95": 7,
+      "p99": 7.100000000000364,
+      "max": 27.800000000000068,
+      "over16ms": 1,
+      "over33ms": 0,
+      "averageDrawCalls": 158.8205882352941
+    },
+    {
+      "name": "Walls",
+      "frames": 969,
+      "fps": 144.00784686719774,
+      "p95": 7.099999999998545,
+      "p99": 7.100000000000364,
+      "max": 7.200000000000728,
+      "over16ms": 0,
+      "over33ms": 0,
+      "averageDrawCalls": 197.19195046439629
+    },
+    {
+      "name": "Ramp",
+      "frames": 699,
+      "fps": 144.00494437577257,
+      "p95": 7,
+      "p99": 7.100000000000364,
+      "max": 7.300000000001091,
+      "over16ms": 0,
+      "over33ms": 0,
+      "averageDrawCalls": 208.74964234620887
+    },
+    {
+      "name": "Platform",
+      "frames": 1248,
+      "fps": 144.0060925654547,
+      "p95": 7,
+      "p99": 7.100000000002183,
+      "max": 8.5,
+      "over16ms": 0,
+      "over33ms": 0,
+      "averageDrawCalls": 226.17628205128204
+    },
+    {
+      "name": "Garden",
+      "frames": 907,
+      "fps": 144.00711303050022,
+      "p95": 7,
+      "p99": 7.100000000002183,
+      "max": 8,
+      "over16ms": 0,
+      "over33ms": 0,
+      "averageDrawCalls": 177.80485115766263
+    },
+    {
+      "name": "Finish",
+      "frames": 701,
+      "fps": 144.00460157357378,
+      "p95": 7,
+      "p99": 7.100000000005821,
+      "max": 8,
+      "over16ms": 0,
+      "over33ms": 0,
+      "averageDrawCalls": 142.21825962910128
+    }
+  ],
+  "errors": []
+}

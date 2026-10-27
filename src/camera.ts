@@ -3,11 +3,12 @@ import type { Vec3 } from "./types";
 
 export class FollowCamera {
   readonly camera: THREE.OrthographicCamera;
-  readonly pixelSize = 18 / 360;
+  readonly pixelSize: number;
   private focus = new THREE.Vector3();
   private offset = new THREE.Vector3(0, 16, 20);
   private initialized = false;
-  constructor() {
+  constructor(renderHeight = 360) {
+    this.pixelSize = 18 / renderHeight;
     this.camera = new THREE.OrthographicCamera(
       (-18 * 16) / 9 / 2,
       (18 * 16) / 9 / 2,
