@@ -340,7 +340,7 @@ test("live rendering performance and a compact viewport", async ({ page }) => {
     ...(await state(page)),
     gpu: await page.evaluate(() => window.__solargon.gpu()),
     browser:
-      "Microsoft Edge headless, 1280 × 720 viewport, 640 × 360 WebGL canvas",
+      "Microsoft Edge headless, 1280 × 720 viewport, 1920 × 1080 WebGL canvas",
   };
   console.log("PERFORMANCE", JSON.stringify(performance));
   writeFileSync(

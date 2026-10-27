@@ -1,8 +1,8 @@
 # QA results — October 27, 2026
 
-Base: `c2a6265`. Fix remains local; GitHub Pages is unchanged.
+Base: `c2a6265`. Current approved build uses 1920 × 1080 by default. The earlier 640 × 360 measurements below are retained as historical evidence.
 
-## Fixed locally
+## Recovery fix
 
 Missing the shuttle lands on safe grass, but the lower path's 0.43-unit lip exceeded the controller's 0.28-unit automatic step height. Walking back onto the path was blocked.
 
@@ -45,12 +45,14 @@ Raw measurements: [baseline](art/playtest/performance/baseline.json), [candidate
 
 Repeat the hardware benchmark in PowerShell with `$env:COURSE_BENCHMARK='review'; npm run test:browser -- performance.spec.ts`. Production preview: `npm run preview -- --port 4173`.
 
-## 1080p comparison
+## Approved 1080p default
 
-Development-only `?render=1080` renders the world at 1920 × 1080 and adjusts render-only pixel snapping to that resolution. Published/default rendering stays 640 × 360. Physics and artwork are unchanged.
+1920 × 1080 is now the default in development and production. Camera/sprite pixel snapping follows that resolution. No query parameter is required; physics and artwork are unchanged.
+
+Final default-build verification: 25 unit/physics tests and all 14 browser checks passed, including the real-time full-course benchmark and production smoke test. The full-course run averaged **144.0 FPS**, with **7.0 ms p95**, **7.6 ms longest frame** and no frames over 16.7 ms. [Default-build measurements](art/playtest/performance/default-1080p.json).
 
 Full-course real-time run at a matching 1920 × 1080 browser viewport: **143.9 FPS average**, **7.0 ms p95**, **27.8 ms longest frame**, **zero frames over 33.4 ms**. Completed without falls or console errors. This meets 60 FPS on the tested RTX 5070 Ti laptop; Chromebook results remain untested.
 
 [Raw 1080p measurements](art/playtest/performance/1080p.json) · [1080p visual capture](art/playtest/performance/occlusion-1080p.png).
 
-Repeat with `$env:COURSE_RENDER_HEIGHT='1080'; $env:COURSE_BENCHMARK='1080p'; npm run test:browser -- performance.spec.ts`. With the development server running, compare `http://127.0.0.1:5173/` and `http://127.0.0.1:5173/?render=1080`.
+Repeat with `$env:COURSE_BENCHMARK='review'; npm run test:browser -- performance.spec.ts`. Local production preview: `http://127.0.0.1:4173/`. Public build: `https://sstewart207.github.io/kaiju-platformer-prototype/`.

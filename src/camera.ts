@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { Vec3 } from "./types";
+import { RENDER_HEIGHT } from "./rendering";
 
 export class FollowCamera {
   readonly camera: THREE.OrthographicCamera;
@@ -7,7 +8,7 @@ export class FollowCamera {
   private focus = new THREE.Vector3();
   private offset = new THREE.Vector3(0, 16, 20);
   private initialized = false;
-  constructor(renderHeight = 360) {
+  constructor(renderHeight = RENDER_HEIGHT) {
     this.pixelSize = 18 / renderHeight;
     this.camera = new THREE.OrthographicCamera(
       (-18 * 16) / 9 / 2,

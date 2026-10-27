@@ -1,8 +1,8 @@
 # Untitled kaiju platformer
 
-The game has no title yet. **Ruins** is the test course; **Solargon** is the current character. Public source: [sstewart207/kaiju-platformer-prototype](https://github.com/sstewart207/kaiju-platformer-prototype). See [SITREP.md](SITREP.md) and [the PDF recap](output/pdf/Build-SITREP.pdf) for the team recap.
+The game has no title yet. **Ruins** is the test course; **Solargon** is the current character. Public source: [sstewart207/kaiju-platformer-prototype](https://github.com/sstewart207/kaiju-platformer-prototype). See [SITREP.md](SITREP.md) for the team recap.
 
-A keyboard/DualSense 3D course starring Patrick's golden kaiju, Solargon. The world now sits on continuous solid ground, with low stone terraces and broad ramped connections. The camera faces the route so right input moves directly along its main axis. Animated transparent character artwork is rendered at 640 × 360.
+A keyboard/DualSense 3D course starring Patrick's golden kaiju, Solargon. The world sits on continuous solid ground, with low stone terraces and broad ramped connections. The camera faces the route so right input moves directly along its main axis. The approved default is **1920 × 1080 rendering** with crisp animated pixel-art characters. No URL option is needed. Display resolution does not change physics, collision size or movement speed.
 
 ## Play in Chrome
 
@@ -59,7 +59,7 @@ The redesigned ruins has a weaving gallery route, jumpable central breaks, raise
 
 Movement is **8.5 units/second**, up from 5.8. Dash is **16.5 units/second for 0.22 seconds**, with a **0.45-second interval between starts** and a small press buffer. Use **Shift** or DualSense **Square / R1**. Dash direction is committed for that burst; normal steering returns afterward. Jump-dash works, gravity/collision remain active, and holding a dash button does not auto-repeat. The HUD shows elapsed time and dash readiness.
 
-Verified automated route timings: **39.63 seconds** for the safe walking route with zero jumps; **37.42 seconds** for a jump/dash/shuttle route using five dashes. Shuttle arrival timing affects the advantage. These scripted runs are not human playtime or proof of fun; the team should playtest pace, readability and shortcuts.
+Verified deterministic route timings: **39.50 seconds** for the safe walking route with zero jumps; **37.35 seconds** for a jump/dash/shuttle route using five dashes. Shuttle arrival timing affects the advantage. These scripted runs are not human playtime or proof of fun.
 
 ## Implementation map
 
@@ -85,11 +85,13 @@ It reads the PNG and writes frame rectangles, measured ground anchors and edge-c
 ## Verified checkpoint
 
 - Production build and strict TypeScript checks pass.
-- **24 unit/physics tests pass**, covering movement, collision, platform carry, render-rate independence, controller input, idle stability, dash distance, repeat/cooldown behavior and thin-wall collision at dash speed.
-- **10 browser scenarios pass**, including both safe keyboard routes, the faster jump/dash/shuttle route, ordered route checks, live performance, compact UI, keyboard dash and synthetic DualSense dash/menu/reconnect/noise tests. Physical USB/Bluetooth playtesting remains pending.
+- **25 unit/physics tests pass**, covering movement, collision, platform carry, render-rate independence, controller input, idle stability, dash distance, repeat/cooldown behavior, thin-wall collision and walking back onto low paths from grass.
+- Browser checks cover both keyboard routes, the faster jump/dash/shuttle route, missed-shuttle recovery to the finish, ordered route checks, performance, compact UI and synthetic DualSense input. A visual capture checks character occlusion. Hosted launch and the full-course hardware benchmark are opt-in. Physical USB/Bluetooth playtesting remains pending.
 - The console-error/page-error capture in the live rendering test is empty. The live in-app browser was also checked for movement, jumping and presentation.
-- Five-second courtyard benchmark: approximately **240 FPS**, 4.3 ms 95th-percentile frame interval, Microsoft Edge headless at 1280 × 720, WebGL canvas at 640 × 360, NVIDIA RTX 5070 Ti Laptop GPU via Direct3D 11. This measures the courtyard, not the whole course or every browser. Test output is copied to `art/playtest/performance.json`.
+- Full-course 1080p benchmark: **143.9 FPS average**, **7.0 ms p95**, no frames over 33.4 ms in the measured run. Edge headless, 1920 × 1080 viewport/render buffer, RTX 5070 Ti Laptop GPU. This is this laptop's result; Chromebook performance remains untested. Measurements and visual comparisons are in [QA_RESULTS.md](QA_RESULTS.md).
 - Screenshots are preserved under `art/playtest/`.
+
+Rendering dimensions are defined in `src/rendering.ts`. Camera/sprite pixel snapping follows the 1080p buffer. Static scenery is batched, textures/materials warm up before Start, and a faint silhouette keeps Solargon visible behind walls. To repeat the real-time full-course benchmark in PowerShell: `$env:COURSE_BENCHMARK='review'; npm run test:browser -- performance.spec.ts`.
 
 ## Artwork and milestone limits
 

@@ -19,7 +19,7 @@ The subsequent level-design pass adds raised shuttle docks, a longer lower-garde
 
 Use an elevated orthographic camera aligned to the movement axes, substantial readable silhouettes, warm stone, restrained foliage and turquoise distance fog. Characters should retain the rounded, compact proportions of the source designs, translated into pixel clusters rather than photographic plush textures.
 
-![Current course presentation](art/playtest/courtyard.png)
+![Current course presentation](art/playtest/performance/default-1080p-start.png)
 
 ![Current Solargon animation draft](public/assets/solargon-atlas-v2.png)
 
@@ -30,7 +30,7 @@ The course screenshot establishes camera composition, character-to-platform scal
 | Item | Current implementation |
 | --- | --- |
 | World | Three.js 3D geometry, Rapier collision |
-| Internal resolution | 640 × 360, nearest-neighbor display scaling |
+| Internal resolution | 1920 × 1080; crisp sprite textures and nearest-neighbor display scaling |
 | Camera | Orthographic, 18 world units vertically, 16:9; offset (0, 16, 20) |
 | Camera behavior | Fixed orientation aligned with world X/Z movement; responsive tracking without velocity look-ahead; screen-plane pixel snapping |
 | Sprite behavior | Camera-facing transparent sprite, per-frame rectangles and ground anchors; render-only pixel snapping |
@@ -88,7 +88,7 @@ Graviton: bottom-center panel. Toxicraven: top-right panel. Other panels are not
 ## Sprite production requirements
 
 - Use transparent PNG initially; WebP with alpha is supported by the runtime. No background, baked ground shadow, text, border, checkerboard, or promotional graphics.
-- Draw crisp pixel clusters with a limited character-specific palette and a dark colored outline. Simplify tiny scales and galaxy speckles so they survive the 640 × 360 render. No soft image upscaling or photographic fabric texture.
+- Draw crisp pixel clusters with a limited character-specific palette and a dark colored outline. Keep tiny scales and galaxy speckles readable at the character's actual screen size in the 1920 × 1080 render. No soft image upscaling or photographic fabric texture.
 - Use consistent anatomy in every view and pose. Do not mirror asymmetric design details without checking the original reference. Keep the complete silhouette inside its frame.
 - For new finished movement sheets, use **96 × 96 cells, 9 columns × 4 rows**: 864 × 384 pixels. Keep at least 12 pixels of transparent padding on every edge; planted feet share baseline y = 83. A working generated candidate may be larger, but must be inspected and supplied with correct frame rectangles before use.
 - Direction rows are **right, left, front, back**. All directions use the same scale and a slightly elevated viewing angle consistent with the scene.

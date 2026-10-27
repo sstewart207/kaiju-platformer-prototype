@@ -1,54 +1,32 @@
-# Untitled kaiju project build recap
+# Kaiju project status
 
-October 26, 2026 · For Patrick, Nicole and the team
+October 27, 2026 · Game title undecided
 
-The current build is a playable single-player browser prototype with Solargon, a redesigned ground-based ruins course, faster movement and a repeatable dash. The game does not have a title yet. **Ruins** is the course label; **kaiju-platformer-prototype** is the GitHub repository label.
+**Status:** Playable single-player browser prototype. Solargon is the only implemented character. The Ruins course is ready for team playtesting.
 
-## What is playable now
+**Play:** https://sstewart207.github.io/kaiju-platformer-prototype/
 
-- Real 3D terrain and collision, animated 2D character artwork, an elevated fixed camera, and 640 × 360 pixel rendering.
-- Keyboard and DualSense movement, variable-height jumping, pause, restart, finish/replay, a live timer and dash readiness.
-- Continuous safe ground, distinct courtyards, a walled gallery, raised shuttle docks, a lower garden route and a final hurdle lane.
-- Ordered visible route markers: the finish requires completing the course, rather than cutting straight across the grass.
+**Source:** https://github.com/sstewart207/kaiju-platformer-prototype
 
-## What changed in this pass
+## Current build
 
-Movement speed increased from **5.8 to 8.5 units/second**, about 46% faster. Dash reaches **16.5 units/second** for roughly **0.22 seconds**, with a **0.45-second interval between starts**. Repeated presses and jump-dash combinations work; dash still respects collision and does not grant flight or invulnerability.
+- Ground-based 3D ruins with pixel-art character sprites, a safe walking route, and optional jump/shuttle shortcuts. Approved default: 1920 × 1080 rendering.
+- Keyboard and DualSense controls; movement, variable-height jump, repeatable dash, timer, pause, restart and replay.
+- Full-course 1080p test: 143.9 FPS average on Shane's laptop. Wall occlusion and grass-to-path recovery fixes are included.
+- Build and automated movement, collision, controller-input and route checks pass. The public build was checked without signing in. Actual Chromebook performance and physical DualSense testing remain pending.
 
-The level was redesigned rather than keeping floating platforms with grass underneath. The gallery offers a safe weaving route and a straighter jump line. The shuttle now connects elevated docks without a walkable bridge beneath it; the alternate ground route makes a longer garden dogleg. The finale offers hurdles or a wider side lane. Missing an upper route lands on safe grass.
+## Decisions and limits
 
-The level-design subagent built the revised course and shared geometry data; the main agent integrated physics, route checks, movement, UI and browser verification. These are implementation and traversal checks, not a substitute for the team's judgment of fun.
+- Keep the world grounded and controls aligned with the camera. Interface text is limited to functional labels, controls and results.
+- Preserve the original character designs. Solargon's sprites remain a draft with anatomy/edge cleanup needed; jump and fall share a pose.
+- Planned roster: Solargon, Voidra, Graviton, Toxicraven and provisional fifth character Blizzardon.
+- Not implemented: character selection, other playable characters, elemental abilities, zombies/combat, coins, health/checkpoints, ramen rewards or multiplayer. A ramen bowl remains the planned chapter-completion reward.
 
-## Controls
+## Next actions
 
-| Action | Keyboard | DualSense |
-| --- | --- | --- |
-| Move | WASD / arrows | Left stick / D-pad |
-| Jump | Space; hold for height | Cross; hold for height |
-| Dash | Shift | Square or R1 |
-| Pause / resume | Escape | Options |
-| Select / back | Click menu buttons | Cross / Circle |
-| Restart | R | Triangle |
+1. Patrick/Nicole test the Chromebook build: movement/stopping, dash, controller drift, performance, route clarity and shuttle usefulness. Record issues in PLAYTEST.md.
+2. Fix playtest issues before expanding the build.
+3. Scope character selection and zombie designs, animations and gameplay. Plan simultaneous LAN co-op rooms/joining and synchronization before implementing networking.
+4. Choose the game's name together.
 
-## Validation and limits
-
-The production build, 24 unit/physics tests and 10 browser scenarios pass. Tests cover movement, dash repetition/cooldown, walls, drift filtering, menus, reconnects and complete routes. The safe walking route took 39.63 seconds; a jump/dash/shuttle route took 37.42 seconds with five dashes and zero falls. These are automated simulated runs, not human playtime or proof of fun. The courtyard benchmark remains about 240 FPS on the RTX 5070 Ti laptop in Edge headless at 640 x 360 internal resolution.
-
-Solargon is the only implemented character. His sprite sheet is still a generated draft: anatomy and frame edges need cleanup, and jump/fall share a pose. Combat, elemental powers, coins, zombies, health, checkpoints, ramen rewards and multiplayer are not implemented. Physical DualSense USB/Bluetooth feel still needs the team's playtest.
-
-## Next work
-
-1. Playtest the new pace, dash rhythm, gallery choices and shuttle timing. Check that a missed shortcut is easy to recover from.
-2. Add a character selection screen as the other characters' artwork and abilities become available. Planned roster: Solargon, Voidra, Graviton, Toxicraven and provisional fifth character Blizzardon.
-3. Design zombie enemies, produce their animation states, then implement and test behavior and player interactions.
-4. Write a LAN/browser co-op plan: multiple PCs, simultaneous kaijus in one level, rooms/joining/local matchmaking, host/server ownership, synchronization and reconnects. Networking implementation comes after that plan.
-5. Choose the game's name together. Continue using the neutral working label until then.
-
-## Project references
-
-- Public source repository: https://github.com/sstewart207/kaiju-platformer-prototype
-- Play in Chrome without signing in: https://sstewart207.github.io/kaiju-platformer-prototype/
-- GitHub Actions builds the game and GitHub Pages hosts the single-player playtest. The link can be emailed to the Chromebook tester. Physical Chromebook performance/controller testing is pending; LAN co-op is not implemented.
-- Local development remains available with `npm install` then `npm run dev`.
-- Concept source: the user-supplied `patricks kaiju download (1).docx` in Downloads. The original concepts remain the character identity reference.
-- `ART_DIRECTION.md`: visual reference and sprite requirements. `LEVEL_DESIGN.md`: ruins layout and route intent. `PLAYTEST.md`: controller/tester checklist. `TODO.md`: next work.
+**Working references:** ART_DIRECTION.md for visuals; LEVEL_DESIGN.md for the course; TODO.md for the backlog. Original concepts: patricks kaiju download (1).docx in Downloads.

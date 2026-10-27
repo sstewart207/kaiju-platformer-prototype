@@ -22,13 +22,13 @@ function summarize(frames: Frame[]) {
 test("real-time full-course frame pacing", async ({ page }) => {
   test.skip(!process.env.COURSE_BENCHMARK, "Opt-in hardware benchmark");
   test.setTimeout(120000);
-  const height = process.env.COURSE_RENDER_HEIGHT === "1080" ? 1080 : 360;
-  const viewport = height === 1080 ? {width: 1920, height: 1080} : {width: 1280, height: 720};
+  const height = 1080;
+  const viewport = {width: 1920, height: 1080};
   await page.setViewportSize(viewport);
   const errors: string[] = [];
   page.on("pageerror", e => errors.push(e.message));
   page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
-  await page.goto(`/?test&render=${height}`);
+  await page.goto("/?test");
   await page.waitForFunction(() => !!window.__solargon);
   const resolution = await page.locator("#world").evaluate(el => {
     const canvas = el as HTMLCanvasElement;
@@ -93,9 +93,8 @@ test("real-time full-course frame pacing", async ({ page }) => {
 });
 
 test("capture front-wall occlusion for visual review", async ({ page }) => {
-  const height = process.env.COURSE_RENDER_HEIGHT === "1080" ? 1080 : 360;
-  if (height === 1080) await page.setViewportSize({width: 1920, height: 1080});
-  await page.goto(`/?test&render=${height}`);
+  await page.setViewportSize({width: 1920, height: 1080});
+  await page.goto("/?test");
   await page.waitForFunction(() => !!window.__solargon);
   await page.evaluate(() => window.__solargon.manual(true));
   await page.getByRole("button", {name: "START", exact: true}).click();

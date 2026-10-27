@@ -30,7 +30,7 @@ test("published game opens anonymously with assets, controls and pause", async (
   expect(await page.locator("#world").evaluate(el => {
     const canvas = el as HTMLCanvasElement;
     return { width: canvas.width, height: canvas.height };
-  })).toEqual({ width: 640, height: 360 });
+  })).toEqual({ width: 1920, height: 1080 });
   expect(await page.evaluate(() => typeof window.__solargon)).toBe("undefined");
   await expect(
     page.getByRole("heading", { name: "UNTITLED", exact: true }),

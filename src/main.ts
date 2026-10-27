@@ -18,6 +18,7 @@ import { FINISH, PLATFORMS, SPAWN, COURSE_GATES } from "./course";
 import { UI } from "./ui";
 import { FixedClock } from "./timestep";
 import type { Vec3 } from "./types";
+import { RENDER_WIDTH, RENDER_HEIGHT } from "./rendering";
 
 const ui = new UI();
 async function boot() {
@@ -30,10 +31,7 @@ async function boot() {
     powerPreference: "high-performance",
   });
   renderer.setPixelRatio(1);
-  // Development-only comparison; the published pixel-art build stays at 640x360.
-  const renderHeight = import.meta.env.DEV &&
-    new URLSearchParams(location.search).get("render") === "1080" ? 1080 : 360;
-  renderer.setSize(renderHeight * 16 / 9, renderHeight, false);
+  renderer.setSize(RENDER_WIDTH, RENDER_HEIGHT, false);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -42,7 +40,7 @@ async function boot() {
   const physics = new Physics(),
     player = new Player(physics),
     input = new Input(),
-    camera = new FollowCamera(renderHeight),
+    camera = new FollowCamera(),
     world = new RuinsWorld();
   const character = new CharacterSprite(SOLARGON, texture);
   world.scene.add(character.sprite, character.occludedSprite);
