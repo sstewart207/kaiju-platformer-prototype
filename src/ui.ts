@@ -1,4 +1,3 @@
-import { SECTIONS } from "./course";
 export type Screen = "title" | "playing" | "paused" | "finished";
 function element<T extends HTMLElement = HTMLElement>(id: string) {
   return document.getElementById(id) as T;
@@ -14,6 +13,7 @@ export class UI {
   private unsupported = false;
   private selection = 0;
   private readyToStart = false;
+  private health = -1;
   constructor() {
     element("primary-button").onclick = () =>
       this.screen === "paused"
@@ -36,6 +36,15 @@ export class UI {
     const button = element<HTMLButtonElement>("primary-button");
     button.disabled = false;
     button.textContent = "START";
+  }
+  updateHealth(health: number) {
+    if (health === this.health) return;
+    this.health = health;
+    const display = element("health");
+    display.textContent = Array.from({ length: 3 }, (_, i) =>
+      i < health ? "♥" : "♡",
+    ).join(" ");
+    display.setAttribute("aria-label", `Health ${health} of 3`);
   }
   confirm() {
     if (this.screen === "playing" || !this.readyToStart) return;
@@ -74,11 +83,11 @@ export class UI {
           ? "✕ Select · ○ Back · Options Pause · △ Restart"
           : "WASD / arrows Move · Space Jump · Shift Dash · Esc Pause";
   }
-  show(screen: Screen, time = 0, falls = 0) {
+  show(screen: Screen, falls = 0) {
     this.screen = screen;
     const playing = screen === "playing";
     element("overlay").hidden = playing;
-    for (const id of ["hud", "location", "controls"])
+    for (const id of ["hud", "controls"])
       element(id).hidden = !playing;
     if (playing) {
       element<HTMLButtonElement>("primary-button").blur();
@@ -95,8 +104,7 @@ export class UI {
     } else if (screen === "finished") {
       element("menu-title").textContent = "COMPLETE";
       element("menu-subtitle").textContent = "RUINS";
-      element("menu-description").textContent =
-        `Time ${formatTime(time)} · Falls ${falls}`;
+      element("menu-description").textContent = `Falls ${falls}`;
       element("primary-button").textContent = "PLAY AGAIN";
       element("announcer").textContent = "Course complete.";
     }
@@ -104,22 +112,7 @@ export class UI {
     this.updateFooter();
     element("primary-button").focus();
   }
-  update(
-    section: number,
-    progress: number,
-    time = 0,
-    dashCooldown = 0,
-    dashing = false,
-  ) {
-    const info = SECTIONS[section];
-    element("location-number").textContent = String(section + 1).padStart(
-      2,
-      "0",
-    );
-    element("location-name").textContent = info.name;
-    element("progress-fill").style.width =
-      `${Math.min(100, Math.max(0, progress * 100))}%`;
-    element("run-time").textContent = formatTime(time);
+  update(dashCooldown = 0, dashing = false) {
     element("dash-status").textContent = dashing
       ? "DASH"
       : dashCooldown > 0.001
@@ -133,7 +126,7 @@ export class UI {
     setTimeout(() => {
       element("fade").style.opacity = "0";
     }, 180);
-    element("announcer").textContent = "Returned to the courtyard.";
+    element("announcer").textContent = "Respawned.";
   }
   error(message: string) {
     element("menu-eyebrow").textContent = "";
@@ -142,7 +135,4 @@ export class UI {
     element("menu-description").textContent = message;
     element("primary-button").hidden = true;
   }
-}
-function formatTime(time: number) {
-  return `${Math.floor(time / 60)}:${(time % 60).toFixed(2).padStart(5, "0")}`;
 }

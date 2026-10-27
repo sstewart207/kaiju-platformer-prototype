@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { writeFileSync } from "node:fs";
+import { EXTENSION_ROUTE_WAYPOINTS } from "../../src/course-extension";
 import {
   PLATFORMS,
   MAIN_ROUTE_WAYPOINTS,
@@ -27,6 +28,7 @@ interface State {
   dashing: boolean;
   landings: number;
   gatesPassed: number;
+  checkpoint: number;
 }
 interface Debug {
   state: () => State;
@@ -46,8 +48,8 @@ async function state(page: Page) {
 async function advance(page: Page, frames = 1) {
   await page.evaluate((n) => window.__solargon.advance(n), frames);
 }
-async function boot(page: Page) {
-  await page.goto("/?test");
+async function boot(page: Page, enemyPreview = false) {
+  await page.goto(enemyPreview ? "/?test&enemies=1" : "/?test");
   await page.waitForFunction(() => !!window.__solargon);
   await page.evaluate(() => window.__solargon.manual(true));
   await page.getByRole("button", { name: "START" }).click();
@@ -79,6 +81,7 @@ class Driver {
   }
   async go(x: number, z: number, jump = false, maxFrames = 400) {
     let didJump = false;
+    const startingFalls = (await state(this.page)).falls;
     for (let frame = 0; frame < maxFrames; frame += 3) {
       const s = await state(this.page);
       const dx = x - s.position.x,
@@ -99,7 +102,7 @@ class Driver {
       await advance(this.page, 3);
       if (jump && !s.grounded) didJump = true;
       const next = await state(this.page);
-      if (next.falls > 0)
+      if (next.falls > startingFalls)
         throw new Error(`Fell approaching ${x},${z}: ${JSON.stringify(next)}`);
       if (next.screen === "finished") return;
     }
@@ -164,6 +167,8 @@ for (const arrows of [false, true])
     expect(final.falls).toBe(0);
     expect(final.jumps).toBe(0);
     expect(final.gatesPassed).toBe(COURSE_GATES.length);
+    expect(final.elapsed).toBeGreaterThan(120);
+    expect(final.checkpoint).toBe(1);
     safeRouteSeconds = final.elapsed;
     console.log(
       `Ground route ${arrows ? "arrows" : "WASD"}: ${final.elapsed.toFixed(2)} seconds`,
@@ -176,6 +181,45 @@ for (const arrows of [false, true])
     expect((await state(page)).position.x).toBeCloseTo(-2.5);
     expect(errors).toEqual([]);
   });
+test("checkpoints recover falls and combat defeats without losing the whole run", async ({
+  page,
+}) => {
+  await boot(page, true);
+  const driver = new Driver(page);
+  for (const point of MAIN_ROUTE_WAYPOINTS.slice(0, 20))
+    await driver.go(point.x, point.z);
+  expect((await state(page)).checkpoint).toBe(0);
+  const before = (await state(page)).elapsed;
+  await page.evaluate(() =>
+    window.__solargon.teleport({ x: -160, y: -13, z: 30 }),
+  );
+  await advance(page, 1);
+  expect((await state(page)).position.x).toBeCloseTo(192);
+  expect((await state(page)).gatesPassed).toBe(6);
+  expect((await state(page)).elapsed).toBeGreaterThanOrEqual(before);
+  // Die to the real enemy after activating a checkpoint: recover there, not at spawn.
+  await page.evaluate(() =>
+    window.__solargon.teleport({ x: 13, y: 0.75, z: -11 }),
+  );
+  await advance(page, 600);
+  expect((await state(page)).position.x).toBeCloseTo(192);
+  for (const point of EXTENSION_ROUTE_WAYPOINTS.slice(1)) {
+    await driver.go(point.x, point.z);
+    if ((await state(page)).checkpoint === 1) break;
+  }
+  expect((await state(page)).checkpoint).toBe(1);
+  await page.evaluate(() =>
+    window.__solargon.teleport({ x: -160, y: -13, z: 30 }),
+  );
+  await advance(page, 1);
+  expect((await state(page)).position.x).toBeCloseTo(324);
+  expect((await state(page)).position.z).toBeCloseTo(-72);
+  await page.keyboard.press("KeyR");
+  await advance(page, 20);
+  expect((await state(page)).checkpoint).toBe(-1);
+  expect((await state(page)).position.x).toBeCloseTo(-2.5);
+});
+
 test("jump and shuttle shortcuts beat the safe ground route", async ({
   page,
 }) => {
@@ -251,7 +295,8 @@ test("jump and shuttle shortcuts beat the safe ground route", async ({
     await page.keyboard.press("ShiftLeft");
     await driver.go(gap.landing.x, gap.landing.z, true);
   }
-  await driver.go(FINISH.x, FINISH.z);
+  for (const point of EXTENSION_ROUTE_WAYPOINTS)
+    await driver.go(point.x, point.z);
   const final = await state(page);
   expect(final.screen).toBe("finished");
   expect(final.falls).toBe(0);

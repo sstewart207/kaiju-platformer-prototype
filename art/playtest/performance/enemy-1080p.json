@@ -1,0 +1,89 @@
+{
+  "label": "enemy-1080p",
+  "environment": "Edge headless, 1920x1080 viewport, 1920x1080 world; real-time keyboard walking route",
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti Laptop GPU (0x00002F18) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "elapsed": 35.73333333333259,
+  "fullCourse": {
+    "frames": 5135,
+    "fps": 143.75337687460282,
+    "p95": 7.099999999999909,
+    "p99": 7.299999999999272,
+    "max": 27.799999999999955,
+    "over16ms": 2,
+    "over33ms": 0,
+    "averageDrawCalls": 190.9209347614411
+  },
+  "sections": [
+    {
+      "name": "Start",
+      "frames": 690,
+      "fps": 142.15373205051608,
+      "p95": 7.099999999999909,
+      "p99": 7.300000000000182,
+      "max": 27.799999999999955,
+      "over16ms": 2,
+      "over33ms": 0,
+      "averageDrawCalls": 162.92753623188406
+    },
+    {
+      "name": "Walls",
+      "frames": 958,
+      "fps": 144.00601277715145,
+      "p95": 7.099999999999454,
+      "p99": 7.199999999998909,
+      "max": 7.300000000001091,
+      "over16ms": 0,
+      "over33ms": 0,
+      "averageDrawCalls": 197.61899791231733
+    },
+    {
+      "name": "Ramp",
+      "frames": 710,
+      "fps": 144.00162255349352,
+      "p95": 7.099999999998545,
+      "p99": 7.100000000000364,
+      "max": 8.299999999999272,
+      "over16ms": 0,
+      "over33ms": 0,
+      "averageDrawCalls": 208.88450704225352
+    },
+    {
+      "name": "Platform",
+      "frames": 1229,
+      "fps": 144.00543682039748,
+      "p95": 7.099999999998545,
+      "p99": 7.299999999999272,
+      "max": 7.799999999999272,
+      "over16ms": 0,
+      "over33ms": 0,
+      "averageDrawCalls": 226.57363710333604
+    },
+    {
+      "name": "Garden",
+      "frames": 859,
+      "fps": 144.00670578373848,
+      "p95": 7.099999999998545,
+      "p99": 7.30000000000291,
+      "max": 7.700000000000728,
+      "over16ms": 0,
+      "over33ms": 0,
+      "averageDrawCalls": 178.9685681024447
+    },
+    {
+      "name": "Finish",
+      "frames": 689,
+      "fps": 144.00367846841945,
+      "p95": 7.100000000005821,
+      "p99": 7.399999999994179,
+      "max": 9.5,
+      "over16ms": 0,
+      "over33ms": 0,
+      "averageDrawCalls": 142.43686502177067
+    }
+  ],
+  "errors": []
+}

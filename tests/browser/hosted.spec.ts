@@ -10,6 +10,11 @@ test("published game opens anonymously with assets, controls and pause", async (
   );
   const target = new URL(process.env.PLAYTEST_URL!);
   const errors: string[] = [];
+  const enemyRequests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("zombie-walker-atlas"))
+      enemyRequests.push(request.url());
+  });
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
@@ -32,12 +37,15 @@ test("published game opens anonymously with assets, controls and pause", async (
   ).toBeVisible();
   await page.getByRole("button", { name: "START", exact: true }).click();
   await expect(page.locator("#hud")).toBeVisible();
-  expect(await page.locator("#world").evaluate(el => {
-    const canvas = el as HTMLCanvasElement;
-    return { width: canvas.width, height: canvas.height };
-  })).toEqual({ width: 1920, height: 1080 });
+  await expect(page.locator("#health")).toBeHidden();
+  expect(
+    await page.locator("#world").evaluate((el) => {
+      const canvas = el as HTMLCanvasElement;
+      return { width: canvas.width, height: canvas.height };
+    }),
+  ).toEqual({ width: 1920, height: 1080 });
   expect(await page.evaluate(() => typeof window.__solargon)).toBe("undefined");
-  await expect(page.locator("#run-time")).not.toHaveText("0:00.00");
+  await expect(page.locator("#run-time, #location, .stage")).toHaveCount(0);
   await page.keyboard.down("KeyD");
   await page.keyboard.down("ShiftLeft");
   await expect(page.locator("#dash-status")).toHaveText("DASH");
@@ -53,5 +61,6 @@ test("published game opens anonymously with assets, controls and pause", async (
   await expect(page.locator("#hud")).toBeVisible();
   await expect(page.locator("#controls")).toContainText("SHIFT");
   expect(errors).toEqual([]);
+  expect(enemyRequests).toEqual([]);
   await page.screenshot({ path: "test-results/public-playtest.png" });
 });

@@ -53,7 +53,7 @@ The redesigned ruins has a weaving gallery route, jumpable central breaks, raise
 
 Movement is **8.5 units/second**, up from 5.8. Dash is **16.5 units/second for 0.22 seconds**, with a **0.45-second interval between starts** and a small press buffer. Use **Shift** or DualSense **Square / R1**. Dash direction is committed for that burst; normal steering returns afterward. Jump-dash works, gravity/collision remain active, and holding a dash button does not auto-repeat. The HUD shows elapsed time and dash readiness.
 
-Verified deterministic route timings: **39.50 seconds** for the safe walking route with zero jumps; **37.35 seconds** for a jump/dash/shuttle route using five dashes. Shuttle arrival timing affects the advantage. These scripted runs are not human playtime or proof of fun.
+The extended walking route is verified at **152.10 seconds** with no jumps or falls. The earlier 39.50-second walking / 37.35-second shortcut measurements describe the superseded short layout. These scripted runs are geometry/input checks, not measured human playtime. See LEVEL_DESIGN.md and QA_RESULTS.md for the current layout and validation.
 
 ## Implementation map
 
@@ -79,7 +79,7 @@ It reads the PNG and writes frame rectangles, measured ground anchors and edge-c
 ## Verified checkpoint
 
 - Production build and strict TypeScript checks pass.
-- **25 unit/physics tests pass**, covering movement, collision, platform carry, render-rate independence, controller input, idle stability, dash distance, repeat/cooldown behavior, thin-wall collision and walking back onto low paths from grass.
+- **31 unit/physics tests pass**, covering movement, collision, platform carry, render-rate independence, controller input, idle stability, dash distance, repeat/cooldown behavior, thin-wall collision, grass recovery and enemy melee/fireball behavior.
 - Browser checks cover both keyboard routes, the faster jump/dash/shuttle route, missed-shuttle recovery to the finish, ordered route checks, performance, compact UI and synthetic DualSense input. A visual capture checks character occlusion. Hosted launch and the full-course hardware benchmark are opt-in. Physical USB/Bluetooth playtesting remains pending.
 - The console-error/page-error capture in the live rendering test is empty. The live in-app browser was also checked for movement, jumping and presentation.
 - Full-course 1080p benchmark: **143.9 FPS average**, **7.0 ms p95**, no frames over 33.4 ms in the measured run. Edge headless, 1920 × 1080 viewport/render buffer, RTX 5070 Ti Laptop GPU. This is this laptop's result; Chromebook performance remains untested. Measurements and visual comparisons are in [QA_RESULTS.md](QA_RESULTS.md).
@@ -91,12 +91,12 @@ Rendering dimensions are defined in `src/rendering.ts`. Camera/sprite pixel snap
 
 The sprite atlas is a generated **draft for visual review**. All four directions and five movement states are connected. Falling currently shares the jump pose. Idle/run movement is subtle; wing/leg counts and silhouettes are not perfectly consistent between generated frames. Some wings/tails reach cell boundaries (recorded by the audit), so minor edge clipping remains. A final artist-cleaned sprite pass should provide consistent anatomy, clear run timing, separate falling frames, and transparent padding around every frame.
 
-There is no audio, combat, elemental ability, coin collection, health system, checkpoint, touch support or chapter reward in this milestone. Those belong to the next stage after movement and visual review. DualSense input was added as a requested follow-up. The supplied five-character/chapter prompt is preserved as the next-stage direction; this build intentionally stops at the approved Solargon course.
+The public course includes two checkpoints. One bite/fireball enemy and three-hit player health are development-only prototypes: run `npm run dev` and open `http://127.0.0.1:5173/?enemies=1` to preview them. Production builds ignore this flag and do not load the enemy atlas, render enemies or enable their collisions/attacks. Patrick will decide between dragons and zombies before further enemy work. Audio, elemental abilities, coins, touch support, chapter rewards, other playable characters and multiplayer remain unimplemented.
 
 The production bundle includes Rapier's inline WebAssembly, so Vite reports a large chunk warning. It is functional and served locally; optimizing first-download size can wait until deployment is in scope.
 
 ## Next review
 
-Play the redesigned course and review Solargon's silhouette, dash/jump rhythm, route readability, and whether catching the shuttle feels worthwhile. Character selection, zombie design/animation/gameplay, and LAN/browser co-op planning are recorded in TODO.md; they are not implemented yet. GitHub Pages hosts the current single-player build; multiplayer is not implemented.
+Play the redesigned course and review Solargon's silhouette, dash/jump rhythm, route readability, and whether catching the shuttle feels worthwhile. Character selection, final enemy design/animation/gameplay, and LAN/browser co-op planning are recorded in TODO.md. GitHub Pages hosts the current single-player build; multiplayer is not implemented.
 
 Use [ART_DIRECTION.md](ART_DIRECTION.md) for future character artwork: it includes original references, character-specific features, rendering constants, sprite requirements and integration checks. Requested follow-ups are tracked in [TODO.md](TODO.md).

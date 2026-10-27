@@ -87,6 +87,14 @@ Graviton: bottom-center panel. Toxicraven: top-right panel. Other panels are not
 
 ## Sprite production requirements
 
+### Enemy concepts (type undecided)
+
+Patrick still needs to choose dragons or zombies. The existing undead-kaiju concepts and animation atlas are prototype studies, not approved production assets. Keep them saved; do not generate replacements or expand the roster until that decision.
+
+The zombie prototype uses magical undead dragons/kaijus, not humans in torn clothes: reptilian muzzles, horns, clawed limbs, tails and damaged wings. Basic attacks are a bite/claw strike and mouth-fired fireballs. The three [v2 concepts](art/concepts/zombies/zombie-kaiju-concepts-v2.png) are exploratory. Preserve clear attack silhouettes, contrast against grass/stone and transparent padding. Do not inherit concept edge fringes or clipping into animation frames.
+
+### Shared asset requirements
+
 - Use transparent PNG initially; WebP with alpha is supported by the runtime. No background, baked ground shadow, text, border, checkerboard, or promotional graphics.
 - Draw crisp pixel clusters with a limited character-specific palette and a dark colored outline. Keep tiny scales and galaxy speckles readable at the character's actual screen size in the 1920 × 1080 render. No soft image upscaling or photographic fabric texture.
 - Use consistent anatomy in every view and pose. Do not mirror asymmetric design details without checking the original reference. Keep the complete silhouette inside its frame.

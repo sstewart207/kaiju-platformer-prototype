@@ -8,6 +8,10 @@ Make the ground-based course worth replaying with the faster movement and repeat
 
 ## Sections
 
+The course continues past the original end at x=192 into broad south/north ruin galleries. The current walking route completes in **152.10 seconds** in deterministic tests, versus about 40 seconds for the previous layout. This adds active movement distance rather than enforced waiting or extra enemy health.
+
+The extension has twelve alternating wall barriers, eight jumpable hurdles, wide bypass lanes, four ground-access ramps and two checkpoint zones at (192, -42) and (324, -72). Grass stays beneath the entire course. Checkpoints restore health and retain route progress; death/falling returns to the latest checkpoint without resetting the timer. R/Restart still resets the whole course.
+
 | Section | Casual route | Faster route / skill |
 | --- | --- | --- |
 | Courtyard and approach | Wide starting area and straight runway | Build speed and test dash timing without a fall penalty |
@@ -36,13 +40,14 @@ The primary path remains finishable without jumping. Optional jumping and the sh
 - `COURSE_GATES`: coarse ordered route checks, marked in the world by blue floor diamonds and paired markers. They keep an off-path run across the grass from skipping the course. The far dock gate also checks feet height >=2.1.
 - `MAIN_ROUTE_WAYPOINTS`: safe broad walking line, including the side lanes around jump obstacles. It avoids structural pillars and uses the actual access ramps.
 - `SHORTCUT_ROUTE`: suggested gallery jumps, shuttle boarding/exit positions and hurdle jumps. These are guidance points, not teleports or automated character movement.
-- `FINISH`: (192, 1.5, -42). The gate structure remains 2.5 units behind the finish target, with posts at x±1.8, keeping the walk-in approach clear.
+- `src/course-extension.ts`: connected extension terraces, barriers, route markers, safe walking line, recovery ramps and checkpoint zones.
+- `FINISH`: (486, 1.5, -42). The gate structure remains 2.5 units behind the finish target, with posts at x±1.8, keeping the walk-in approach clear.
 
 ## Visual cleanup
 
 The route now has a starting court, a walled gallery, separate high docks, a lower planted crossing, a column garden and a long hurdle lane. Low hurdles have a blue top stripe; route flags and gate markers use the same restrained blue. Broken arch remnants frame sections. Grass texture contrast and speckle density were reduced so terrain no longer competes with the character and paths.
 
-## Validation checkpoint
+## Previous short-course measurements (superseded)
 
 A no-render traversal using the actual `Player` and Rapier `Physics` followed every main-route waypoint with no jumps in approximately **39 simulated seconds**, including short stops at each waypoint. Final browser checks then completed both safe keyboard routes at **39.63 seconds** and the jump/dash/shuttle route at **37.42 seconds**, using five dashes and zero falls. The moving-platform route was boarded and ridden through actual collision/physics, not teleported. These are automated geometry/input checks, not human playtime or proof of fun. Real DualSense feel and the team's judgment of route choices still need a playtest.
 

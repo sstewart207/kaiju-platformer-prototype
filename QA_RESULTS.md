@@ -1,5 +1,31 @@
 # QA results — October 27, 2026
 
+## Release scope
+
+The longer course, two checkpoints and HUD cleanup are released together. Enemy combat is saved behind the development-only `?enemies=1` preview; production builds ignore that flag. Patrick's pending decision is dragons versus zombies, not approval of existing artwork. The earlier enemy test results below describe the prototype only.
+
+Release validation: strict TypeScript/production build and 31 unit/physics tests pass. All 18 enabled browser checks pass (the arrow route was rerun after a formatter-triggered reload interrupted its first run); the opt-in full-course hardware benchmark was not repeated. A production preview opened with `?enemies=1` still hides health and makes no enemy-atlas request. Physical controller and Chromebook tests remain pending.
+
+## Extended course candidate (PR #2)
+
+The walking line now measures **152.10 seconds** with WASD and arrows; the tested jump/shuttle route measures **149.67 seconds**. This replaces the earlier 37–40-second layout. Movement speed and dash timing are unchanged. These are scripted route timings, not a human playtime guarantee.
+
+Added ten connected stone terraces, twelve slalom barriers, eight jumpable hurdles, wide bypass lanes, four ground-access ramps and two checkpoint zones. Falling or combat defeat returns to the latest checkpoint with full health and saved route progress; the timer continues. Restart clears the checkpoints and starts the course over.
+
+Both keyboard routes finish without falls or jumps. Checkpoint tests cover falls, combat defeat, progress retention and full restart. Existing enemy, controller, shuttle, collision and production-launch checks pass. The unit/physics suite remains 31 passing tests.
+
+Real-time full-course run: **2:14.43**, **144.0 FPS average**, **7.1 ms p95**, one 34.6 ms frame in the starting section, no console errors. Edge headless at 1920 × 1080 on this laptop. [Full measurements](art/playtest/performance/extended-1080p.json). Extended-section screenshots were inspected and flags moved off the walking line to preserve character visibility. Chromebook/physical controller checks remain pending.
+
+## Zombie kaiju candidate (local branch)
+
+- One optional encounter at world (18, -11), north of the starting runway. Bite has a 0.45-second windup; fireball aim locks during a 0.65-second charge. Jump/dodge or use two separate dashes to defeat it. Three player hits restart the course and clear attacks.
+- Scale was checked beside Solargon, then corrected to remove an unrequested small-enemy size bias. The atlas uses a constant 90 pixels per world unit across all directions/poses; measured feet anchors, collision capsule and contact shadow share the ground plane. [Scale capture](art/playtest/enemy-scale.png).
+- 31 unit/physics checks pass. The full 16-check browser run passed; a subsequently added active-combat performance scenario and the two fight scenarios also pass. Coverage includes thin-wall projectile collision, melee dodge/window, one hit per dash, defeat/restart, three-hit player reset, pause with a fireball in flight and both original keyboard routes.
+- Full course with the enemy present: 143.8 FPS average, 7.1 ms p95, no frames over 33.4 ms. Active fireball fight: 144.0 FPS, 7.1 ms p95, no console errors. Both are Edge headless at 1920 × 1080 on this laptop. [Course measurement](art/playtest/performance/enemy-1080p.json) · [Active fight](art/playtest/performance/enemy-combat.json).
+- Generated four-direction sprite sheet remains draft art: two walking frames and individual attack/hit/defeat poses; anatomy/motion polish still needs visual review. No runner/heavy gameplay, drops, elemental powers or multiplayer were added. Physical DualSense and Chromebook checks remain pending.
+
+[Atlas and generation notes](art/concepts/zombies/WALKER_ATLAS_PROMPT.md). The live GitHub Pages build is unchanged until this candidate is merged.
+
 Base: `c2a6265`. Current approved build uses 1920 × 1080 by default. The earlier 640 × 360 measurements below are retained as historical evidence.
 
 ## Recovery fix

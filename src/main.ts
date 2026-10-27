@@ -19,11 +19,24 @@ import { UI } from "./ui";
 import { FixedClock } from "./timestep";
 import type { Vec3 } from "./types";
 import { RENDER_WIDTH, RENDER_HEIGHT } from "./rendering";
+import { Combat } from "./combat";
+import { EnemyView, ZOMBIE_WALKER } from "./enemy-view";
+import { CHECKPOINTS } from "./course-extension";
 
 const ui = new UI();
 async function boot() {
   await RAPIER.init();
-  const texture = await new THREE.TextureLoader().loadAsync(SOLARGON.atlas);
+  // Keep enemy experiments available locally while their design is undecided.
+  // Production builds cannot enable this via the URL.
+  const enemyPreview =
+    import.meta.env.DEV &&
+    new URLSearchParams(location.search).get("enemies") === "1";
+  const [texture, enemyTexture] = await Promise.all([
+    new THREE.TextureLoader().loadAsync(SOLARGON.atlas),
+    enemyPreview
+      ? new THREE.TextureLoader().loadAsync(ZOMBIE_WALKER.atlas)
+      : Promise.resolve(null),
+  ]);
   const canvas = document.getElementById("world") as HTMLCanvasElement;
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -43,6 +56,12 @@ async function boot() {
     camera = new FollowCamera(),
     world = new RuinsWorld();
   const character = new CharacterSprite(SOLARGON, texture);
+  const combat = new Combat(physics);
+  const enemyView = enemyTexture
+    ? new EnemyView(world.scene, enemyTexture)
+    : null;
+  document.getElementById("health")!.hidden = !enemyPreview;
+  if (!enemyPreview) combat.collider.setEnabled(false);
   world.scene.add(character.sprite, character.occludedSprite);
   const shadow = new THREE.Mesh(
     new THREE.CircleGeometry(0.52, 20),
@@ -62,17 +81,25 @@ async function boot() {
     last = performance.now(),
     falls = 0,
     section = 0,
-    furthest = 0,
     gatesPassed = 0,
     manual = false;
   const samples: number[] = [];
+  let checkpoint = -1;
+  let checkpointPosition = { ...SPAWN };
+  let checkpointGates = 0;
+  function resetCombat() {
+    combat.reset();
+    if (!enemyPreview) combat.collider.setEnabled(false);
+  }
   function restart() {
     time = 0;
     elapsed = 0;
     falls = 0;
     section = 0;
-    furthest = 0;
     gatesPassed = 0;
+    checkpoint = -1;
+    checkpointPosition = { ...SPAWN };
+    checkpointGates = 0;
     clock.reset();
     input.clear();
     for (const platform of physics.platforms)
@@ -93,9 +120,19 @@ async function boot() {
         platform.delta = { x: 0, y: 0, z: 0 };
       }
     player.reset();
+    resetCombat();
     physics.step();
     camera.update(SPAWN, { x: 0, y: 0, z: 0 }, 0, true);
     ui.show("playing");
+  }
+  function recover() {
+    input.clear();
+    player.reset(checkpointPosition);
+    resetCombat();
+    physics.step();
+    gatesPassed = checkpointGates;
+    camera.update(checkpointPosition, { x: 0, y: 0, z: 0 }, 0, true);
+    void ui.respawnFlash();
   }
   function pause() {
     if (ui.screen === "playing") {
@@ -142,16 +179,19 @@ async function boot() {
     time += FIXED_DT;
     elapsed += FIXED_DT;
     physics.updatePlatforms(time);
+    if (enemyPreview) combat.beginStep();
     player.update(input.read());
     physics.step();
+    if (enemyPreview) combat.update(player);
+    if (combat.health <= 0) {
+      recover();
+      return;
+    }
     const position = player.position;
     if (position.y < -12) {
       falls++;
-      input.clear();
-      player.reset();
-      physics.step();
-      camera.update(SPAWN, { x: 0, y: 0, z: 0 }, 0, true);
-      void ui.respawnFlash();
+      recover();
+      return;
     }
     let nearestIndex = 0,
       nearest = Infinity;
@@ -173,7 +213,24 @@ async function boot() {
       position.y - FOOT_OFFSET >= (gate.minY ?? -Infinity)
     )
       gatesPassed++;
-    furthest = gatesPassed / COURSE_GATES.length;
+    CHECKPOINTS.forEach((point, index) => {
+      if (
+        index > checkpoint &&
+        gatesPassed >= point.requiredGates &&
+        player.grounded &&
+        Math.hypot(position.x - point.x, position.z - point.z) < point.radius &&
+        Math.abs(position.y - FOOT_OFFSET - point.y) < 0.2
+      ) {
+        checkpoint = index;
+        checkpointPosition = {
+          x: point.x,
+          y: point.y + FOOT_OFFSET + 0.04,
+          z: point.z,
+        };
+        checkpointGates = gatesPassed;
+        combat.health = 3;
+      }
+    });
     if (
       player.grounded &&
       gatesPassed === COURSE_GATES.length &&
@@ -181,7 +238,7 @@ async function boot() {
       Math.abs(position.y - FOOT_OFFSET - FINISH.y) < 0.25
     ) {
       input.clear();
-      ui.show("finished", elapsed, falls);
+      ui.show("finished", falls);
     }
   }
   function render(dt: number, alpha: number) {
@@ -200,6 +257,14 @@ async function boot() {
       camera.camera,
       camera.pixelSize,
     );
+    character.sprite.material.opacity =
+      combat.invulnerable > 0
+        ? Math.floor(combat.invulnerable * 14) % 2
+          ? 0.3
+          : 1
+        : 1;
+    enemyView?.update(combat, camera.camera, camera.pixelSize, dt, alpha);
+    if (enemyPreview) ui.updateHealth(combat.health);
     const ground = physics.groundBelow(current, player.collider);
     shadow.visible = !!ground;
     if (ground) {
@@ -217,7 +282,7 @@ async function boot() {
       physics,
       renderFocus.set(position.x, position.y, position.z),
     );
-    ui.update(section, furthest, elapsed, player.dashCooldown, player.dashing);
+    ui.update(player.dashCooldown, player.dashing);
     renderer.render(world.scene, camera.camera);
   }
   function frame(now: number) {
@@ -244,14 +309,17 @@ async function boot() {
   // Upload textures and compile materials before accepting Start, rather than
   // doing that work when their part of the course first enters the camera.
   const textures = new Set<THREE.Texture>();
-  world.scene.traverse(object => {
-    if (!(object instanceof THREE.Mesh || object instanceof THREE.Sprite)) return;
-    for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
+  world.scene.traverse((object) => {
+    if (!(object instanceof THREE.Mesh || object instanceof THREE.Sprite))
+      return;
+    for (const material of Array.isArray(object.material)
+      ? object.material
+      : [object.material]) {
       const map = (material as THREE.MeshLambertMaterial).map;
       if (map) textures.add(map);
     }
   });
-  textures.forEach(texture => renderer.initTexture(texture));
+  textures.forEach((texture) => renderer.initTexture(texture));
   await renderer.compileAsync(world.scene, camera.camera);
   render(0, 1);
   last = performance.now();
@@ -277,6 +345,25 @@ async function boot() {
         landings: player.landings,
         section,
         gatesPassed,
+        checkpoint,
+        combat: {
+          enabled: enemyPreview,
+          health: combat.health,
+          enemyHp: combat.hp,
+          enemyPosition: combat.position,
+          action: combat.action,
+          actionTime: combat.actionTime,
+          facing: combat.facing,
+          windup: combat.windup,
+          projectiles: combat.projectiles,
+          shots: combat.shots,
+          meleeHits: combat.meleeHits,
+          projectileHits: combat.projectileHits,
+          wallHits: combat.wallHits,
+          spriteWidth: enemyView?.character.sprite.scale.x ?? 0,
+          spriteHeight: enemyView?.character.sprite.scale.y ?? 0,
+          playerSpriteWidth: character.sprite.scale.x,
+        },
         drawCalls: renderer.info.render.calls,
         fps: samples.length
           ? 1000 / (samples.reduce((a, b) => a + b, 0) / samples.length)
