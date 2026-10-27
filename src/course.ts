@@ -3,24 +3,12 @@ import type { PlatformSpec, Vec3 } from "./types";
 export const SPAWN: Vec3 = { x: -2.5, y: 0.86, z: 1 };
 export const GROUND = { x: 90, z: -22, top: -0.08, width: 380, depth: 180 };
 export const SECTIONS = [
-  { name: "Courtyard", hint: "Follow the blue flags. {dash} to dash." },
-  {
-    name: "Broken gallery",
-    hint: "Weave around the walls, or jump the low breaks.",
-  },
-  {
-    name: "Shuttle approach",
-    hint: "The upper dock leads to a shorter route.",
-  },
-  {
-    name: "Garden crossing",
-    hint: "Ride the stone shuttle, or follow the lower garden path.",
-  },
-  { name: "Column garden", hint: "Turn north at the flags." },
-  {
-    name: "Final straight",
-    hint: "Jump the low hurdles, or use the side lane.",
-  },
+  { name: "Start" },
+  { name: "Walls" },
+  { name: "Ramp" },
+  { name: "Platform" },
+  { name: "Garden" },
+  { name: "Finish" },
 ];
 export const PLATFORMS: PlatformSpec[] = [
   { id: "courtyard", x: 0, z: 0, top: 0, width: 18, depth: 14, section: 0 },

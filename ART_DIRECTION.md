@@ -126,4 +126,4 @@ An image-generation request is not evidence that the requested grid, anatomy or 
 - Ensure the new palette is legible against both stone and turquoise fog, and effects do not obscure the character or landing surface.
 - Document any remaining missing frames plainly. Update this reference when the team approves a style change.
 
-Keep player-facing copy short: names, controls, route instructions and result information. No generated slogans, inspirational lines, marketing text or development notes in the game interface.
+Player-facing text is limited to functional labels, controls, time/results and menu buttons. No prose hints, descriptions, taglines, decorative area names, slogans, inspirational lines, marketing text or development notes in the interface.

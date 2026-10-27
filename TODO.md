@@ -1,5 +1,7 @@
 # Project TODOs
 
+- [x] Remove remaining hint sentences and decorative section names after user correction. UI now uses functional labels, controls, time/results and buttons only; preserve this rule in future level/UI changes.
+
 - [ ] Choose a game title together. Current labels are placeholders: Untitled Kaiju Project / Ruins.
 - [x] Increase normal movement speed and add a repeatable dash for keyboard and DualSense, with jump-dash, cooldown, collision checks and a live timer.
 - [x] Redesign ruins as distinct gallery, shuttle/garden and hurdle sections, with a safe route and validated faster shortcuts; avoid a walkable bridge beneath the shuttle.

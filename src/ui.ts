@@ -78,7 +78,7 @@ export class UI {
     this.screen = screen;
     const playing = screen === "playing";
     element("overlay").hidden = playing;
-    for (const id of ["hud", "location", "hint", "controls"])
+    for (const id of ["hud", "location", "controls"])
       element(id).hidden = !playing;
     if (playing) {
       element<HTMLButtonElement>("primary-button").blur();
@@ -117,15 +117,6 @@ export class UI {
       "0",
     );
     element("location-name").textContent = info.name;
-    element("hint").textContent = info.hint
-      .replace(
-        "{jump}",
-        this.source === "gamepad" && this.connected ? "✕" : "Space",
-      )
-      .replace(
-        "{dash}",
-        this.source === "gamepad" && this.connected ? "Square / R1" : "Shift",
-      );
     element("progress-fill").style.width =
       `${Math.min(100, Math.max(0, progress * 100))}%`;
     element("run-time").textContent = formatTime(time);
