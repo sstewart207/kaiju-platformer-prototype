@@ -8,7 +8,7 @@ A browser platformer featuring Patrick's kaiju characters. Solargon is playable 
 
 ## What's playable
 
-- A longer Ruins course with slalom walls, jumpable hurdles, a moving platform, two checkpoints and a finish timer.
+- A longer Ruins course with slalom walls, jumpable hurdles, a moving platform and two checkpoints.
 - Keyboard and DualSense controls, pause, restart and replay.
 - 1080p graphics with pixel-art characters.
 - One zombie kaiju encounter beside the starting route: dodge bites and fireballs, and dash through it twice to defeat it. Three hits return you to the last checkpoint.

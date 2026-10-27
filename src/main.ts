@@ -70,7 +70,6 @@ async function boot() {
     last = performance.now(),
     falls = 0,
     section = 0,
-    furthest = 0,
     gatesPassed = 0,
     manual = false;
   const samples: number[] = [];
@@ -82,7 +81,6 @@ async function boot() {
     elapsed = 0;
     falls = 0;
     section = 0;
-    furthest = 0;
     gatesPassed = 0;
     checkpoint = -1;
     checkpointPosition = { ...SPAWN };
@@ -118,7 +116,6 @@ async function boot() {
     combat.reset();
     physics.step();
     gatesPassed = checkpointGates;
-    furthest = gatesPassed / COURSE_GATES.length;
     camera.update(checkpointPosition, { x: 0, y: 0, z: 0 }, 0, true);
     void ui.respawnFlash();
   }
@@ -201,7 +198,6 @@ async function boot() {
       position.y - FOOT_OFFSET >= (gate.minY ?? -Infinity)
     )
       gatesPassed++;
-    furthest = gatesPassed / COURSE_GATES.length;
     CHECKPOINTS.forEach((point, index) => {
       if (
         index > checkpoint &&
@@ -227,7 +223,7 @@ async function boot() {
       Math.abs(position.y - FOOT_OFFSET - FINISH.y) < 0.25
     ) {
       input.clear();
-      ui.show("finished", elapsed, falls);
+      ui.show("finished", falls);
     }
   }
   function render(dt: number, alpha: number) {
@@ -271,7 +267,7 @@ async function boot() {
       physics,
       renderFocus.set(position.x, position.y, position.z),
     );
-    ui.update(section, furthest, elapsed, player.dashCooldown, player.dashing);
+    ui.update(player.dashCooldown, player.dashing);
     renderer.render(world.scene, camera.camera);
   }
   function frame(now: number) {

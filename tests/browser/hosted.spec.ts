@@ -37,7 +37,7 @@ test("published game opens anonymously with assets, controls and pause", async (
     return { width: canvas.width, height: canvas.height };
   })).toEqual({ width: 1920, height: 1080 });
   expect(await page.evaluate(() => typeof window.__solargon)).toBe("undefined");
-  await expect(page.locator("#run-time")).not.toHaveText("0:00.00");
+  await expect(page.locator("#run-time, #location, .stage")).toHaveCount(0);
   await page.keyboard.down("KeyD");
   await page.keyboard.down("ShiftLeft");
   await expect(page.locator("#dash-status")).toHaveText("DASH");
