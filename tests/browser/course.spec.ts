@@ -48,8 +48,8 @@ async function state(page: Page) {
 async function advance(page: Page, frames = 1) {
   await page.evaluate((n) => window.__solargon.advance(n), frames);
 }
-async function boot(page: Page) {
-  await page.goto("/?test");
+async function boot(page: Page, enemyPreview = false) {
+  await page.goto(enemyPreview ? "/?test&enemies=1" : "/?test");
   await page.waitForFunction(() => !!window.__solargon);
   await page.evaluate(() => window.__solargon.manual(true));
   await page.getByRole("button", { name: "START" }).click();
@@ -184,7 +184,7 @@ for (const arrows of [false, true])
 test("checkpoints recover falls and combat defeats without losing the whole run", async ({
   page,
 }) => {
-  await boot(page);
+  await boot(page, true);
   const driver = new Driver(page);
   for (const point of MAIN_ROUTE_WAYPOINTS.slice(0, 20))
     await driver.go(point.x, point.z);

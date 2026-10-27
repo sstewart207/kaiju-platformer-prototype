@@ -1,5 +1,7 @@
 # Project TODOs
 
+- [ ] Patrick decides whether enemies are dragons or zombies. The existing bite/fireball prototype is saved for development preview only; public builds disable it. No existing enemy artwork needs his approval.
+
 - [x] Approve 1920 × 1080 as the default rendering style; update runtime, camera snapping, tests and art direction. Keep pixel-art character textures crisp.
 - [x] Extend the short course with connected ruin galleries, slalom walls, hurdle bypasses and two checkpoints. Walking route measures 2:32 in deterministic tests; human pace/replay value still needs review.
 
@@ -9,7 +11,7 @@
 - [x] Remove remaining hint sentences and decorative section names after user correction. UI now uses functional labels, controls, time/results and buttons only; preserve this rule in future level/UI changes.
 
 - [ ] Choose a game title together. Current labels are placeholders: Untitled Kaiju Project / Ruins.
-- [x] Increase normal movement speed and add a repeatable dash for keyboard and DualSense, with jump-dash, cooldown, collision checks and a live timer.
+- [x] Increase normal movement speed and add a repeatable dash for keyboard and DualSense, with jump-dash, cooldown and collision checks. The visible timer was subsequently removed.
 - [x] Redesign ruins as distinct gallery, shuttle/garden and hurdle sections, with a safe route and validated faster shortcuts; avoid a walkable bridge beneath the shuttle.
 
 - [ ] Add a character selection screen for the planned five-kaiju roster. Show each character's name, artwork and elemental ability; support keyboard and DualSense selection. Keep unavailable characters clearly unavailable until their gameplay assets and abilities are implemented.

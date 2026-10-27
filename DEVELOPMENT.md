@@ -91,12 +91,12 @@ Rendering dimensions are defined in `src/rendering.ts`. Camera/sprite pixel snap
 
 The sprite atlas is a generated **draft for visual review**. All four directions and five movement states are connected. Falling currently shares the jump pose. Idle/run movement is subtle; wing/leg counts and silhouettes are not perfectly consistent between generated frames. Some wings/tails reach cell boundaries (recorded by the audit), so minor edge clipping remains. A final artist-cleaned sprite pass should provide consistent anatomy, clear run timing, separate falling frames, and transparent padding around every frame.
 
-The candidate includes one bite/fireball enemy, three-hit player health and two checkpoints. Audio, elemental abilities, coins, touch support, chapter rewards, other playable characters and multiplayer remain unimplemented. The five-character brief remains later scope.
+The public course includes two checkpoints. One bite/fireball enemy and three-hit player health are development-only prototypes: run `npm run dev` and open `http://127.0.0.1:5173/?enemies=1` to preview them. Production builds ignore this flag and do not load the enemy atlas, render enemies or enable their collisions/attacks. Patrick will decide between dragons and zombies before further enemy work. Audio, elemental abilities, coins, touch support, chapter rewards, other playable characters and multiplayer remain unimplemented.
 
 The production bundle includes Rapier's inline WebAssembly, so Vite reports a large chunk warning. It is functional and served locally; optimizing first-download size can wait until deployment is in scope.
 
 ## Next review
 
-Play the redesigned course and review Solargon's silhouette, dash/jump rhythm, route readability, and whether catching the shuttle feels worthwhile. Character selection, zombie design/animation/gameplay, and LAN/browser co-op planning are recorded in TODO.md; they are not implemented yet. GitHub Pages hosts the current single-player build; multiplayer is not implemented.
+Play the redesigned course and review Solargon's silhouette, dash/jump rhythm, route readability, and whether catching the shuttle feels worthwhile. Character selection, final enemy design/animation/gameplay, and LAN/browser co-op planning are recorded in TODO.md. GitHub Pages hosts the current single-player build; multiplayer is not implemented.
 
 Use [ART_DIRECTION.md](ART_DIRECTION.md) for future character artwork: it includes original references, character-specific features, rendering constants, sprite requirements and integration checks. Requested follow-ups are tracked in [TODO.md](TODO.md).

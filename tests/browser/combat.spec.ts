@@ -33,7 +33,7 @@ async function stand(page: Page, x: number, z = -11) {
   );
 }
 async function boot(page: Page) {
-  await page.goto("/?test");
+  await page.goto("/?test&enemies=1");
   await page.waitForFunction(() => !!window.__solargon);
   await page.evaluate(() => window.__solargon.manual(true));
   await page.getByRole("button", { name: "START", exact: true }).click();

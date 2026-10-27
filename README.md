@@ -8,9 +8,9 @@ A browser platformer featuring Patrick's kaiju characters, with 3D ruins and pix
 
 ## Current state
 
-**Public build:** one single-player course with jumping, dashing, a moving platform, keyboard/DualSense controls and 1080p graphics.
+**Public build:** a single-player ruins course with jumping, dashing, two checkpoints, optional moving-platform shortcuts, keyboard/DualSense controls and 1080p graphics. The tested walking route takes about 2:32.
 
-**Awaiting review in [draft PR #2](https://github.com/sstewart207/kaiju-platformer-prototype/pull/2):** a longer course with a walking route checked at 2:32, two checkpoints, a zombie kaiju with bite/fireball attacks, and removal of HUD area labels and the visible timer. These changes are not live yet. Enemy sprites await Patrick's approval.
+The HUD has no area labels or visible timer. An enemy prototype with bite/fireball attacks is saved in development and disabled in the public game. Patrick will decide whether enemies are dragons or zombies.
 
 Course tests run around 144 FPS on the development laptop. Chromebook performance and physical DualSense testing remain pending.
 
@@ -26,6 +26,6 @@ Course tests run around 144 FPS on the development laptop. Chromebook performanc
 
 ## Next
 
-Review the enemy artwork and playtest the longer course before publishing it. Character selection, more characters/enemies and co-op are planned.
+Playtest the course and decide the enemy type. Character selection, more characters and co-op are planned.
 
 [Test plan](TEST_PLAN.md) · [Backlog](TODO.md) · [Developer setup](DEVELOPMENT.md)

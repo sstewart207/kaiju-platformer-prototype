@@ -87,9 +87,11 @@ Graviton: bottom-center panel. Toxicraven: top-right panel. Other panels are not
 
 ## Sprite production requirements
 
-### Zombie enemy concepts
+### Enemy concepts (type undecided)
 
-The requested enemies are magical undead dragons/kaijus, not humans in torn clothes. Use reptilian muzzles, horns, clawed limbs, tails and damaged wings. Basic attacks are a bite/claw strike and mouth-fired fireballs. The three [v2 concepts](art/concepts/zombies/zombie-kaiju-concepts-v2.png) are pending visual approval; start production with one basic enemy rather than treating all three as implemented types. Preserve clear attack silhouettes, contrast against grass/stone and transparent padding. Do not inherit concept edge fringes or clipping into animation frames.
+Patrick still needs to choose dragons or zombies. The existing undead-kaiju concepts and animation atlas are prototype studies, not approved production assets. Keep them saved; do not generate replacements or expand the roster until that decision.
+
+The zombie prototype uses magical undead dragons/kaijus, not humans in torn clothes: reptilian muzzles, horns, clawed limbs, tails and damaged wings. Basic attacks are a bite/claw strike and mouth-fired fireballs. The three [v2 concepts](art/concepts/zombies/zombie-kaiju-concepts-v2.png) are exploratory. Preserve clear attack silhouettes, contrast against grass/stone and transparent padding. Do not inherit concept edge fringes or clipping into animation frames.
 
 ### Shared asset requirements
 

@@ -1,5 +1,11 @@
 # QA results — October 27, 2026
 
+## Release scope
+
+The longer course, two checkpoints and HUD cleanup are released together. Enemy combat is saved behind the development-only `?enemies=1` preview; production builds ignore that flag. Patrick's pending decision is dragons versus zombies, not approval of existing artwork. The earlier enemy test results below describe the prototype only.
+
+Release validation: strict TypeScript/production build and 31 unit/physics tests pass. All 18 enabled browser checks pass (the arrow route was rerun after a formatter-triggered reload interrupted its first run); the opt-in full-course hardware benchmark was not repeated. A production preview opened with `?enemies=1` still hides health and makes no enemy-atlas request. Physical controller and Chromebook tests remain pending.
+
 ## Extended course candidate (PR #2)
 
 The walking line now measures **152.10 seconds** with WASD and arrows; the tested jump/shuttle route measures **149.67 seconds**. This replaces the earlier 37–40-second layout. Movement speed and dash timing are unchanged. These are scripted route timings, not a human playtime guarantee.

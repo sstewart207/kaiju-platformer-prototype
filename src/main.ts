@@ -26,9 +26,16 @@ import { CHECKPOINTS } from "./course-extension";
 const ui = new UI();
 async function boot() {
   await RAPIER.init();
+  // Keep enemy experiments available locally while their design is undecided.
+  // Production builds cannot enable this via the URL.
+  const enemyPreview =
+    import.meta.env.DEV &&
+    new URLSearchParams(location.search).get("enemies") === "1";
   const [texture, enemyTexture] = await Promise.all([
     new THREE.TextureLoader().loadAsync(SOLARGON.atlas),
-    new THREE.TextureLoader().loadAsync(ZOMBIE_WALKER.atlas),
+    enemyPreview
+      ? new THREE.TextureLoader().loadAsync(ZOMBIE_WALKER.atlas)
+      : Promise.resolve(null),
   ]);
   const canvas = document.getElementById("world") as HTMLCanvasElement;
   const renderer = new THREE.WebGLRenderer({
@@ -50,7 +57,11 @@ async function boot() {
     world = new RuinsWorld();
   const character = new CharacterSprite(SOLARGON, texture);
   const combat = new Combat(physics);
-  const enemyView = new EnemyView(world.scene, enemyTexture);
+  const enemyView = enemyTexture
+    ? new EnemyView(world.scene, enemyTexture)
+    : null;
+  document.getElementById("health")!.hidden = !enemyPreview;
+  if (!enemyPreview) combat.collider.setEnabled(false);
   world.scene.add(character.sprite, character.occludedSprite);
   const shadow = new THREE.Mesh(
     new THREE.CircleGeometry(0.52, 20),
@@ -76,6 +87,10 @@ async function boot() {
   let checkpoint = -1;
   let checkpointPosition = { ...SPAWN };
   let checkpointGates = 0;
+  function resetCombat() {
+    combat.reset();
+    if (!enemyPreview) combat.collider.setEnabled(false);
+  }
   function restart() {
     time = 0;
     elapsed = 0;
@@ -105,7 +120,7 @@ async function boot() {
         platform.delta = { x: 0, y: 0, z: 0 };
       }
     player.reset();
-    combat.reset();
+    resetCombat();
     physics.step();
     camera.update(SPAWN, { x: 0, y: 0, z: 0 }, 0, true);
     ui.show("playing");
@@ -113,7 +128,7 @@ async function boot() {
   function recover() {
     input.clear();
     player.reset(checkpointPosition);
-    combat.reset();
+    resetCombat();
     physics.step();
     gatesPassed = checkpointGates;
     camera.update(checkpointPosition, { x: 0, y: 0, z: 0 }, 0, true);
@@ -164,10 +179,10 @@ async function boot() {
     time += FIXED_DT;
     elapsed += FIXED_DT;
     physics.updatePlatforms(time);
-    combat.beginStep();
+    if (enemyPreview) combat.beginStep();
     player.update(input.read());
     physics.step();
-    combat.update(player);
+    if (enemyPreview) combat.update(player);
     if (combat.health <= 0) {
       recover();
       return;
@@ -248,8 +263,8 @@ async function boot() {
           ? 0.3
           : 1
         : 1;
-    enemyView.update(combat, camera.camera, camera.pixelSize, dt, alpha);
-    ui.updateHealth(combat.health);
+    enemyView?.update(combat, camera.camera, camera.pixelSize, dt, alpha);
+    if (enemyPreview) ui.updateHealth(combat.health);
     const ground = physics.groundBelow(current, player.collider);
     shadow.visible = !!ground;
     if (ground) {
@@ -332,6 +347,7 @@ async function boot() {
         gatesPassed,
         checkpoint,
         combat: {
+          enabled: enemyPreview,
           health: combat.health,
           enemyHp: combat.hp,
           enemyPosition: combat.position,
@@ -344,8 +360,8 @@ async function boot() {
           meleeHits: combat.meleeHits,
           projectileHits: combat.projectileHits,
           wallHits: combat.wallHits,
-          spriteWidth: enemyView.character.sprite.scale.x,
-          spriteHeight: enemyView.character.sprite.scale.y,
+          spriteWidth: enemyView?.character.sprite.scale.x ?? 0,
+          spriteHeight: enemyView?.character.sprite.scale.y ?? 0,
           playerSpriteWidth: character.sprite.scale.x,
         },
         drawCalls: renderer.info.render.calls,
