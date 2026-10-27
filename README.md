@@ -4,6 +4,19 @@ The game has no title yet. **Ruins** is the test course; **Solargon** is the cur
 
 A keyboard/DualSense 3D course starring Patrick's golden kaiju, Solargon. The world now sits on continuous solid ground, with low stone terraces and broad ramped connections. The camera faces the route so right input moves directly along its main axis. Animated transparent character artwork is rendered at 640 × 360.
 
+## Play in Chrome
+
+[Open the playable build](https://sstewart207.github.io/kaiju-platformer-prototype/). No account, download or developer setup is required. This is the link to email to the Chromebook tester. Physical Chromebook performance and controller behavior still need that tester's check.
+
+GitHub Pages hosts the `dist` build. `.github/workflows/pages.yml` checks and deploys pushes to `main` using standard GitHub-hosted runners. The build uses the repository subpath, and the sprite URL follows Vite's base URL. Local development and preview keep the normal `/` path.
+
+To run the optional anonymous hosted-build smoke test in PowerShell:
+
+```powershell
+$env:PLAYTEST_URL='https://sstewart207.github.io/kaiju-platformer-prototype/'
+npm run test:browser -- --grep 'published game'
+```
+
 ## Run locally
 
 Use Node.js 22.12+ or 24 LTS. From this folder:
@@ -88,6 +101,6 @@ The production bundle includes Rapier's inline WebAssembly, so Vite reports a la
 
 ## Next review
 
-Play the redesigned course and review Solargon's silhouette, dash/jump rhythm, route readability, and whether catching the shuttle feels worthwhile. Character selection, zombie design/animation/gameplay, and LAN/browser co-op planning are recorded in TODO.md; they are not implemented yet. The public repository is source code, not a hosted game or multiplayer service.
+Play the redesigned course and review Solargon's silhouette, dash/jump rhythm, route readability, and whether catching the shuttle feels worthwhile. Character selection, zombie design/animation/gameplay, and LAN/browser co-op planning are recorded in TODO.md; they are not implemented yet. GitHub Pages hosts the current single-player build; multiplayer is not implemented.
 
 Use [ART_DIRECTION.md](ART_DIRECTION.md) for future character artwork: it includes original references, character-specific features, rendering constants, sprite requirements and integration checks. Requested follow-ups are tracked in [TODO.md](TODO.md).

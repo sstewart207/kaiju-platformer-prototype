@@ -6,7 +6,7 @@ The user reported disliking the floating world, repeatedly falling through gaps,
 
 Retest first: leave the stick untouched for ten seconds; move right and release without holding any other direction; then walk the main route without jumping. Stepping off the path must land on grass. These software checks pass with synthetic input; the user's actual USB/Bluetooth controller behavior still needs confirmation.
 
-Open the running game at http://127.0.0.1:4173/. To run it again later, double-click `Start Game.cmd` and use the URL it opens. The current version includes controller input and revised interface copy.
+Open https://sstewart207.github.io/kaiju-platformer-prototype/ on the Chromebook. No account or installation is required. For local development on the laptop, use http://127.0.0.1:4173/ while its preview server is running, or launch `Start Game.cmd` and use the URL it opens.
 
 Connect the DualSense over USB or pair it through Windows Bluetooth. Focus the game page and press a controller button. Chrome or Edge is the suggested test browser. The game relies on the browser's standard Gamepad mapping; no remapping utility is required by the game. If another program is translating the controller, record that in the results.
 

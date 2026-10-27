@@ -9,7 +9,7 @@ import auditedAtlas from "../art/solargon-atlas-v2.audit.json";
 
 export const SOLARGON: CharacterManifest = {
   name: "Solargon",
-  atlas: "/assets/solargon-atlas-v2.png",
+  atlas: `${import.meta.env.BASE_URL}assets/solargon-atlas-v2.png`,
   columns: 8,
   rows: 4,
   size: 2.4,

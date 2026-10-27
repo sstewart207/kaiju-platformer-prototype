@@ -1,6 +1,7 @@
 # Project TODOs
 
-- [ ] DEFERRED until the user resumes: prepare a playable build for the confirmed Chromebook/ChromeOS tester that can be emailed, without requiring Git, Node.js or development setup. Evaluate an Electron wrapper versus a browser/PWA distribution for that target; do not assume Electron is the right ChromeOS package. Bundle all required assets, include short launch/control instructions, check email attachment size limits, and validate the actual launch and DualSense play path on the target platform. If an attachment is unsuitable, provide a downloadable build or hosted play link that can be emailed instead.
+- [x] Prepare an emailable no-install browser playtest link for the confirmed Chromebook target using the existing public GitHub repo, GitHub Actions and GitHub Pages. Include all runtime assets and verify anonymous browser launch, controls and pause. No Electron wrapper is needed for this delivery.
+- [ ] Have the tester open the hosted build on the actual Chromebook and check performance, keyboard and DualSense behavior. Physical Chromebook/USB/Bluetooth validation remains pending. Offline/PWA packaging is optional later work.
 
 - [x] Remove remaining hint sentences and decorative section names after user correction. UI now uses functional labels, controls, time/results and buttons only; preserve this rule in future level/UI changes.
 

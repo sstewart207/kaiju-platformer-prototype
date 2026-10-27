@@ -47,7 +47,8 @@ Solargon is the only implemented character. His sprite sheet is still a generate
 ## Project references
 
 - Public source repository: https://github.com/sstewart207/kaiju-platformer-prototype
-- Local playtest on the development laptop: http://127.0.0.1:4173/
-- Other PCs can clone the repository and run `npm install` then `npm run dev` for separate local single-player play. This is not LAN co-op or a hosted web release.
+- Play in Chrome without signing in: https://sstewart207.github.io/kaiju-platformer-prototype/
+- GitHub Actions builds the game and GitHub Pages hosts the single-player playtest. The link can be emailed to the Chromebook tester. Physical Chromebook performance/controller testing is pending; LAN co-op is not implemented.
+- Local development remains available with `npm install` then `npm run dev`.
 - Concept source: the user-supplied `patricks kaiju download (1).docx` in Downloads. The original concepts remain the character identity reference.
 - `ART_DIRECTION.md`: visual reference and sprite requirements. `LEVEL_DESIGN.md`: ruins layout and route intent. `PLAYTEST.md`: controller/tester checklist. `TODO.md`: next work.
