@@ -1,6 +1,6 @@
 # Project TODOs
 
-- [ ] Prepare a playable build that can be emailed to a tester, without requiring Git, Node.js or development setup. Confirm the recipient's device/OS first, including whether it is a Chromebook/ChromeOS device. Evaluate an Electron wrapper versus a browser/PWA distribution for that target; do not assume Electron is the right ChromeOS package. Bundle all required assets, include short launch/control instructions, check email attachment size limits, and validate the actual launch and DualSense play path on the target platform. If an attachment is unsuitable, provide a downloadable build or hosted play link that can be emailed instead.
+- [ ] DEFERRED until the user resumes: prepare a playable build for the confirmed Chromebook/ChromeOS tester that can be emailed, without requiring Git, Node.js or development setup. Evaluate an Electron wrapper versus a browser/PWA distribution for that target; do not assume Electron is the right ChromeOS package. Bundle all required assets, include short launch/control instructions, check email attachment size limits, and validate the actual launch and DualSense play path on the target platform. If an attachment is unsuitable, provide a downloadable build or hosted play link that can be emailed instead.
 
 - [x] Remove remaining hint sentences and decorative section names after user correction. UI now uses functional labels, controls, time/results and buttons only; preserve this rule in future level/UI changes.
 
@@ -20,3 +20,4 @@
 - [x] Replace floating islands with continuous grass terrain, low terraces and broad ramped paths. Keep solid ground underneath all former gaps and an optional moving-platform route.
 - [x] Address counter-steering feedback: align the camera/route axes, remove velocity look-ahead, reject diagonal stick noise, assist cardinal directions, stop on release and prevent idle slope sliding.
 - [ ] Retest the revised grounded course on the user's actual DualSense. Confirm neutral stays still and right movement needs no corrective diagonal input; record remaining drift with browser/connection details.
+
