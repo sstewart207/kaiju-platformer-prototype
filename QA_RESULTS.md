@@ -1,5 +1,9 @@
 # QA results — October 27, 2026
 
+## Dash speed lines
+
+Added six small cream/gold tapered lines during active dashes, aligned to camera-projected movement. The effect uses one reusable mesh, freezes with pause and clears when the burst ends or the run restarts. Movement and input are unchanged. All four directional captures were inspected. 32 unit/physics tests, four relevant browser checks and the production build pass; short idle/jump rendering measured 144 FPS / 7 ms p95. The effect adds one draw call while active; no full-course benchmark was repeated.
+
 ## Rapid horizontal dash
 
 Dash now uses a steady low pose, 22 units/second for 0.18 seconds and 0.23 seconds between starts, with a 0.12-second early-tap buffer. The fixed step permits a burst every 14 ticks (about 4.3 per second). Direction is committed within a burst; queued bursts take the latest movement direction. Normal walking, jumping, gravity and collision dimensions are unchanged.

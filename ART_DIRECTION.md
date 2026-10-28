@@ -27,6 +27,8 @@ The course screenshot establishes camera composition, character-to-platform scal
 
 Ground dash uses the existing low landing pose (frame 7) as a steady horizontal dash pose, without cycling the bouncy running frames. This is a draft pose reuse; future dash art should preserve ground anchors and a stable silhouette. Jumping/falling keep their existing airborne poses.
 
+Dash feedback uses six small tapered cream/gold speed lines behind the character, aligned to the projected movement direction. Keep them close to the silhouette, visible only during the burst and depth-tested against the world. Avoid full-screen streaks or extra text.
+
 ### Rendering constants
 
 | Item | Current implementation |

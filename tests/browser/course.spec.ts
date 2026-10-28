@@ -26,6 +26,7 @@ interface State {
   jumps: number;
   dashes: number;
   dashing: boolean;
+  dashLines: number;
   landings: number;
   gatesPassed: number;
   checkpoint: number;

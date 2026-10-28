@@ -22,6 +22,7 @@ import { RENDER_WIDTH, RENDER_HEIGHT } from "./rendering";
 import { Combat } from "./combat";
 import { EnemyView, ZOMBIE_WALKER } from "./enemy-view";
 import { CHECKPOINTS } from "./course-extension";
+import { DashLines } from "./dash-lines";
 
 const ui = new UI();
 async function boot() {
@@ -63,6 +64,8 @@ async function boot() {
   document.getElementById("health")!.hidden = !enemyPreview;
   if (!enemyPreview) combat.collider.setEnabled(false);
   world.scene.add(character.sprite, character.occludedSprite);
+  const dashLines = new DashLines();
+  world.scene.add(dashLines.mesh);
   const shadow = new THREE.Mesh(
     new THREE.CircleGeometry(0.52, 20),
     new THREE.MeshBasicMaterial({
@@ -257,6 +260,13 @@ async function boot() {
       camera.camera,
       camera.pixelSize,
     );
+    dashLines.update(
+      player.dashing && (ui.screen === "playing" || ui.screen === "paused"),
+      character.sprite.position,
+      player.velocity,
+      camera.camera,
+      time,
+    );
     character.sprite.material.opacity =
       combat.invulnerable > 0
         ? Math.floor(combat.invulnerable * 14) % 2
@@ -320,7 +330,9 @@ async function boot() {
     }
   });
   textures.forEach((texture) => renderer.initTexture(texture));
+  dashLines.mesh.visible = true;
   await renderer.compileAsync(world.scene, camera.camera);
+  dashLines.mesh.visible = false;
   render(0, 1);
   last = performance.now();
   ui.ready();
@@ -341,6 +353,7 @@ async function boot() {
         jumps: player.jumps,
         dashes: player.dashes,
         dashing: player.dashing,
+        dashLines: dashLines.mesh.visible ? 6 : 0,
         dashCooldown: player.dashCooldown,
         landings: player.landings,
         section,
