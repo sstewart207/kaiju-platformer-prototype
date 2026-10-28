@@ -46,6 +46,51 @@ export interface Fireball {
   age: number;
 }
 
+export class PlayerVitals {
+  health = ENEMY.playerHealth;
+  invulnerable = 0;
+  tick() {
+    this.invulnerable = Math.max(0, this.invulnerable - FIXED_DT);
+  }
+  reset() {
+    this.health = ENEMY.playerHealth;
+    this.invulnerable = 0;
+  }
+  damage() {
+    if (this.invulnerable > 0 || this.health <= 0) return false;
+    this.health--;
+    this.invulnerable = ENEMY.invulnerability;
+    return true;
+  }
+}
+export interface EnemyDefinition {
+  spawn: Vec3;
+  patrol?: readonly Vec3[];
+}
+export const ENCOUNTERS: readonly EnemyDefinition[] = [
+  {
+    spawn: { ...ENEMY.spawn },
+    patrol: [
+      { x: 16, y: 0.69, z: -11 },
+      { x: 20, y: 0.69, z: -11 },
+    ],
+  },
+  {
+    spawn: { x: 70, y: 1.13, z: -18 },
+    patrol: [
+      { x: 67, y: 1.13, z: -18 },
+      { x: 73, y: 1.13, z: -18 },
+    ],
+  },
+  {
+    spawn: { x: 229, y: 2.28, z: 12 },
+    patrol: [
+      { x: 226, y: 2.28, z: 12 },
+      { x: 232, y: 2.28, z: 12 },
+    ],
+  },
+];
+
 function distance(a: Vec3, b: Vec3) {
   return Math.hypot(a.x - b.x, a.z - b.z);
 }
@@ -80,12 +125,21 @@ export class Combat {
   readonly body: RAPIER.RigidBody;
   readonly collider: RAPIER.Collider;
   private controller: RAPIER.KinematicCharacterController;
-  previous: Vec3 = { ...ENEMY.spawn };
+  previous: Vec3;
   action: EnemyAction = "idle";
   facing: Direction = "front";
   hp = ENEMY.health;
-  health = ENEMY.playerHealth;
-  invulnerable = 0;
+  private vitals: PlayerVitals;
+  private ownsVitals: boolean;
+  get health() {
+    return this.vitals.health;
+  }
+  set health(value: number) {
+    this.vitals.health = value;
+  }
+  get invulnerable() {
+    return this.vitals.invulnerable;
+  }
   actionTime = 0;
   projectiles: Fireball[] = [];
   shots = 0;
@@ -97,12 +151,20 @@ export class Combat {
   private hitThisSwing = false;
   private lastDash = -1;
   private aim: Vec3 = { x: 1, y: 0, z: 0 };
-  constructor(private physics: Physics) {
+  private patrolIndex = 0;
+  constructor(
+    private physics: Physics,
+    readonly definition: EnemyDefinition = { spawn: ENEMY.spawn },
+    sharedVitals?: PlayerVitals,
+  ) {
+    this.vitals = sharedVitals ?? new PlayerVitals();
+    this.ownsVitals = !sharedVitals;
+    this.previous = { ...definition.spawn };
     this.body = physics.world.createRigidBody(
       RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(
-        ENEMY.spawn.x,
-        ENEMY.spawn.y,
-        ENEMY.spawn.z,
+        definition.spawn.x,
+        definition.spawn.y,
+        definition.spawn.z,
       ),
     );
     // Sensor hurtbox lets a dash pass through; movement still sweeps the same shape
@@ -132,13 +194,13 @@ export class Combat {
         : 0;
   }
   reset() {
-    this.body.setTranslation(ENEMY.spawn, true);
-    this.body.setNextKinematicTranslation(ENEMY.spawn);
+    this.body.setTranslation(this.definition.spawn, true);
+    this.body.setNextKinematicTranslation(this.definition.spawn);
     this.collider.setEnabled(true);
-    this.previous = { ...ENEMY.spawn };
+    this.previous = { ...this.definition.spawn };
     this.hp = ENEMY.health;
-    this.health = ENEMY.playerHealth;
-    this.invulnerable = 0;
+    if (this.ownsVitals) this.vitals.reset();
+    this.patrolIndex = 0;
     this.cooldown = 0;
     this.actionTime = 0;
     this.gravity = 0;
@@ -158,9 +220,16 @@ export class Combat {
     this.hitThisSwing = false;
   }
   private damagePlayer() {
-    if (this.invulnerable > 0 || this.health <= 0) return false;
-    this.health--;
-    this.invulnerable = ENEMY.invulnerability;
+    return this.vitals.damage();
+  }
+  hit(damage = 1) {
+    if (this.hp <= 0) return false;
+    this.hp = Math.max(0, this.hp - damage);
+    this.setAction(this.hp ? "hurt" : "defeated");
+    if (!this.hp) {
+      this.collider.setEnabled(false);
+      this.projectiles = [];
+    }
     return true;
   }
   private worldHit(
@@ -181,7 +250,7 @@ export class Combat {
   }
   update(target: CombatTarget) {
     const dt = FIXED_DT;
-    this.invulnerable = Math.max(0, this.invulnerable - dt);
+    if (this.ownsVitals) this.vitals.tick();
     this.cooldown = Math.max(0, this.cooldown - dt);
     this.actionTime += dt;
     const p = this.position;
@@ -194,12 +263,20 @@ export class Combat {
       target.dashing &&
       target.dashes !== this.lastDash &&
       Math.abs(target.position.y - p.y) < 1.05 &&
-      segmentDistance(dashStart, dashEnd, { ...p, y: 0 }) < 0.9
+      segmentDistance(dashStart, dashEnd, { ...p, y: 0 }) < 0.9 &&
+      !this.worldHit(
+        target.position,
+        direction(target.position, p),
+        Math.hypot(
+          target.position.x - p.x,
+          target.position.y - p.y,
+          target.position.z - p.z,
+        ),
+        target,
+      )
     ) {
       this.lastDash = target.dashes;
-      this.hp--;
-      this.setAction(this.hp ? "hurt" : "defeated");
-      if (!this.hp) this.collider.setEnabled(false);
+      this.hit();
     }
     let vx = 0,
       vz = 0;
@@ -274,8 +351,9 @@ export class Combat {
           this.cooldown = 1.1;
         }
       } else {
-        const fromHome = distance(p, ENEMY.spawn);
+        const fromHome = distance(p, this.definition.spawn);
         const engaged = range <= ENEMY.aggro && fromHome <= ENEMY.leash;
+        let visible = false;
         if (engaged) {
           const dx = target.position.x - p.x,
             dz = target.position.z - p.z;
@@ -294,7 +372,7 @@ export class Combat {
             target.position.y - mouth.y,
             target.position.z - mouth.z,
           );
-          const visible = !this.worldHit(mouth, aim, sightLength, target);
+          visible = !this.worldHit(mouth, aim, sightLength, target);
           if (this.cooldown <= 0 && visible) {
             this.aim = aim;
             this.setAction(range <= ENEMY.meleeRange ? "melee" : "charging");
@@ -305,11 +383,29 @@ export class Combat {
             if (this.action !== "walking") this.setAction("walking");
           } else if (this.action !== "idle") this.setAction("idle");
         } else if (fromHome > 0.2) {
-          const d = direction(p, ENEMY.spawn);
+          const d = direction(p, this.definition.spawn);
           vx = d.x * ENEMY.speed;
           vz = d.z * ENEMY.speed;
           this.setAction("walking");
         } else if (this.action !== "idle") this.setAction("idle");
+        if ((!engaged || !visible) && this.definition.patrol?.length) {
+          const point = this.definition.patrol[this.patrolIndex];
+          if (distance(p, point) < 0.3)
+            this.patrolIndex =
+              (this.patrolIndex + 1) % this.definition.patrol.length;
+          const d = direction(p, this.definition.patrol[this.patrolIndex]);
+          vx = d.x * ENEMY.speed * 0.45;
+          vz = d.z * ENEMY.speed * 0.45;
+          this.facing =
+            Math.abs(vx) > Math.abs(vz)
+              ? vx > 0
+                ? "right"
+                : "left"
+              : vz > 0
+                ? "front"
+                : "back";
+          if (this.action !== "walking") this.setAction("walking");
+        }
       }
       this.gravity = Math.max(-20, this.gravity - 26 * dt);
       this.controller.computeColliderMovement(

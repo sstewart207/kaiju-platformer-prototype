@@ -69,8 +69,8 @@ export class UI {
     this.unsupported = unsupported;
     const controller = source === "gamepad" && connected;
     element("controls").innerHTML = controller
-      ? "<span><kbd>LEFT STICK / D-PAD</kbd> MOVE</span><span><kbd>✕</kbd> JUMP</span><span><kbd>□ / R1</kbd> DASH</span>"
-      : "<span><kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd> MOVE</span><span><kbd>SPACE</kbd> JUMP</span><span><kbd>SHIFT</kbd> DASH</span>";
+      ? "<span><kbd>LEFT STICK / D-PAD</kbd> MOVE</span><span><kbd>✕</kbd> JUMP</span><span><kbd>□ / R1</kbd> DASH</span><span><kbd>○</kbd> ATTACK</span><span><kbd>R2</kbd> SOLAR</span>"
+      : "<span><kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd> MOVE</span><span><kbd>SPACE</kbd> JUMP</span><span><kbd>SHIFT</kbd> DASH</span><span><kbd>J</kbd> ATTACK</span><span><kbd>K</kbd> SOLAR</span>";
     this.updateFooter();
   }
   private updateFooter() {
@@ -81,14 +81,13 @@ export class UI {
         ? "Controller disconnected. Reconnect or use the keyboard."
         : controller
           ? "✕ Select · ○ Back · Options Pause · △ Restart"
-          : "WASD / arrows Move · Space Jump · Shift Dash · Esc Pause";
+          : "WASD / arrows Move · Space Jump · Shift Dash · J Attack · K Solar · Esc Pause";
   }
   show(screen: Screen, falls = 0) {
     this.screen = screen;
     const playing = screen === "playing";
     element("overlay").hidden = playing;
-    for (const id of ["hud", "controls"])
-      element(id).hidden = !playing;
+    for (const id of ["hud", "controls"]) element(id).hidden = !playing;
     if (playing) {
       element<HTMLButtonElement>("primary-button").blur();
       return;
@@ -120,6 +119,12 @@ export class UI {
         : "DASH READY";
     element("dash-meter").style.width =
       `${(1 - Math.min(1, dashCooldown / rechargeDuration)) * 100}%`;
+  }
+  updateSolar(cooldown: number, duration = 1.25) {
+    element("solar-status").textContent =
+      cooldown > 0.001 ? "SOLAR …" : "SOLAR READY";
+    element("solar-meter").style.width =
+      `${(1 - Math.min(1, cooldown / duration)) * 100}%`;
   }
   async respawnFlash() {
     element("fade").style.opacity = ".85";

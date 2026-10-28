@@ -5,6 +5,8 @@ export class Input {
   private keys = new Set<string>();
   private jumpQueued = false;
   private dashQueued = false;
+  private attackQueued = false;
+  private specialQueued = false;
   private controller = new Controller();
   private pad = { x: 0, z: 0, jumpHeld: false };
   source: "keyboard" | "gamepad" = "keyboard";
@@ -33,6 +35,8 @@ export class Input {
         event.preventDefault();
       if (!event.repeat) {
         if (event.code === "Space") this.jumpQueued = true;
+        if (event.code === "KeyJ") this.attackQueued = true;
+        if (event.code === "KeyK") this.specialQueued = true;
         if (event.code === "ShiftLeft" || event.code === "ShiftRight")
           this.dashQueued = true;
         if (event.code === "Escape") this.onPause();
@@ -56,6 +60,8 @@ export class Input {
     this.keys.clear();
     this.jumpQueued = false;
     this.dashQueued = false;
+    this.attackQueued = false;
+    this.specialQueued = false;
     this.pad = { x: 0, z: 0, jumpHeld: false };
     this.controller.clear();
   }
@@ -91,6 +97,8 @@ export class Input {
     if (state.active) this.setSource("gamepad");
     if (state.jumpPressed) this.jumpQueued = true;
     if (state.dashPressed) this.dashQueued = true;
+    if (state.attackPressed) this.attackQueued = true;
+    if (state.specialPressed) this.specialQueued = true;
     if (state.nav) this.onMenuMove(state.nav);
     if (state.pause) this.onPause();
     else if (state.back) this.onBack();
@@ -106,6 +114,10 @@ export class Input {
       Number(this.keys.has("KeyW") || this.keys.has("ArrowUp"));
     const jumpPressed = this.jumpQueued;
     const dashPressed = this.dashQueued;
+    const attackPressed = this.attackQueued,
+      specialPressed = this.specialQueued;
+    this.attackQueued = false;
+    this.specialQueued = false;
     this.jumpQueued = false;
     this.dashQueued = false;
     return {
@@ -113,6 +125,8 @@ export class Input {
       z: x || z ? z : this.pad.z,
       jumpPressed,
       dashPressed,
+      attackPressed,
+      specialPressed,
       jumpHeld: this.keys.has("Space") || this.pad.jumpHeld,
     };
   }

@@ -344,9 +344,6 @@ h1 {
     bottom: 18px;
     font-size: 7px;
   }
-  #controls > span:last-child {
-    display: none;
-  }
   #hint {
     right: 18px;
     bottom: 76px;
@@ -499,6 +496,14 @@ h1 {
   background: #153d3f66;
   margin-top: 6px;
   overflow: hidden;
+}
+#solar-status {
+  margin-top: 8px;
+}
+#controls {
+  flex-wrap: wrap;
+  column-gap: 16px;
+  row-gap: 10px;
 }
 .dash-track i {
   display: block;

@@ -19,24 +19,26 @@ import { UI } from "./ui";
 import { FixedClock } from "./timestep";
 import type { Vec3 } from "./types";
 import { RENDER_WIDTH, RENDER_HEIGHT } from "./rendering";
-import { Combat } from "./combat";
-import { EnemyView, ZOMBIE_WALKER } from "./enemy-view";
+import { Combat, ENCOUNTERS, ENEMY, PlayerVitals } from "./combat";
+import { EnemyView, HUMAN_ZOMBIE } from "./enemy-view";
+import { PlayerAttacks, ATTACK } from "./player-attacks";
+import { PlayerCombatView, SOLARGON_COMBAT } from "./player-combat-view";
 import { CHECKPOINTS } from "./course-extension";
 import { DashLines } from "./dash-lines";
 
 const ui = new UI();
 async function boot() {
   await RAPIER.init();
-  // Keep enemy experiments available locally while their design is undecided.
-  // Production builds cannot enable this via the URL.
-  const enemyPreview =
-    import.meta.env.DEV &&
-    new URLSearchParams(location.search).get("enemies") === "1";
-  const [texture, enemyTexture] = await Promise.all([
+  // Isolate movement regressions locally; public builds always include combat.
+  const combatEnabled = !(
+    import.meta.env.DEV && new URLSearchParams(location.search).has("peaceful")
+  );
+  const [texture, enemyTexture, combatTexture] = await Promise.all([
     new THREE.TextureLoader().loadAsync(SOLARGON.atlas),
-    enemyPreview
-      ? new THREE.TextureLoader().loadAsync(ZOMBIE_WALKER.atlas)
+    combatEnabled
+      ? new THREE.TextureLoader().loadAsync(HUMAN_ZOMBIE.atlas)
       : Promise.resolve(null),
+    new THREE.TextureLoader().loadAsync(SOLARGON_COMBAT.atlas),
   ]);
   const canvas = document.getElementById("world") as HTMLCanvasElement;
   const renderer = new THREE.WebGLRenderer({
@@ -57,12 +59,20 @@ async function boot() {
     camera = new FollowCamera(),
     world = new RuinsWorld();
   const character = new CharacterSprite(SOLARGON, texture);
-  const combat = new Combat(physics);
-  const enemyView = enemyTexture
-    ? new EnemyView(world.scene, enemyTexture)
-    : null;
-  document.getElementById("health")!.hidden = !enemyPreview;
-  if (!enemyPreview) combat.collider.setEnabled(false);
+  const vitals = new PlayerVitals();
+  const enemies = ENCOUNTERS.map(
+    (definition) => new Combat(physics, definition, vitals),
+  );
+  const combat = enemies[0];
+  const enemyViews = enemyTexture
+    ? enemies.map(() => new EnemyView(world.scene, enemyTexture))
+    : [];
+  const attacks = new PlayerAttacks(physics);
+  const combatView = new PlayerCombatView(world.scene, combatTexture);
+  let defeatTime = 0;
+  if (!combatEnabled)
+    enemies.forEach((enemy) => enemy.collider.setEnabled(false));
+  document.getElementById("health")!.hidden = !combatEnabled;
   world.scene.add(character.sprite, character.occludedSprite);
   const dashLines = new DashLines(SOLARGON.palette);
   world.scene.add(dashLines.mesh);
@@ -91,8 +101,13 @@ async function boot() {
   let checkpointPosition = { ...SPAWN };
   let checkpointGates = 0;
   function resetCombat() {
-    combat.reset();
-    if (!enemyPreview) combat.collider.setEnabled(false);
+    vitals.reset();
+    attacks.reset();
+    defeatTime = 0;
+    enemies.forEach((enemy) => {
+      enemy.reset();
+      if (!combatEnabled) enemy.collider.setEnabled(false);
+    });
   }
   function restart() {
     time = 0;
@@ -179,15 +194,26 @@ async function boot() {
   });
   function tick() {
     if (ui.screen !== "playing") return;
-    time += FIXED_DT;
     elapsed += FIXED_DT;
+    if (vitals.health <= 0) {
+      defeatTime += FIXED_DT;
+      if (defeatTime >= 0.65) recover();
+      return;
+    }
+    time += FIXED_DT;
     physics.updatePlatforms(time);
-    if (enemyPreview) combat.beginStep();
-    player.update(input.read());
+    if (combatEnabled) enemies.forEach((enemy) => enemy.beginStep());
+    const controls = input.read();
+    player.update(controls);
     physics.step();
-    if (enemyPreview) combat.update(player);
+    attacks.update(controls, player, combatEnabled ? enemies : []);
+    if (combatEnabled) {
+      vitals.tick();
+      enemies.forEach((enemy) => enemy.update(player));
+    }
     if (combat.health <= 0) {
-      recover();
+      input.clear();
+      attacks.kind = null;
       return;
     }
     const position = player.position;
@@ -261,20 +287,52 @@ async function boot() {
       camera.pixelSize,
     );
     dashLines.update(
-      player.dashing && (ui.screen === "playing" || ui.screen === "paused"),
+      player.dashing &&
+        vitals.health > 0 &&
+        (ui.screen === "playing" || ui.screen === "paused"),
       character.sprite.position,
       player.velocity,
       camera.camera,
       time,
     );
-    character.sprite.material.opacity =
-      combat.invulnerable > 0
+    const opacity =
+      combat.invulnerable > 0 && combat.health > 0
         ? Math.floor(combat.invulnerable * 14) % 2
           ? 0.3
           : 1
         : 1;
-    enemyView?.update(combat, camera.camera, camera.pixelSize, dt, alpha);
-    if (enemyPreview) ui.updateHealth(combat.health);
+    const pose =
+      combat.health <= 0
+        ? "defeat"
+        : combat.invulnerable > ENEMY.invulnerability - 0.15
+          ? "hurt"
+          : attacks.pose;
+    const attackDirection = attacks.kind
+      ? Math.abs(attacks.direction.x) > 0
+        ? attacks.direction.x > 0
+          ? "right"
+          : "left"
+        : attacks.direction.z > 0
+          ? "front"
+          : "back"
+      : player.direction;
+    character.sprite.visible = character.occludedSprite.visible = !pose;
+    character.sprite.material.opacity = opacity;
+    combatView.update(
+      pose,
+      attackDirection,
+      { x: position.x, y: position.y - FOOT_OFFSET + 0.02, z: position.z },
+      attacks,
+      camera.camera,
+      camera.pixelSize,
+      dt,
+      opacity,
+    );
+    enemyViews.forEach((view, i) =>
+      view.update(enemies[i], camera.camera, camera.pixelSize, dt, alpha),
+    );
+    if (combatEnabled) ui.updateHealth(combat.health);
+    ui.updateSolar(attacks.solarCooldown, ATTACK.solarCooldown);
     const ground = physics.groundBelow(current, player.collider);
     shadow.visible = !!ground;
     if (ground) {
@@ -312,7 +370,7 @@ async function boot() {
     }
     render(
       ui.screen === "paused" ? 0 : dt,
-      ui.screen === "playing" && !manual ? clock.alpha : 1,
+      ui.screen === "playing" && !manual && vitals.health > 0 ? clock.alpha : 1,
     );
   }
   camera.update(SPAWN, { x: 0, y: 0, z: 0 }, 0, true);
@@ -360,7 +418,7 @@ async function boot() {
         gatesPassed,
         checkpoint,
         combat: {
-          enabled: enemyPreview,
+          enabled: combatEnabled,
           health: combat.health,
           enemyHp: combat.hp,
           enemyPosition: combat.position,
@@ -373,9 +431,22 @@ async function boot() {
           meleeHits: combat.meleeHits,
           projectileHits: combat.projectileHits,
           wallHits: combat.wallHits,
-          spriteWidth: enemyView?.character.sprite.scale.x ?? 0,
-          spriteHeight: enemyView?.character.sprite.scale.y ?? 0,
+          spriteWidth: enemyViews[0]?.character.sprite.scale.x ?? 0,
+          spriteHeight: enemyViews[0]?.character.sprite.scale.y ?? 0,
           playerSpriteWidth: character.sprite.scale.x,
+          enemies: enemies.map((enemy) => ({
+            hp: enemy.hp,
+            position: enemy.position,
+            action: enemy.action,
+          })),
+          attack: attacks.kind,
+          attackAge: attacks.age,
+          swings: attacks.swings,
+          beams: attacks.beams,
+          hits: attacks.hits,
+          solarCooldown: attacks.solarCooldown,
+          beamLength: attacks.beamLength,
+          beamActive: attacks.beamActive,
         },
         drawCalls: renderer.info.render.calls,
         fps: samples.length

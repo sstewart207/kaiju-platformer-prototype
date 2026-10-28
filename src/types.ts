@@ -9,6 +9,8 @@ export interface MovementInput {
   jumpPressed: boolean;
   jumpHeld: boolean;
   dashPressed?: boolean;
+  attackPressed?: boolean;
+  specialPressed?: boolean;
 }
 export type AnimationState =
   | "idle"

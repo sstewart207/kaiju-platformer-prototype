@@ -48,8 +48,11 @@ test("enemy scale, melee windup, damage and pause/restart", async ({
   await boot(page);
   await stand(page, ENEMY.spawn.x - 2.5);
   const size = await state(page);
-  expect(size.spriteWidth / size.playerSpriteWidth).toBeGreaterThan(0.9);
-  expect(size.spriteWidth / size.playerSpriteWidth).toBeLessThan(1.15);
+  // The bipedal human is narrower than Solargon's wings; standing body is 2.1 world units.
+  expect(size.spriteHeight).toBeGreaterThan(2);
+  expect(size.spriteHeight).toBeLessThan(3);
+  expect(size.spriteWidth).toBeGreaterThan(1.4);
+  expect(size.spriteWidth).toBeLessThan(3);
   await page.screenshot({ path: "art/playtest/enemy-scale.png" });
   await stand(page, ENEMY.spawn.x - 1.2);
   // Re-enter from a clean restart so this encounter begins with a melee, not a prior charge.

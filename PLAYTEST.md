@@ -4,6 +4,8 @@
 
 October 27 update: Shane reports testing a physical DualSense on October 26 and says it works. Browser, connection type and individual checklist results were not recorded, so the USB/Bluetooth-specific rows below remain unverified. Another movement-feel pass is optional; no new drift problem was reported.
 
+Combat update: Circle now swipes during gameplay (still Back in menus); R2 fires the solar beam. These new actions pass synthetic Gamepad checks. Physical testing of the new combat bindings is not yet recorded.
+
 The user reported disliking the floating world, repeatedly falling through gaps, and having to counter-steer with diagonal inputs. The revised course uses continuous grass terrain, low terraces and wide walkable connections. Its camera is aligned with movement, velocity look-ahead is removed, stick filtering is stronger, and grounded idle movement is locked against slope correction.
 
 Retest first: leave the stick untouched for ten seconds; move right and release without holding any other direction; then walk the main route without jumping. Stepping off the path must land on grass. These software checks pass with synthetic input; the user's actual USB/Bluetooth controller behavior still needs confirmation.

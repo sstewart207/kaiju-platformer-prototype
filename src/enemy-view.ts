@@ -2,11 +2,11 @@ import * as THREE from "three";
 import { CharacterSprite } from "./animation";
 import { Combat, ENEMY, type EnemyAction } from "./combat";
 import type { CharacterManifest } from "./types";
-import atlas from "../art/zombie-walker-atlas-v1.audit.json";
+import atlas from "../art/human-zombie-atlas-v1.audit.json";
 
-export const ZOMBIE_WALKER: CharacterManifest<EnemyAction> = {
-  name: "Zombie kaiju",
-  atlas: `${import.meta.env.BASE_URL}assets/zombie-walker-atlas-v1.png`,
+export const HUMAN_ZOMBIE: CharacterManifest<EnemyAction> = {
+  name: "Zombie",
+  atlas: `${import.meta.env.BASE_URL}assets/human-zombie-atlas-v1.png`,
   columns: 8,
   rows: 4,
   size: 2,
@@ -17,7 +17,7 @@ export const ZOMBIE_WALKER: CharacterManifest<EnemyAction> = {
   animations: {
     idle: { frames: [0], fps: 1, loop: true },
     walking: { frames: [1, 2], fps: 6, loop: true },
-    melee: { frames: [0, 0, 3], fps: 5, loop: false },
+    melee: { frames: [0, 0, 3, 0, 0], fps: 5, loop: false },
     charging: { frames: [4], fps: 1, loop: false },
     shooting: { frames: [5], fps: 1, loop: false },
     hurt: { frames: [6], fps: 1, loop: false },
@@ -32,7 +32,7 @@ export class EnemyView {
   private pips = new THREE.Group();
   private balls: THREE.Group[] = [];
   constructor(scene: THREE.Scene, texture: THREE.Texture) {
-    this.character = new CharacterSprite(ZOMBIE_WALKER, texture);
+    this.character = new CharacterSprite(HUMAN_ZOMBIE, texture.clone());
     scene.add(this.character.sprite, this.character.occludedSprite);
     this.shadow = new THREE.Mesh(
       new THREE.CircleGeometry(0.52, 16),

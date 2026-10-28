@@ -214,3 +214,35 @@ test("DualSense Square and R1 dash with a short repeatable cooldown", async ({
     false,
   );
 });
+
+test("DualSense Circle attacks and R2 fires solar without held-button repeats", async ({
+  page,
+}) => {
+  await setup(page);
+  await sample(page, [0]);
+  await sample(page, [], [0, 0], 20);
+  const fight = () =>
+    page.evaluate(
+      () =>
+        (
+          window.__solargon.state() as unknown as {
+            combat: { enemyHp: number; swings: number; beams: number };
+          }
+        ).combat,
+    );
+  await page.evaluate(() => {
+    window.__solargon.teleport({ x: 16.5, y: 0.75, z: -11 });
+    window.__solargon.advance(15);
+  });
+  await sample(page, [], [1, 0], 1);
+  await sample(page, [1], [0, 0], 10);
+  expect((await fight()).enemyHp).toBe(1);
+  await sample(page, [1], [0, 0], 25);
+  expect((await fight()).swings).toBe(1);
+  await sample(page, [], [0, 0], 1);
+  await sample(page, [7], [0, 0], 15);
+  expect((await fight()).enemyHp).toBe(0);
+  await sample(page, [7], [0, 0], 100);
+  expect((await fight()).beams).toBe(1);
+  await expect(page.locator("#controls")).toContainText("R2");
+});

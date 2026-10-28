@@ -12,7 +12,7 @@ test("published game opens anonymously with assets, controls and pause", async (
   const errors: string[] = [];
   const enemyRequests: string[] = [];
   page.on("request", (request) => {
-    if (request.url().includes("zombie-walker-atlas"))
+    if (request.url().includes("human-zombie-atlas"))
       enemyRequests.push(request.url());
   });
   page.on("pageerror", (error) => errors.push(error.message));
@@ -37,7 +37,8 @@ test("published game opens anonymously with assets, controls and pause", async (
   ).toBeVisible();
   await page.getByRole("button", { name: "START", exact: true }).click();
   await expect(page.locator("#hud")).toBeVisible();
-  await expect(page.locator("#health")).toBeHidden();
+  await expect(page.locator("#health")).toBeVisible();
+  await expect(page.locator("#solar-status")).toHaveText("SOLAR READY");
   expect(
     await page.locator("#world").evaluate((el) => {
       const canvas = el as HTMLCanvasElement;
@@ -46,6 +47,10 @@ test("published game opens anonymously with assets, controls and pause", async (
   ).toEqual({ width: 1920, height: 1080 });
   expect(await page.evaluate(() => typeof window.__solargon)).toBe("undefined");
   await expect(page.locator("#run-time, #location, .stage")).toHaveCount(0);
+  await page.keyboard.press("KeyK");
+  await expect(page.locator("#solar-status")).toHaveText("SOLAR …");
+  await expect(page.locator("#solar-status")).toHaveText("SOLAR READY");
+  await page.keyboard.press("KeyJ");
   await page.keyboard.down("KeyD");
   await page.keyboard.down("ShiftLeft");
   await expect(page.locator("#dash-status")).toHaveText("DASH");
@@ -61,6 +66,6 @@ test("published game opens anonymously with assets, controls and pause", async (
   await expect(page.locator("#hud")).toBeVisible();
   await expect(page.locator("#controls")).toContainText("SHIFT");
   expect(errors).toEqual([]);
-  expect(enemyRequests).toEqual([]);
+  expect(enemyRequests).toHaveLength(1);
   await page.screenshot({ path: "test-results/public-playtest.png" });
 });

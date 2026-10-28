@@ -93,11 +93,13 @@ Graviton: bottom-center panel. Toxicraven: top-right panel. Other panels are not
 
 ## Sprite production requirements
 
-### Enemy concepts (type undecided)
+### Human zombie combat draft
 
-Patrick still needs to choose dragons or zombies. The existing undead-kaiju concepts and animation atlas are prototype studies, not approved production assets. Keep them saved; do not generate replacements or expand the roster until that decision.
+The user authorized bipedal human zombies for the combat milestone on October 27. This supersedes the earlier dragon-only restriction and the instruction to wait for Patrick's decision. Patrick can change the final enemy design later. Preserve the older undead-kaiju studies; they are no longer the active enemy artwork.
 
-The zombie prototype uses magical undead dragons/kaijus, not humans in torn clothes: reptilian muzzles, horns, clawed limbs, tails and damaged wings. Basic attacks are a bite/claw strike and mouth-fired fireballs. The three [v2 concepts](art/concepts/zombies/zombie-kaiju-concepts-v2.png) are exploratory. Preserve clear attack silhouettes, contrast against grass/stone and transparent padding. Do not inherit concept edge fringes or clipping into animation frames.
+Current zombie: two arms, two legs, olive skin, messy dark hair, amber eyes, torn plum shirt, charcoal trousers and brown boots. Match Solargon's chunky outlines and compact pixel-art treatment; avoid realistic horror or gore. Zombies swipe up close and throw fireballs from a hand. The neutral preview is `art/concepts/human-zombies/walker-preview-v1.png`; active atlas is `public/assets/human-zombie-atlas-v1.png`. Visible standing height is 2.1 world units; compare beside Solargon rather than shrinking enemies by default. Behavior, physics and artwork remain separate.
+
+Solargon's separate `public/assets/solargon-combat-v1.png` provides four-direction swipe preparation/strike, solar charge/release, hit recoil and defeat poses. These are generated draft poses; anatomy consistency and animation transitions still need team review. Keep the existing movement atlas. Falling still shares jump art. Neither draft is a final character-design approval. Full prompts and provenance: `art/concepts/human-zombies/GENERATION.md`.
 
 ### Shared asset requirements
 
@@ -108,7 +110,7 @@ The zombie prototype uses magical undead dragons/kaijus, not humans in torn clot
 - Direction rows are **right, left, front, back**. All directions use the same scale and a slightly elevated viewing angle consistent with the scene.
 - Columns are **idle 1, idle 2, run 1, run 2, run 3, run 4, jump, fall, land**. Run frames need an actual limb cycle. Jump and fall require distinct poses. A single land pose is sufficient for this milestone.
 - Keep foot anchors consistent across animations; don't align frames by the tallest horn or widest wing. Match visible character size against Solargon in the courtyard, accounting for transparent padding.
-- Future attack, special, damage and defeat clips can extend the manifest later. Do not create those mechanics or pretend a static effect is a missing animation.
+- Combat now uses separate attack, special, damage and defeat clips for Solargon. Preserve real pose changes as well as VFX; do not substitute an effect for a missing sprite pose. Other characters remain outside this milestone.
 
 The current Solargon draft uses an irregular 8 × 4 sheet and shares jump/fall artwork. That is a documented draft limitation. For a new 9-column sheet, set `columns: 9`, set falling to frame 7 and landing to frame 8, and supply its own rectangles/anchors. Movement code does not need to change.
 

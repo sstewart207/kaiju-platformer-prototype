@@ -1,5 +1,15 @@
 # QA results — October 27, 2026
 
+## Solargon combat and human zombies
+
+Solargon now has J/Circle swipes and K/R2 solar beams. Three bipedal human zombies patrol, chase and use telegraphed swipes/fireballs. Their art is separate from behavior and remains replaceable. Three-hit player health has one shared damage-protection window; defeat briefly shows a pose before checkpoint recovery. Restart clears all encounters and attack state. Walking, jumping, rapid dash and stage geometry are unchanged.
+
+38 unit/physics tests pass, including attack facing/reach/height, once-per-swing damage, solar charge/cooldown/piercing, thin-wall blocking, shared invulnerability and following authored waypoints to regain sight. The full local browser suite passed 23 checks; a separate full-course performance check also passed. Coverage includes both keyboard routes with enemies enabled, checkpoint recovery after combat defeat, synthetic Circle/R2 attacks and held-button suppression, pause/restart and all 88 sprite crops. No physical test of the new combat bindings is claimed.
+
+Full-course 1080p run: 2:14.30, **143.99 FPS**, **7.1 ms p95**, maximum 20.8 ms, no frames above 33.4 ms and no console errors. Active enemy fight: 143.76 FPS / 7.1 ms p95. Edge headless on the RTX 5070 Ti laptop; Chromebook performance remains untested. [Course data](art/playtest/performance/human-combat-1080p.json) · [Fight data](art/playtest/performance/human-zombie-fight-1080p.json).
+
+Inspected side-by-side scale, swipe/beam captures and four-direction contact sheets. The read-only audits and browser alpha-component checks retain complete silhouettes without neighboring-character fragments. Draft limitations: zombie walking has two poses; Solargon's anatomy and transition polish need review; falling shares jump artwork. AI uses authored patrol routes and sight checks, not general navigation-mesh pathfinding. [Art and full built-in generation prompts](art/concepts/human-zombies/GENERATION.md).
+
 ## Dash speed lines
 
 Added six small cream/gold tapered lines during active dashes, aligned to camera-projected movement. The effect uses one reusable mesh, freezes with pause and clears when the burst ends or the run restarts. Movement and input are unchanged. All four directional captures were inspected. 32 unit/physics tests, four relevant browser checks and the production build pass; short idle/jump rendering measured 144 FPS / 7 ms p95. The effect adds one draw call while active; no full-course benchmark was repeated.

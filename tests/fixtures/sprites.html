@@ -17,6 +17,15 @@
     <script type="module">
       import * as THREE from "three";
       import { CharacterSprite, SOLARGON } from "/src/animation.ts";
+      import { HUMAN_ZOMBIE } from "/src/enemy-view.ts";
+      import { SOLARGON_COMBAT } from "/src/player-combat-view.ts";
+      const sheet = new URLSearchParams(location.search).get("sheet");
+      const manifest =
+        sheet === "human"
+          ? HUMAN_ZOMBIE
+          : sheet === "combat"
+            ? SOLARGON_COMBAT
+            : SOLARGON;
       const renderer = new THREE.WebGLRenderer({
         antialias: false,
         preserveDrawingBuffer: true,
@@ -37,19 +46,19 @@
       );
       camera.position.z = 10;
       camera.updateMatrixWorld();
-      const texture = await new THREE.TextureLoader().loadAsync(SOLARGON.atlas);
+      const texture = await new THREE.TextureLoader().loadAsync(manifest.atlas);
       for (const [row, direction] of [
         "right",
         "left",
         "front",
         "back",
       ].entries()) {
-        for (let frame = 0; frame < 8; frame++) {
-          const x = -10.5 + frame * 3,
+        for (let frame = 0; frame < manifest.columns; frame++) {
+          const x = -12 + ((frame + 0.5) * 24) / manifest.columns,
             y = 4.3 - row * 3.2;
           const sprite = new CharacterSprite(
             {
-              ...SOLARGON,
+              ...manifest,
               animations: { sample: { frames: [frame], fps: 1, loop: false } },
             },
             texture.clone(),
