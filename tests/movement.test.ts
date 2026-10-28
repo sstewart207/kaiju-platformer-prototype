@@ -280,7 +280,8 @@ test("rapid dash presses repeat after cooldown without gaining vertical flight",
       }),
     );
     assert.equal(player.grounded, true);
-    if (player.dashing) assert.equal(player.animation, "dashing");
+    if (player.dashing || player.dashCooldown > 0)
+      assert.equal(player.animation, "dashing");
   }
   assert.ok(player.dashes >= 8 && player.dashes <= 9, `${player.dashes}`);
   assert.ok(player.position.x > -34);

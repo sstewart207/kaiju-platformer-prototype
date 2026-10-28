@@ -261,7 +261,8 @@ export class Player {
       ? this.velocity.y > 0
         ? "jumping"
         : "falling"
-      : this.dashing
+      // Keep the low pose through the brief recovery so rapid chains do not bob.
+      : this.dashing || this.dashCooldown > 0
         ? "dashing"
         : this.landingTime > 0
           ? "landing"
