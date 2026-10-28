@@ -1,5 +1,9 @@
 # Project TODOs
 
+- [ ] Improve combat weight: stronger swipe body motion, collision-safe forward movement, directional enemy knockback/stagger, brief hit-stop, impact sound and contact effects. User feedback: swipe feels weak and combat feels ungrounded. Research and implementation order: COMBAT_FEEL_PLAN.md.
+- [ ] Add a separate traveling fireball attack with its own keyboard/DualSense binding and a buffered chain of successive shots. Preserve swipe and held solar ray; do not substitute the current short beam burst for a projectile.
+- [ ] Add stamina: discrete attack costs, continuous ray drain, regeneration delay and exhaustion that stops attacks without automatically restarting while held. Tune costs to retain fast chaining and repeatable dash movement. Basic movement/jumping stay available when empty. See COMBAT_FEEL_PLAN.md for proposed tuning and checks.
+
 - [x] Keep the tap solar burst and add a continuous mouth ray while holding K/R2. Follow facing while moving, stop at walls, stop on release, and recharge after sustained firing. Keyboard and synthetic controller tests cover release, pause, restart and disconnect; physical R2 validation remains pending.
 - [x] Place 12 zombies in four groups along Ruins; require all 12 defeats to unlock the exit. Preserve kills through checkpoint recovery and reset on restart. New authored levels use higher quotas (18, then 24); replaying Ruins keeps its quota.
 - [x] Give falling its own four-direction draft atlas and show recoil followed by collapse when Solargon dies.
