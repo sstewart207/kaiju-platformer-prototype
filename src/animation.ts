@@ -1,14 +1,16 @@
 import * as THREE from "three";
 import type {
   CharacterManifest,
+  PlayableCharacterManifest,
   AnimationState,
   Direction,
   Vec3,
 } from "./types";
 import auditedAtlas from "../art/solargon-atlas-v2.audit.json";
 
-export const SOLARGON: CharacterManifest = {
+export const SOLARGON: PlayableCharacterManifest = {
   name: "Solargon",
+  palette: { primary: "#f4c45a", highlight: "#fff4cf" },
   atlas: `${import.meta.env.BASE_URL}assets/solargon-atlas-v2.png`,
   columns: 8,
   rows: 4,

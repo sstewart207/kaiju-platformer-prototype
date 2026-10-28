@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { Vec3 } from "./types";
+import type { Vec3, PlayableCharacterManifest } from "./types";
 
 // Six tapered strokes in one reusable mesh; no particles or textures to load.
 export class DashLines {
@@ -8,7 +8,7 @@ export class DashLines {
   private projected = new THREE.Vector3();
   private offset = new THREE.Vector3();
   readonly mesh: THREE.Mesh;
-  constructor() {
+  constructor(palette: PlayableCharacterManifest["palette"]) {
     this.geometry.setAttribute(
       "position",
       new THREE.BufferAttribute(this.positions, 3).setUsage(
@@ -17,7 +17,7 @@ export class DashLines {
     );
     const colors = new Float32Array(this.positions.length);
     for (let line = 0; line < 6; line++) {
-      const color = new THREE.Color(line % 2 ? "#f4c45a" : "#fff4cf");
+      const color = new THREE.Color(line % 2 ? palette.primary : palette.highlight);
       for (let vertex = 0; vertex < 3; vertex++)
         color.toArray(colors, line * 9 + vertex * 3);
     }

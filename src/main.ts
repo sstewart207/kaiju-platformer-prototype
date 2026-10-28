@@ -64,7 +64,7 @@ async function boot() {
   document.getElementById("health")!.hidden = !enemyPreview;
   if (!enemyPreview) combat.collider.setEnabled(false);
   world.scene.add(character.sprite, character.occludedSprite);
-  const dashLines = new DashLines();
+  const dashLines = new DashLines(SOLARGON.palette);
   world.scene.add(dashLines.mesh);
   const shadow = new THREE.Mesh(
     new THREE.CircleGeometry(0.52, 20),

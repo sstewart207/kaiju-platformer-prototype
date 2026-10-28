@@ -43,6 +43,12 @@ export interface CharacterManifest<State extends string = AnimationState> {
   pixelsPerUnit?: number;
   frames?: Record<Direction, readonly SpriteFrame[]>;
 }
+export interface PlayableCharacterManifest extends CharacterManifest {
+  palette: {
+    primary: string;
+    highlight: string;
+  };
+}
 export interface PlatformSpec {
   id: string;
   x: number;

@@ -27,7 +27,9 @@ The course screenshot establishes camera composition, character-to-platform scal
 
 Ground dash uses the existing low landing pose (frame 7) as a steady horizontal dash pose, without cycling the bouncy running frames. This is a draft pose reuse; future dash art should preserve ground anchors and a stable silhouette. Jumping/falling keep their existing airborne poses.
 
-Dash feedback uses six small tapered cream/gold speed lines behind the character, aligned to the projected movement direction. Keep them close to the silhouette, visible only during the burst and depth-tested against the world. Avoid full-screen streaks or extra text.
+Dash feedback uses six small tapered speed lines behind the character, aligned to the projected movement direction. **Derive the colors from the current playable character's palette**, using its primary color and a lighter highlight. Define these in the playable character manifest and pass that palette to the dash effect; never hardcode Solargon's colors in the shared effect. Solargon uses gold (`#f4c45a`) and cream (`#fff4cf`). Follow each other character's established palette below when their playable assets are implemented.
+
+Keep the lines close to the silhouette, visible only during the burst and depth-tested against the world. Avoid full-screen streaks or extra text.
 
 ### Rendering constants
 
