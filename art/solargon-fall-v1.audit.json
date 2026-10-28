@@ -1,0 +1,48 @@
+{
+  "image": "public/assets/solargon-fall-v1.png",
+  "width": 1295,
+  "height": 1214,
+  "pixelsPerUnit": 256.9230769230769,
+  "frames": {
+    "right": [
+      {
+        "x": 0,
+        "y": 0,
+        "width": 648,
+        "height": 591,
+        "groundX": 0.5,
+        "groundY": 0.06937394247038917
+      }
+    ],
+    "left": [
+      {
+        "x": 648,
+        "y": 0,
+        "width": 647,
+        "height": 591,
+        "groundX": 0.5,
+        "groundY": 0.07106598984771574
+      }
+    ],
+    "front": [
+      {
+        "x": 0,
+        "y": 591,
+        "width": 648,
+        "height": 623,
+        "groundX": 0.5,
+        "groundY": 0.12680577849117175
+      }
+    ],
+    "back": [
+      {
+        "x": 648,
+        "y": 591,
+        "width": 647,
+        "height": 623,
+        "groundX": 0.5,
+        "groundY": 0.18298555377207062
+      }
+    ]
+  }
+}

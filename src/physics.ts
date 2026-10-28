@@ -148,7 +148,7 @@ export class Physics {
       new RAPIER.Ray(position, { x: 0, y: -1, z: 0 }),
       maxDistance,
       true,
-      undefined,
+      RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
       undefined,
       exclude,
     );

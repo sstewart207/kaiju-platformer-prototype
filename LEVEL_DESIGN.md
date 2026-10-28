@@ -12,6 +12,8 @@ The course continues past the original end at x=192 into broad south/north ruin 
 
 The extension has twelve alternating wall barriers, eight jumpable hurdles, wide bypass lanes, four ground-access ramps and two checkpoint zones at (192, -42) and (324, -72). Grass stays beneath the entire course. Checkpoints restore health and retain route progress; death/falling returns to the latest checkpoint without resetting the timer. R/Restart still resets the whole course.
 
+Ruins now has 12 zombies in four groups: starting approach, staging area, south gallery and final approach. Defeat all 12 to unlock the exit, then reach it through the ordered route. Kills survive checkpoint recovery; restarting resets them. A scripted keyboard combat clear took 161.82 seconds without deaths or teleports. Future authored levels use higher quotas; replaying Ruins stays at 12. Squad coordination remains proposed in SQUAD_AI_PLAN.md.
+
 | Section | Casual route | Faster route / skill |
 | --- | --- | --- |
 | Courtyard and approach | Wide starting area and straight runway | Build speed and test dash timing without a fall penalty |

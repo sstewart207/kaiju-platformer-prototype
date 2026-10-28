@@ -59,6 +59,32 @@ async function sample(
     { pressed, axes, frames },
   );
 }
+
+test("R2 sustains the solar ray and releases safely on disconnect", async ({ page }) => {
+  await setup(page);
+  await page.getByRole("button", { name: "START", exact: true }).click();
+  await sample(page);
+  await sample(page, [7], [0, 0], 120);
+  const combat = () => page.evaluate(() => (window.__solargon.state() as unknown as {
+    combat: { beamActive: boolean; beams: number }
+  }).combat);
+  expect((await combat()).beamActive).toBe(true);
+  expect((await combat()).beams).toBe(1);
+  await sample(page);
+  expect((await combat()).beamActive).toBe(false);
+  await sample(page, [], [0, 0], 80);
+  await sample(page, [7], [0, 0], 50);
+  expect((await combat()).beamActive).toBe(true);
+  await page.evaluate(() => { window.__padFixture.connected = false; });
+  await advancePadDisconnect(page);
+  await page.getByRole("button", { name: "RESUME", exact: true }).click();
+  await sample(page);
+  expect((await combat()).beamActive).toBe(false);
+});
+
+async function advancePadDisconnect(page: Page) {
+  await page.evaluate(() => window.__solargon.advance(1));
+}
 test("DualSense start, analog/D-pad movement, jump, pause menus, restart and disconnect", async ({
   page,
 }) => {

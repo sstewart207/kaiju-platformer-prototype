@@ -16,16 +16,27 @@
   <body>
     <script type="module">
       import * as THREE from "three";
-      import { CharacterSprite, SOLARGON } from "/src/animation.ts";
+      import {
+        CharacterSprite,
+        SOLARGON,
+        SOLARGON_FALL,
+      } from "/src/animation.ts";
       import { HUMAN_ZOMBIE } from "/src/enemy-view.ts";
       import { SOLARGON_COMBAT } from "/src/player-combat-view.ts";
       const sheet = new URLSearchParams(location.search).get("sheet");
       const manifest =
         sheet === "human"
           ? HUMAN_ZOMBIE
-          : sheet === "combat"
-            ? SOLARGON_COMBAT
-            : SOLARGON;
+          : sheet === "fall"
+            ? {
+                ...SOLARGON,
+                ...SOLARGON_FALL,
+                stateAtlases: undefined,
+                secondaryMotion: undefined,
+              }
+            : sheet === "combat"
+              ? SOLARGON_COMBAT
+              : SOLARGON;
       const renderer = new THREE.WebGLRenderer({
         antialias: false,
         preserveDrawingBuffer: true,
@@ -53,8 +64,9 @@
         "front",
         "back",
       ].entries()) {
-        for (let frame = 0; frame < manifest.columns; frame++) {
-          const x = -12 + ((frame + 0.5) * 24) / manifest.columns,
+        const count = sheet === "fall" ? 1 : manifest.columns;
+        for (let frame = 0; frame < count; frame++) {
+          const x = -12 + ((frame + 0.5) * 24) / count,
             y = 4.3 - row * 3.2;
           const sprite = new CharacterSprite(
             {

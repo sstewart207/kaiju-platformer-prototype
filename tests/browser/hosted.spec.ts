@@ -39,6 +39,7 @@ test("published game opens anonymously with assets, controls and pause", async (
   await expect(page.locator("#hud")).toBeVisible();
   await expect(page.locator("#health")).toBeVisible();
   await expect(page.locator("#solar-status")).toHaveText("SOLAR READY");
+  await expect(page.locator("#kill-status")).toHaveText("KILLS 0/12");
   expect(
     await page.locator("#world").evaluate((el) => {
       const canvas = el as HTMLCanvasElement;

@@ -1,5 +1,10 @@
 # Project TODOs
 
+- [x] Keep the tap solar burst and add a continuous mouth ray while holding K/R2. Follow facing while moving, stop at walls, stop on release, and recharge after sustained firing. Keyboard and synthetic controller tests cover release, pause, restart and disconnect; physical R2 validation remains pending.
+- [x] Place 12 zombies in four groups along Ruins; require all 12 defeats to unlock the exit. Preserve kills through checkpoint recovery and reset on restart. New authored levels use higher quotas (18, then 24); replaying Ruins keeps its quota.
+- [x] Give falling its own four-direction draft atlas and show recoil followed by collapse when Solargon dies.
+- [ ] Implement coordinated enemy behavior from SQUAD_AI_PLAN.md after reviewing the proposal. Current enemies still use individual patrol/chase/attack logic.
+
 - [ ] Review the provisional human-zombie design with Patrick. The user authorized bipedal human zombies for this combat milestone; final enemy appearance may change later. Preserve older dragon/zombie concepts separately.
 
 - [x] Approve 1920 × 1080 as the default rendering style; update runtime, camera snapping, tests and art direction. Keep pixel-art character textures crisp.

@@ -4,7 +4,7 @@ October 27, 2026 · Game title undecided
 
 **Status:** Playable single-player browser prototype. Solargon is the only implemented character. The Ruins course is ready for team playtesting.
 
-**Current release:** Solargon has a basic swipe and solar beam. Three bipedal human-zombie encounters add patrols, melee attacks and fireballs. The course has a tested 2:32 walking route and two checkpoints. No HUD area labels or visible timer.
+**Current build:** Solargon has a swipe, tap solar burst and held mouth ray. Ruins has 12 human zombies in four groups; defeat all 12 to unlock the exit, then reach it. A scripted keyboard combat clear took 2:42 with no deaths; human playtime is unmeasured. The course has two checkpoints. Kills survive checkpoint recovery; restart resets them.
 
 **Play:** https://sstewart207.github.io/kaiju-platformer-prototype/
 
@@ -13,14 +13,15 @@ October 27, 2026 · Game title undecided
 ## Current build
 
 - Ground-based 3D ruins with pixel-art character sprites, a safe walking route, and optional jump/shuttle shortcuts. Approved default: 1920 × 1080 rendering.
-- Keyboard and DualSense controls; movement, variable-height jump, rapid dash, attacks, health/checkpoint recovery, pause, restart and replay. Attack: J / Circle. Solar beam: K / R2.
+- Keyboard and DualSense controls; movement, variable-height jump, rapid dash, attacks, health/checkpoint recovery, pause, restart and replay. Attack: J / Circle. Solar: tap K / R2 for a burst, hold for a continuous ray. Falling uses separate directional poses; death shows recoil then collapse.
 - Full-course 1080p test: 143.9 FPS average on Shane's laptop. Wall occlusion and grass-to-path recovery fixes are included.
 - Build and automated movement, collision, combat, controller-input and route checks pass. Shane reported DualSense working on October 26; the new combat bindings and Chromebook performance still need physical testing.
 
 ## Decisions and limits
 
 - Keep the world grounded and controls aligned with the camera. Interface text is limited to functional labels, controls and results.
-- Preserve the original character designs. Solargon's combat art and the human-zombie sprites are replaceable drafts for team review; anatomy/animation polish remains. Jump and fall share a pose.
+- Preserve the original character designs. Solargon's combat/falling art and the human-zombie sprites are replaceable drafts for team review; anatomy/animation polish remains.
+- Enemy flanking, shared awareness and coordinated attacks are proposed in SQUAD_AI_PLAN.md, not implemented. New authored levels get higher kill targets; Ruins replays stay at 12.
 - Planned roster: Solargon, Voidra, Graviton, Toxicraven and provisional fifth character Blizzardon.
 - Not implemented: character selection, other playable characters and their abilities, coins, ramen rewards or multiplayer. Co-op and human 1v1 matchmaking with kaiju/stage selection are planned. A ramen bowl remains the planned chapter-completion reward.
 

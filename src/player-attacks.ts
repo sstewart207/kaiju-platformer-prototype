@@ -20,6 +20,7 @@ export const ATTACK = {
   solarDuration: 0.54,
   solarCooldown: 1.25,
   solarRange: 10,
+  solarPulse: 0.4,
 };
 export class PlayerAttacks {
   kind: "swipe" | "solar" | null = null;
@@ -33,6 +34,8 @@ export class PlayerAttacks {
   hits = 0;
   private queue = 0;
   private hitEnemies = new Set<Combat>();
+  private channelHeld = false;
+  private pulseAge = 0;
   constructor(private physics: Physics) {}
   get pose(): CombatPose | null {
     return this.kind === "swipe"
@@ -49,7 +52,7 @@ export class PlayerAttacks {
     return (
       this.kind === "solar" &&
       this.age >= ATTACK.solarCharge &&
-      this.age < ATTACK.solarCharge + ATTACK.solarActive
+      (this.channelHeld || this.age < ATTACK.solarCharge + ATTACK.solarActive)
     );
   }
   reset() {
@@ -59,6 +62,8 @@ export class PlayerAttacks {
     this.queue = 0;
     this.beamLength = 0;
     this.hitEnemies.clear();
+    this.channelHeld = false;
+    this.pulseAge = 0;
     this.swings = this.beams = this.hits = 0;
   }
   private facing(player: Player) {
@@ -87,6 +92,7 @@ export class PlayerAttacks {
     );
   }
   update(input: MovementInput, player: Player, enemies: readonly Combat[]) {
+    this.channelHeld = !!input.specialHeld;
     this.solarCooldown = Math.max(0, this.solarCooldown - FIXED_DT);
     this.age += FIXED_DT;
     this.queue = input.attackPressed
@@ -94,6 +100,7 @@ export class PlayerAttacks {
       : Math.max(0, this.queue - FIXED_DT);
     if (
       this.kind &&
+      !(this.kind === "solar" && this.channelHeld) &&
       this.age >=
         (this.kind === "swipe" ? ATTACK.swipeDuration : ATTACK.solarDuration)
     )
@@ -111,7 +118,17 @@ export class PlayerAttacks {
         this.age = 0;
         this.queue = 0;
         this.hitEnemies.clear();
+        this.pulseAge = 0;
         this.direction = this.facing(player);
+      }
+    }
+    if (this.kind === "solar" && this.channelHeld) {
+      this.direction = this.facing(player);
+      this.solarCooldown = ATTACK.solarCooldown;
+      this.pulseAge += FIXED_DT;
+      if (this.pulseAge >= ATTACK.solarPulse) {
+        this.hitEnemies.clear();
+        this.pulseAge = 0;
       }
     }
     this.origin = { ...player.position, y: player.position.y + 0.45 };

@@ -1,5 +1,13 @@
 # Solargon sprite generation
 
+## Falling draft, October 27
+
+Built-in image generation; transparent background; references: `art/references/solargon-concept.png` and `public/assets/solargon-atlas-v2.png`. Saved asset: `public/assets/solargon-fall-v1.png`; read-only crop/anchor metadata: `art/solargon-fall-v1.audit.json`. Four directional descent poses, one frame per direction; a draft held pose rather than a complete animated falling cycle. Anatomy and transition polish remain for review. No image pixel edits were performed during integration.
+
+Prompt:
+
+Create a transparent PIXEL ART FALLING-POSE sprite sheet of SOLARGON. Reference1 is identity: compact golden kaiju with crown horns, red eyes, cream belly, SIX legs, FOUR wings and sun-tipped tail. Reference2 is the current gameplay sprite style, scale and camera treatment. Four isolated full-body sprites in a square 2x2 grid: top-left faces RIGHT, top-right faces LEFT, bottom-left faces FRONT, bottom-right faces BACK. Every sprite is clearly DESCENDING under gravity: legs extend/dangle downward ready to land, front legs slightly apart, wings open upward/outward in a small braking pose, body slightly pitched downward. This must be distinctly different from the existing tucked-leg upward jumping pose. No flight power or floating glow. Keep consistent compact body/head/anatomy across four views and match gameplay gold/brown outlines and chunky crisp pixel clusters. NO photoreal plush texture. Every complete silhouette has generous genuine transparent margins around it, no clipping, no touching tiles. Same body-pixel scale in every direction. No text, labels, grid lines, background, floor, shadow, halo or effects. Actual alpha transparency. A replaceable draft gameplay asset, not a poster.
+
 Generated with the built-in image generation tool, with a genuinely transparent background. No API key or fallback CLI was used. The reference image was extracted from the user-supplied Word document; it was used for character identity, not pasted into the game.
 
 ## Files

@@ -117,7 +117,7 @@ export class EnemyView {
     const z = THREE.MathUtils.lerp(combat.previous.z, p.z, alpha);
     this.character.update(
       { x, y: y + 0.02, z },
-      combat.action,
+      combat.hp <= 0 && combat.actionTime < 0.12 ? "hurt" : combat.action,
       combat.facing,
       dt,
       camera,

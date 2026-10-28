@@ -86,13 +86,17 @@ export class PlayerCombatView {
     );
     this.swipe.scale.setScalar(0.8 + (attack.age - ATTACK.swipeWindup) * 3);
     this.charge.visible =
-      attack.kind === "solar" && attack.age < ATTACK.solarCharge;
+      (attack.kind === "solar" && attack.age < ATTACK.solarCharge) ||
+      attack.beamActive;
     this.charge.position.set(
       attack.origin.x + attack.direction.x * 0.6,
       attack.origin.y,
       attack.origin.z + attack.direction.z * 0.6,
     );
-    this.charge.scale.setScalar(0.5 + attack.age / ATTACK.solarCharge);
+    const pulse = 1 + Math.sin(attack.age * 45) * 0.1;
+    this.charge.scale.setScalar(
+      attack.beamActive ? pulse : 0.5 + attack.age / ATTACK.solarCharge,
+    );
     this.beam.visible = attack.beamActive && attack.beamLength > 0.01;
     this.beam.position.set(
       attack.origin.x + attack.direction.x * (0.5 + attack.beamLength / 2),
@@ -100,6 +104,6 @@ export class PlayerCombatView {
       attack.origin.z + attack.direction.z * (0.5 + attack.beamLength / 2),
     );
     this.beam.rotation.y = -Math.atan2(attack.direction.z, attack.direction.x);
-    this.beam.scale.set(attack.beamLength, 1, 1);
+    this.beam.scale.set(attack.beamLength, pulse, pulse);
   }
 }

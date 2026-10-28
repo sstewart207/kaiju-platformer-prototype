@@ -10,7 +10,7 @@ A browser platformer featuring Patrick's kaiju characters, with 3D ruins and pix
 
 **Public build:** a single-player ruins course with jumping, dashing, two checkpoints, optional moving-platform shortcuts, keyboard/DualSense controls and 1080p graphics. The tested walking route takes about 2:32.
 
-Solargon can swipe and fire a solar beam. Three human-zombie encounters add patrols, melee attacks and fireballs; enemies can be defeated or avoided. Health and solar recharge appear in the HUD, with no area labels or visible timer. Combat sprites are replaceable drafts for team review.
+Solargon can swipe, fire a short solar burst, or hold a continuous mouth ray. Defeat 12 human zombies across four groups to unlock the exit, then reach it. Kills survive checkpoint recovery; restarting resets the course. A scripted combat clear took 2:42. Health, kill count and solar recharge appear in the HUD. Combat and falling sprites are replaceable drafts for team review.
 
 Course tests run around 144 FPS on the development laptop. Shane reports DualSense working in his October 26 playtest. Chromebook performance and USB/Bluetooth-specific checks remain pending.
 
@@ -22,7 +22,7 @@ Course tests run around 144 FPS on the development laptop. Shane reports DualSen
 | Jump | Space; hold for height | Cross; hold for height |
 | Dash | Shift | Square / R1 |
 | Attack | J | Circle |
-| Solar beam | K | R2 |
+| Solar burst / continuous ray | Tap / hold K | Tap / hold R2 |
 | Pause | Escape | Options |
 | Restart | R | Triangle |
 

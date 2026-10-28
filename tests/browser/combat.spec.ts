@@ -83,7 +83,8 @@ test("fireballs fly, pause in flight and hit; two keyboard dashes defeat the ene
   page,
 }) => {
   await boot(page);
-  await stand(page, ENEMY.spawn.x - 5);
+  // Approach from the open front: the old left-side spot is now beside a squadmate.
+  await stand(page, ENEMY.spawn.x, ENEMY.spawn.z + 6);
   await advance(page, 43);
   expect((await state(page)).shots).toBe(1);
   expect((await state(page)).projectiles.length).toBeGreaterThan(0);

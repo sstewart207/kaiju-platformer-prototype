@@ -5,14 +5,28 @@ import type {
   AnimationState,
   Direction,
   Vec3,
+  SpriteAtlas,
 } from "./types";
 import auditedAtlas from "../art/solargon-atlas-v2.audit.json";
+import fallAtlas from "../art/solargon-fall-v1.audit.json";
 import { SpriteMotion } from "./sprite-motion";
+
+export const SOLARGON_FALL: SpriteAtlas = {
+  atlas: `${import.meta.env.BASE_URL}assets/solargon-fall-v1.png`,
+  columns: 2,
+  rows: 2,
+  size: 2.4,
+  pixelsPerUnit: fallAtlas.pixelsPerUnit,
+  frames: fallAtlas.frames,
+  groundAnchor: [0.5, 0.1],
+  directions: { right: 0, left: 0, front: 1, back: 1 },
+};
 
 export const SOLARGON: PlayableCharacterManifest = {
   name: "Solargon",
   palette: { primary: "#f4c45a", highlight: "#fff4cf" },
   secondaryMotion: { breathing: { pixels: 1.25, seconds: 8 / 3 } },
+  stateAtlases: { falling: SOLARGON_FALL },
   atlas: `${import.meta.env.BASE_URL}assets/solargon-atlas-v2.png`,
   columns: 8,
   rows: 4,
@@ -27,7 +41,7 @@ export const SOLARGON: PlayableCharacterManifest = {
     running: { frames: [2, 3, 4, 5], fps: 10, loop: true },
     dashing: { frames: [7], fps: 1, loop: false },
     jumping: { frames: [6], fps: 1, loop: false },
-    falling: { frames: [6], fps: 1, loop: false },
+    falling: { frames: [0], fps: 1, loop: false },
     landing: { frames: [7], fps: 10, loop: false },
   },
 };
@@ -41,11 +55,17 @@ export class CharacterSprite<State extends string = AnimationState> {
   constructor(
     private manifest: CharacterManifest<State>,
     private texture: THREE.Texture,
+    private stateTextures: Partial<Record<State, THREE.Texture>> = {},
   ) {
-    texture.magFilter = THREE.NearestFilter;
-    texture.minFilter = THREE.NearestFilter;
-    texture.generateMipmaps = false;
-    texture.colorSpace = THREE.SRGBColorSpace;
+    for (const atlasTexture of [
+      texture,
+      ...(Object.values(stateTextures) as THREE.Texture[]),
+    ]) {
+      atlasTexture.magFilter = THREE.NearestFilter;
+      atlasTexture.minFilter = THREE.NearestFilter;
+      atlasTexture.generateMipmaps = false;
+      atlasTexture.colorSpace = THREE.SRGBColorSpace;
+    }
     texture.repeat.set(1 / manifest.columns, 1 / manifest.rows);
     this.sprite = new THREE.Sprite(
       new THREE.SpriteMaterial({
@@ -101,36 +121,42 @@ export class CharacterSprite<State extends string = AnimationState> {
           ? index % clip.frames.length
           : Math.min(index, clip.frames.length - 1)
       ];
+    const alternate = this.manifest.stateAtlases?.[state];
+    if (alternate && !this.stateTextures[state])
+      throw new Error(`Missing ${state} texture for ${this.manifest.name}`);
+    const asset = alternate ?? this.manifest;
+    const texture = alternate ? this.stateTextures[state]! : this.texture;
+    this.sprite.material.map = this.occludedSprite.material.map = texture;
     // Inset a fraction of a texel to prevent adjacent frames bleeding at the cell edges.
-    const image = this.texture.image as HTMLImageElement;
-    const rect = this.manifest.frames?.[direction][frame];
+    const image = texture.image as HTMLImageElement;
+    const rect = asset.frames?.[direction][frame];
     const insetX = 0.5 / image.width,
       insetY = 0.5 / image.height;
     if (rect) {
-      this.texture.repeat.set(
+      texture.repeat.set(
         (rect.width - 1) / image.width,
         (rect.height - 1) / image.height,
       );
-      this.texture.offset.set(
+      texture.offset.set(
         (rect.x + 0.5) / image.width,
         1 - (rect.y + rect.height - 0.5) / image.height,
       );
       this.sprite.center.set(rect.groundX, rect.groundY);
-      const width = this.manifest.pixelsPerUnit
-        ? rect.width / this.manifest.pixelsPerUnit
-        : this.manifest.size;
+      const width = asset.pixelsPerUnit
+        ? rect.width / asset.pixelsPerUnit
+        : asset.size;
       this.sprite.scale.set(width, (width * rect.height) / rect.width, 1);
     } else {
-      this.texture.repeat.set(
-        1 / this.manifest.columns - 2 * insetX,
-        1 / this.manifest.rows - 2 * insetY,
+      texture.repeat.set(
+        1 / asset.columns - 2 * insetX,
+        1 / asset.rows - 2 * insetY,
       );
-      this.texture.offset.set(
-        frame / this.manifest.columns + insetX,
-        1 -
-          (this.manifest.directions[direction] + 1) / this.manifest.rows +
-          insetY,
+      texture.offset.set(
+        frame / asset.columns + insetX,
+        1 - (asset.directions[direction] + 1) / asset.rows + insetY,
       );
+      this.sprite.center.set(...asset.groundAnchor);
+      this.sprite.scale.setScalar(asset.size);
     }
     this.motion?.update(
       state,

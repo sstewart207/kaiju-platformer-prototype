@@ -5,6 +5,7 @@ for (const [sheet, file, count] of [
   ["movement", "solargon-atlas-v2", 32],
   ["human", "human-zombie-atlas-v1", 32],
   ["combat", "solargon-combat-v1", 24],
+  ["fall", "solargon-fall-v1", 4],
 ] as const) {
   const atlas = JSON.parse(
     readFileSync(`art/${file}.audit.json`, "utf8").replace(/^\uFEFF/, ""),

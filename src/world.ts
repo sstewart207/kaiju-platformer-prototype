@@ -167,6 +167,24 @@ export class RuinsWorld {
   readonly scene = new THREE.Scene();
   private moving = new Map<string, THREE.Group>();
   private gate: THREE.Group;
+  private exitSignal = new THREE.MeshBasicMaterial({
+    color: "#6b7f7b",
+    toneMapped: false,
+  });
+  private exitPoolMaterial = new THREE.MeshBasicMaterial({
+    color: "#687b78",
+    transparent: true,
+    opacity: 0.15,
+    depthWrite: false,
+  });
+  private exitUnlocked: boolean | null = null;
+  setExitUnlocked(unlocked: boolean) {
+    if (this.exitUnlocked === unlocked) return;
+    this.exitUnlocked = unlocked;
+    this.exitSignal.color.set(unlocked ? "#f8cb63" : "#6b7f7b");
+    this.exitPoolMaterial.color.set(unlocked ? "#f7db87" : "#687b78");
+    this.exitPoolMaterial.opacity = unlocked ? 0.45 : 0.15;
+  }
   private motes: THREE.Points;
   private cloudGroups: THREE.Group[] = [];
   private sunlight: THREE.DirectionalLight;
@@ -480,12 +498,15 @@ export class RuinsWorld {
     box(this.gate, gold, 0, 4.17, 0, 4.5, 0.09, 0.85);
     const sunRing = new THREE.Mesh(
       new THREE.TorusGeometry(0.85, 0.09, 4, 16),
-      gold,
+      this.exitSignal,
     );
     sunRing.position.set(0, 2.25, 0);
     this.gate.add(sunRing);
     for (let i = 0; i < 8; i++) {
-      const ray = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.42, 3), gold);
+      const ray = new THREE.Mesh(
+        new THREE.ConeGeometry(0.12, 0.42, 3),
+        this.exitSignal,
+      );
       const angle = (i * Math.PI) / 4;
       ray.position.set(
         Math.sin(angle) * 1.15,
@@ -497,12 +518,7 @@ export class RuinsWorld {
     }
     const pool = new THREE.Mesh(
       new THREE.CircleGeometry(1.6, 32),
-      new THREE.MeshBasicMaterial({
-        color: "#f7db87",
-        transparent: true,
-        opacity: 0.45,
-        depthWrite: false,
-      }),
+      this.exitPoolMaterial,
     );
     pool.rotation.x = -Math.PI / 2;
     pool.position.y = 0.035;

@@ -500,6 +500,9 @@ h1 {
 #solar-status {
   margin-top: 8px;
 }
+#kill-status {
+  margin-bottom: 8px;
+}
 #controls {
   flex-wrap: wrap;
   column-gap: 16px;

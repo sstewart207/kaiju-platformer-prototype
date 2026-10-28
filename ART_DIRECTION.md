@@ -25,7 +25,7 @@ Use an elevated orthographic camera aligned to the movement axes, substantial re
 
 The course screenshot establishes camera composition, character-to-platform scale, texture density and lighting. The Solargon atlas establishes the gold/brown outline treatment and broad sprite proportions. Compare new art in the live scene, not just against an enlarged sprite.
 
-Ground dash uses the existing low landing pose (frame 7) as a steady horizontal dash pose, without cycling the bouncy running frames. This is a draft pose reuse; future dash art should preserve ground anchors and a stable silhouette. Jumping/falling keep their existing airborne poses.
+Ground dash uses the existing low landing pose (frame 7) as a steady horizontal dash pose, without cycling the bouncy running frames. This is a draft pose reuse; future dash art should preserve ground anchors and a stable silhouette. Rising uses the movement atlas; descending uses the separate four-direction `solargon-fall-v1.png` draft with extended landing legs and raised wings. Do not reuse the rising pose for falling. State-specific atlas metadata keeps the same world scale and planted-foot anchor.
 
 Living sprites can use the manifest's optional `secondaryMotion`: a gentle one-pixel upper-body breathing cycle while idle, and up to two pixels of crown/hair sway while walking. Solargon breathes on a roughly 2.7-second cycle; the human zombie breathes on a 2.8-second cycle and has hair motion. Keep feet/lower legs fixed, preserve nearest-neighbor sampling and frame UVs, and clear the deformation for dash, attack, hurt and defeat poses. The faint wall-occlusion sprite must share the same deformation. These are small runtime motions, not replacements for proper walk or attack frames. Future characters should enable hair motion only where their actual artwork has hair; do not automatically bend horns or wings.
 
@@ -114,7 +114,7 @@ Solargon's separate `public/assets/solargon-combat-v1.png` provides four-directi
 - Keep foot anchors consistent across animations; don't align frames by the tallest horn or widest wing. Match visible character size against Solargon in the courtyard, accounting for transparent padding.
 - Combat now uses separate attack, special, damage and defeat clips for Solargon. Preserve real pose changes as well as VFX; do not substitute an effect for a missing sprite pose. Other characters remain outside this milestone.
 
-The current Solargon draft uses an irregular 8 × 4 sheet and shares jump/fall artwork. That is a documented draft limitation. For a new 9-column sheet, set `columns: 9`, set falling to frame 7 and landing to frame 8, and supply its own rectangles/anchors. Movement code does not need to change.
+The current Solargon draft uses an irregular 8 × 4 movement sheet plus a separate four-direction falling atlas selected through `stateAtlases`. For a new 9-column sheet, set `columns: 9`, set falling to frame 7 and landing to frame 8, and supply its own rectangles/anchors. Movement code does not need to change.
 
 The current `scripts/audit-sprites.ps1` has row boundaries specifically for Solargon v2. Do not run it unchanged on a new character and assume the output is valid. Author or derive that character's frame metadata from its actual sheet, then inspect it visually.
 

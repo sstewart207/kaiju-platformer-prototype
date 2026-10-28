@@ -9,6 +9,20 @@ import { FixedClock } from "../src/timestep";
 
 await RAPIER.init();
 const idle: MovementInput = { x: 0, z: 0, jumpPressed: false, jumpHeld: false };
+test("enemy sensor hurtboxes cannot act as floors", () => {
+  const { physics, player, step } = fixture();
+  physics.world.createCollider(
+    RAPIER.ColliderDesc.ball(2).setTranslation(-70, 1, 40).setSensor(true),
+  );
+  player.reset({ x: -70, y: 0.8, z: 40 });
+  physics.step();
+  step({}, 30);
+  const ground = physics.groundBelow(player.position, player.collider);
+  assert.ok(ground);
+  assert.equal(ground.collider.isSensor(), false);
+  assert.ok(Math.abs(player.position.y - 0.685) < 0.03);
+  physics.dispose();
+});
 function fixture() {
   const physics = new Physics(),
     player = new Player(physics);

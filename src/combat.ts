@@ -66,28 +66,104 @@ export class PlayerVitals {
 export interface EnemyDefinition {
   spawn: Vec3;
   patrol?: readonly Vec3[];
+  squad?: string;
 }
 export const ENCOUNTERS: readonly EnemyDefinition[] = [
   {
     spawn: { ...ENEMY.spawn },
+    squad: "start",
     patrol: [
       { x: 16, y: 0.69, z: -11 },
       { x: 20, y: 0.69, z: -11 },
     ],
   },
   {
+    spawn: { x: 14, y: 0.69, z: -12 },
+    patrol: [
+      { x: 12, y: 0.69, z: -12 },
+      { x: 16, y: 0.69, z: -12 },
+    ],
+    squad: "start",
+  },
+  {
+    spawn: { x: 22, y: 0.69, z: -13 },
+    patrol: [
+      { x: 20, y: 0.69, z: -13 },
+      { x: 24, y: 0.69, z: -13 },
+    ],
+    squad: "start",
+  },
+  {
     spawn: { x: 70, y: 1.13, z: -18 },
+    squad: "staging",
     patrol: [
       { x: 67, y: 1.13, z: -18 },
       { x: 73, y: 1.13, z: -18 },
     ],
   },
   {
-    spawn: { x: 229, y: 2.28, z: 12 },
+    spawn: { x: 66, y: 1.13, z: -16 },
     patrol: [
-      { x: 226, y: 2.28, z: 12 },
-      { x: 232, y: 2.28, z: 12 },
+      { x: 64, y: 1.13, z: -16 },
+      { x: 68, y: 1.13, z: -16 },
     ],
+    squad: "staging",
+  },
+  {
+    spawn: { x: 74, y: 1.13, z: -22 },
+    patrol: [
+      { x: 72, y: 1.13, z: -22 },
+      { x: 76, y: 1.13, z: -22 },
+    ],
+    squad: "staging",
+  },
+  {
+    spawn: { x: 266, y: 2.28, z: 60 },
+    squad: "south",
+    patrol: [
+      { x: 264, y: 2.28, z: 60 },
+      { x: 268, y: 2.28, z: 60 },
+    ],
+  },
+  {
+    spawn: { x: 261, y: 2.28, z: 57 },
+    patrol: [
+      { x: 259, y: 2.28, z: 57 },
+      { x: 263, y: 2.28, z: 57 },
+    ],
+    squad: "south",
+  },
+  {
+    spawn: { x: 272, y: 2.28, z: 62 },
+    patrol: [
+      { x: 270, y: 2.28, z: 62 },
+      { x: 274, y: 2.28, z: 62 },
+    ],
+    squad: "south",
+  },
+  {
+    spawn: { x: 414, y: 2.28, z: -12 },
+    patrol: [
+      { x: 414, y: 2.28, z: -14 },
+      { x: 414, y: 2.28, z: -10 },
+    ],
+    squad: "final",
+  },
+  {
+    spawn: { x: 410, y: 2.28, z: -18 },
+    patrol: [
+      { x: 410, y: 2.28, z: -20 },
+      { x: 410, y: 2.28, z: -16 },
+    ],
+    squad: "final",
+  },
+  {
+    spawn: { x: 418, y: 2.28, z: -8 },
+    patrol: [
+      { x: 418, y: 2.28, z: -10 },
+      { x: 418, y: 2.28, z: -6 },
+    ],
+    squad: "final",
   },
 ];
 
@@ -193,7 +269,7 @@ export class Combat {
         ? this.actionTime / ENEMY.meleeWindup
         : 0;
   }
-  reset() {
+  reset(defeated = false) {
     this.body.setTranslation(this.definition.spawn, true);
     this.body.setNextKinematicTranslation(this.definition.spawn);
     this.collider.setEnabled(true);
@@ -212,6 +288,12 @@ export class Combat {
     this.meleeHits = 0;
     this.projectileHits = 0;
     this.wallHits = 0;
+    if (defeated) {
+      this.hp = 0;
+      this.action = "defeated";
+      this.actionTime = 1;
+      this.collider.setEnabled(false);
+    }
     this.physics.world.propagateModifiedBodyPositionsToColliders();
   }
   private setAction(action: EnemyAction) {
@@ -413,7 +495,20 @@ export class Combat {
         { x: vx * dt, y: this.gravity * dt, z: vz * dt },
         RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
       );
-      const moved = this.controller.computedMovement();
+      let moved = this.controller.computedMovement();
+      const safeGround = this.physics.groundBelow(
+        { x: p.x + moved.x, y: p.y + moved.y, z: p.z + moved.z },
+        this.collider,
+        ENEMY.footOffset + 0.35,
+      );
+      if (!safeGround && (moved.x !== 0 || moved.z !== 0)) {
+        this.controller.computeColliderMovement(
+          this.collider,
+          { x: 0, y: this.gravity * dt, z: 0 },
+          RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
+        );
+        moved = this.controller.computedMovement();
+      }
       if (this.controller.computedGrounded()) this.gravity = 0;
       this.body.setNextKinematicTranslation({
         x: p.x + moved.x,

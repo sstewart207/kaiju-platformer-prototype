@@ -13,7 +13,8 @@ import { Player, FOOT_OFFSET, MOVEMENT } from "./player";
 import { Input } from "./input";
 import { FollowCamera } from "./camera";
 import { RuinsWorld } from "./world";
-import { CharacterSprite, SOLARGON } from "./animation";
+import { CharacterSprite, SOLARGON, SOLARGON_FALL } from "./animation";
+import { KillObjective, RUINS_LEVEL } from "./level-objective";
 import { FINISH, PLATFORMS, SPAWN, COURSE_GATES } from "./course";
 import { UI } from "./ui";
 import { FixedClock } from "./timestep";
@@ -21,7 +22,7 @@ import type { Vec3 } from "./types";
 import { RENDER_WIDTH, RENDER_HEIGHT } from "./rendering";
 import { Combat, ENCOUNTERS, ENEMY, PlayerVitals } from "./combat";
 import { EnemyView, HUMAN_ZOMBIE } from "./enemy-view";
-import { PlayerAttacks, ATTACK } from "./player-attacks";
+import { PlayerAttacks, ATTACK, type CombatPose } from "./player-attacks";
 import { PlayerCombatView, SOLARGON_COMBAT } from "./player-combat-view";
 import { CHECKPOINTS } from "./course-extension";
 import { DashLines } from "./dash-lines";
@@ -33,13 +34,16 @@ async function boot() {
   const combatEnabled = !(
     import.meta.env.DEV && new URLSearchParams(location.search).has("peaceful")
   );
-  const [texture, enemyTexture, combatTexture] = await Promise.all([
-    new THREE.TextureLoader().loadAsync(SOLARGON.atlas),
-    combatEnabled
-      ? new THREE.TextureLoader().loadAsync(HUMAN_ZOMBIE.atlas)
-      : Promise.resolve(null),
-    new THREE.TextureLoader().loadAsync(SOLARGON_COMBAT.atlas),
-  ]);
+  const [texture, enemyTexture, combatTexture, fallTexture] = await Promise.all(
+    [
+      new THREE.TextureLoader().loadAsync(SOLARGON.atlas),
+      combatEnabled
+        ? new THREE.TextureLoader().loadAsync(HUMAN_ZOMBIE.atlas)
+        : Promise.resolve(null),
+      new THREE.TextureLoader().loadAsync(SOLARGON_COMBAT.atlas),
+      new THREE.TextureLoader().loadAsync(SOLARGON_FALL.atlas),
+    ],
+  );
   const canvas = document.getElementById("world") as HTMLCanvasElement;
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -58,7 +62,13 @@ async function boot() {
     input = new Input(),
     camera = new FollowCamera(),
     world = new RuinsWorld();
-  const character = new CharacterSprite(SOLARGON, texture);
+  const character = new CharacterSprite(SOLARGON, texture, {
+    falling: fallTexture,
+  });
+  const objective = new KillObjective(
+    RUINS_LEVEL.killTarget,
+    ENCOUNTERS.length,
+  );
   const vitals = new PlayerVitals();
   const enemies = ENCOUNTERS.map(
     (definition) => new Combat(physics, definition, vitals),
@@ -70,6 +80,7 @@ async function boot() {
   const attacks = new PlayerAttacks(physics);
   const combatView = new PlayerCombatView(world.scene, combatTexture);
   let defeatTime = 0;
+  let displayPose: CombatPose | null = null;
   if (!combatEnabled)
     enemies.forEach((enemy) => enemy.collider.setEnabled(false));
   document.getElementById("health")!.hidden = !combatEnabled;
@@ -100,16 +111,17 @@ async function boot() {
   let checkpoint = -1;
   let checkpointPosition = { ...SPAWN };
   let checkpointGates = 0;
-  function resetCombat() {
+  function resetCombat(preserveKills = false) {
     vitals.reset();
     attacks.reset();
     defeatTime = 0;
-    enemies.forEach((enemy) => {
-      enemy.reset();
+    enemies.forEach((enemy, index) => {
+      enemy.reset(preserveKills && objective.has(index));
       if (!combatEnabled) enemy.collider.setEnabled(false);
     });
   }
   function restart() {
+    objective.reset();
     time = 0;
     elapsed = 0;
     falls = 0;
@@ -146,7 +158,7 @@ async function boot() {
   function recover() {
     input.clear();
     player.reset(checkpointPosition);
-    resetCombat();
+    resetCombat(true);
     physics.step();
     gatesPassed = checkpointGates;
     camera.update(checkpointPosition, { x: 0, y: 0, z: 0 }, 0, true);
@@ -210,6 +222,9 @@ async function boot() {
     if (combatEnabled) {
       vitals.tick();
       enemies.forEach((enemy) => enemy.update(player));
+      enemies.forEach((enemy, index) => {
+        if (enemy.hp <= 0) objective.record(index);
+      });
     }
     if (combat.health <= 0) {
       input.clear();
@@ -263,11 +278,12 @@ async function boot() {
     if (
       player.grounded &&
       gatesPassed === COURSE_GATES.length &&
+      (objective.unlocked || !combatEnabled) &&
       Math.hypot(position.x - FINISH.x, position.z - FINISH.z) < 1.55 &&
       Math.abs(position.y - FOOT_OFFSET - FINISH.y) < 0.25
     ) {
       input.clear();
-      ui.show("finished", falls);
+      ui.show("finished", falls, objective.kills, objective.target);
     }
   }
   function render(dt: number, alpha: number) {
@@ -303,10 +319,13 @@ async function boot() {
         : 1;
     const pose =
       combat.health <= 0
-        ? "defeat"
+        ? defeatTime < 0.15
+          ? "hurt"
+          : "defeat"
         : combat.invulnerable > ENEMY.invulnerability - 0.15
           ? "hurt"
           : attacks.pose;
+    displayPose = pose;
     const attackDirection = attacks.kind
       ? Math.abs(attacks.direction.x) > 0
         ? attacks.direction.x > 0
@@ -333,6 +352,8 @@ async function boot() {
     );
     if (combatEnabled) ui.updateHealth(combat.health);
     ui.updateSolar(attacks.solarCooldown, ATTACK.solarCooldown);
+    ui.updateObjective(objective.kills, objective.target);
+    world.setExitUnlocked(objective.unlocked || !combatEnabled);
     const ground = physics.groundBelow(current, player.collider);
     shadow.visible = !!ground;
     if (ground) {
@@ -377,6 +398,7 @@ async function boot() {
   // Upload textures and compile materials before accepting Start, rather than
   // doing that work when their part of the course first enters the camera.
   const textures = new Set<THREE.Texture>();
+  textures.add(fallTexture);
   world.scene.traverse((object) => {
     if (!(object instanceof THREE.Mesh || object instanceof THREE.Sprite))
       return;
@@ -403,6 +425,9 @@ async function boot() {
         velocity: { ...player.velocity },
         grounded: player.grounded,
         animation: player.animation,
+        animationAtlas: (
+          character.sprite.material.map?.image as HTMLImageElement | undefined
+        )?.src,
         direction: player.direction,
         screen: ui.screen,
         time,
@@ -417,6 +442,11 @@ async function boot() {
         section,
         gatesPassed,
         checkpoint,
+        kills: objective.kills,
+        killTarget: objective.target,
+        exitUnlocked: objective.unlocked,
+        defeatTime,
+        displayPose,
         combat: {
           enabled: combatEnabled,
           health: combat.health,

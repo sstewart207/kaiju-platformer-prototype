@@ -28,7 +28,8 @@ test("real-time full-course frame pacing", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", e => errors.push(e.message));
   page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
-  await page.goto("/?test");
+  // This walking-only benchmark does not fight; objective/combat has a separate clear test.
+  await page.goto("/?test&peaceful");
   await page.waitForFunction(() => !!window.__solargon);
   const resolution = await page.locator("#world").evaluate(el => {
     const canvas = el as HTMLCanvasElement;

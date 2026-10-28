@@ -11,6 +11,7 @@ export interface MovementInput {
   dashPressed?: boolean;
   attackPressed?: boolean;
   specialPressed?: boolean;
+  specialHeld?: boolean;
 }
 export type AnimationState =
   | "idle"
@@ -37,17 +38,21 @@ export interface SpriteMotionOptions {
   breathing?: { pixels: number; seconds: number };
   hair?: { pixels: number; seconds: number; from: number };
 }
-export interface CharacterManifest<State extends string = AnimationState> {
-  name: string;
+export interface SpriteAtlas {
   atlas: string;
   columns: number;
   rows: number;
   size: number;
   groundAnchor: readonly [number, number];
   directions: Record<Direction, number>;
-  animations: Record<State, AnimationClip>;
   pixelsPerUnit?: number;
   frames?: Record<Direction, readonly SpriteFrame[]>;
+}
+export interface CharacterManifest<State extends string = AnimationState>
+  extends SpriteAtlas {
+  name: string;
+  animations: Record<State, AnimationClip>;
+  stateAtlases?: Partial<Record<State, SpriteAtlas>>;
   secondaryMotion?: SpriteMotionOptions;
 }
 export interface PlayableCharacterManifest extends CharacterManifest {

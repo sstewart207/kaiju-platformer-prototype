@@ -50,7 +50,7 @@ async function advance(page: Page, frames = 1) {
   await page.evaluate((n) => window.__solargon.advance(n), frames);
 }
 async function boot(page: Page, enemyPreview = false) {
-  await page.goto(enemyPreview ? "/?test&enemies=1" : "/?test");
+  await page.goto(enemyPreview ? "/?test" : "/?test&peaceful");
   await page.waitForFunction(() => !!window.__solargon);
   await page.evaluate(() => window.__solargon.manual(true));
   await page.getByRole("button", { name: "START" }).click();

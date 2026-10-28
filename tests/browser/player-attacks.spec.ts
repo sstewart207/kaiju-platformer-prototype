@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { writeFileSync } from "node:fs";
 interface Fight {
   enemyHp: number;
   health: number;
@@ -45,7 +46,7 @@ test("keyboard swipe and solar beam defeat zombies, pause safely and reset", asy
   page.on("pageerror", (e) => errors.push(e.message));
   await page.setViewportSize({ width: 1920, height: 1080 });
   await boot(page);
-  expect((await fight(page)).enemies).toHaveLength(3);
+  expect((await fight(page)).enemies).toHaveLength(12);
   await approach(page, 1.5);
   await page.screenshot({ path: "art/playtest/human-zombie-scale.png" });
   await page.keyboard.press("KeyJ");
@@ -82,9 +83,57 @@ test("keyboard swipe and solar beam defeat zombies, pause safely and reset", asy
   await page.keyboard.press("KeyR");
   await advance(page, 1);
   const reset = await fight(page);
-  expect(reset.enemies.map((e) => e.hp)).toEqual([2, 2, 2]);
+  expect(reset.enemies.map((e) => e.hp)).toEqual(Array(12).fill(2));
   expect(reset.health).toBe(3);
   expect(reset.solarCooldown).toBe(0);
   await expect(page.locator("#controls")).toContainText("ATTACK");
   expect(errors).toEqual([]);
+});
+
+test("hold K sustains the mouth ray; release, pause and restart stop it", async ({ page }) => {
+  await boot(page);
+  await page.keyboard.down("KeyK");
+  await advance(page, 120);
+  expect((await fight(page)).beamActive).toBe(true);
+  expect((await fight(page)).beams).toBe(1);
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.screenshot({ path: "art/playtest/solargon-sustained-ray.png" });
+  await page.keyboard.up("KeyK");
+  await advance(page, 1);
+  expect((await fight(page)).beamActive).toBe(false);
+  await advance(page, 80);
+  await page.keyboard.down("KeyK");
+  await advance(page, 50);
+  await page.keyboard.press("Escape");
+  const paused = await fight(page);
+  await advance(page, 60);
+  expect(await fight(page)).toEqual(paused);
+  await page.keyboard.up("KeyK");
+  await page.getByRole("button", { name: "RESUME", exact: true }).click();
+  await advance(page, 1);
+  expect((await fight(page)).beamActive).toBe(false);
+  await page.keyboard.press("KeyR");
+  await advance(page, 1);
+  expect((await fight(page)).attack).toBe(null);
+});
+
+test("continuous ray maintains 60 FPS at 1080p", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await boot(page);
+  await page.keyboard.down("KeyK");
+  await page.evaluate(() => window.__solargon.manual(false));
+  await page.waitForFunction(() => window.__solargon.state().elapsed > 4.5);
+  const result = await page.evaluate(() => window.__solargon.state());
+  expect((await fight(page)).beamActive).toBe(true);
+  expect(result.fps).toBeGreaterThanOrEqual(55);
+  expect(result.frameP95).toBeLessThan(1000 / 55);
+  expect(errors).toEqual([]);
+  writeFileSync("art/playtest/performance/sustained-solar.json", JSON.stringify({
+    fps: result.fps, p95: result.frameP95, samples: result.samples,
+    browser: "Edge headless, 1920x1080 viewport/render buffer; sustained ray at start, 12 enemies enabled",
+    errors,
+  }, null, 2));
+  await page.keyboard.up("KeyK");
 });

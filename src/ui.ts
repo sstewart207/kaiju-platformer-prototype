@@ -83,7 +83,7 @@ export class UI {
           ? "✕ Select · ○ Back · Options Pause · △ Restart"
           : "WASD / arrows Move · Space Jump · Shift Dash · J Attack · K Solar · Esc Pause";
   }
-  show(screen: Screen, falls = 0) {
+  show(screen: Screen, falls = 0, kills = 0, target = 0) {
     this.screen = screen;
     const playing = screen === "playing";
     element("overlay").hidden = playing;
@@ -103,7 +103,8 @@ export class UI {
     } else if (screen === "finished") {
       element("menu-title").textContent = "COMPLETE";
       element("menu-subtitle").textContent = "RUINS";
-      element("menu-description").textContent = `Falls ${falls}`;
+      element("menu-description").textContent =
+        `${target ? `Kills ${Math.min(kills, target)}/${target} · ` : ""}Falls ${falls}`;
       element("primary-button").textContent = "PLAY AGAIN";
       element("announcer").textContent = "Course complete.";
     }
@@ -125,6 +126,10 @@ export class UI {
       cooldown > 0.001 ? "SOLAR …" : "SOLAR READY";
     element("solar-meter").style.width =
       `${(1 - Math.min(1, cooldown / duration)) * 100}%`;
+  }
+  updateObjective(kills: number, target: number) {
+    element("kill-status").textContent =
+      `KILLS ${Math.min(kills, target)}/${target}`;
   }
   async respawnFlash() {
     element("fade").style.opacity = ".85";

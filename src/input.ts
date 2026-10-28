@@ -8,7 +8,7 @@ export class Input {
   private attackQueued = false;
   private specialQueued = false;
   private controller = new Controller();
-  private pad = { x: 0, z: 0, jumpHeld: false };
+  private pad = { x: 0, z: 0, jumpHeld: false, specialHeld: false };
   source: "keyboard" | "gamepad" = "keyboard";
   onPause = () => {};
   onRestart = () => {};
@@ -62,7 +62,7 @@ export class Input {
     this.dashQueued = false;
     this.attackQueued = false;
     this.specialQueued = false;
-    this.pad = { x: 0, z: 0, jumpHeld: false };
+    this.pad = { x: 0, z: 0, jumpHeld: false, specialHeld: false };
     this.controller.clear();
   }
   private setSource(source: "keyboard" | "gamepad") {
@@ -127,6 +127,7 @@ export class Input {
       dashPressed,
       attackPressed,
       specialPressed,
+      specialHeld: this.keys.has("KeyK") || this.pad.specialHeld,
       jumpHeld: this.keys.has("Space") || this.pad.jumpHeld,
     };
   }

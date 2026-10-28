@@ -1,5 +1,15 @@
 # QA results — October 27, 2026
 
+## Kill objective, falling/death and sustained solar
+
+44 unit tests and 31 local browser checks pass; two opt-in hosted/full-course hardware checks were skipped in the local suite. Production build passes. Coverage includes both keyboard routes, all 92 directional sprite crops, the full 12-kill keyboard course clear, separate rising/falling art, death recoil/collapse, persistent checkpoint kill credit, restart and synthetic R2 hold/release/disconnect. Physical testing of the new held attack remains pending.
+
+The full combat clear took **161.82 simulated seconds**, with no deaths, teleports or health/kill edits. This is scripted fixed-step timing, not measured human playtime. [Timing](art/playtest/kill-clear-timing.json).
+
+Holding the solar ray at the start measured **144.00 FPS / 7.1 ms p95**, 600 samples, Edge headless at 1920 × 1080 on the RTX 5070 Ti laptop. All 12 enemies were enabled, but this was a safe starting-area effect test, not a full-course combat benchmark. No page errors. [Measurement](art/playtest/performance/sustained-solar.json) · [Ray](art/playtest/solargon-sustained-ray.png) · [Falling](art/playtest/solargon-falling.png).
+
+Older checkpoints below describe their builds at the time. Falling no longer shares jumping art. Coordinated squad AI remains a proposal; current groups use individual patrol/chase/attack logic.
+
 ## Idle breathing and walking hair
 
 Solargon and human zombies have subtle upper-body breathing while idle. Zombie hair crowns sway by up to two render pixels while walking, then settle. The lower legs/feet remain fixed; action and dash poses clear the deformation. Artwork, frame UVs, physics and controls are unchanged. Both visible and wall-occluded sprites share the same subdivided geometry.

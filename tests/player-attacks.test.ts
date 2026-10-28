@@ -108,6 +108,45 @@ test("solar beam stops at a thin wall, including a wall beside its origin", () =
     physics.dispose();
   }
 });
+
+test("held solar sustains, turns, hits newly arriving targets and stops on release", () => {
+  const { physics, player, enemies, attacks, step } = fixture([
+    { x: -66, y: 0.69, z: 40 },
+    { x: -70, y: 0.69, z: 44 },
+  ]);
+  step({ specialPressed: true, specialHeld: true }, 120);
+  assert.equal(attacks.beamActive, true);
+  assert.equal(attacks.beams, 1);
+  assert.equal(enemies[0].hp, 0);
+  assert.equal(enemies[1].hp, 2);
+  player.direction = "front";
+  step({ specialHeld: true }, 2);
+  assert.equal(enemies[1].hp, 0);
+  assert.deepEqual(attacks.direction, { x: 0, z: 1 });
+  step();
+  assert.equal(attacks.beamActive, false);
+  assert.ok(attacks.solarCooldown > 1.2);
+  step({ specialPressed: true, specialHeld: true }, 4);
+  assert.equal(attacks.beams, 1);
+  physics.dispose();
+});
+
+test("sustained solar respects walls and resets without a stuck ray", () => {
+  const { physics, enemies, attacks, step } = fixture([
+    { x: -65, y: 0.69, z: 40 },
+  ]);
+  physics.world.createCollider(
+    RAPIER.ColliderDesc.cuboid(0.025, 2, 2).setTranslation(-68, 1, 40),
+  );
+  physics.step();
+  step({ specialPressed: true, specialHeld: true }, 180);
+  assert.equal(enemies[0].hp, 2);
+  assert.ok(attacks.beamLength < 2.1);
+  attacks.reset();
+  assert.equal(attacks.beamActive, false);
+  assert.equal(attacks.pose, null);
+  physics.dispose();
+});
 test("simultaneous enemy attacks share one damage protection window", () => {
   const physics = new Physics(),
     player = new Player(physics),
