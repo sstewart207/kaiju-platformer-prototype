@@ -33,6 +33,10 @@ export interface SpriteFrame {
   groundX: number;
   groundY: number;
 }
+export interface SpriteMotionOptions {
+  breathing?: { pixels: number; seconds: number };
+  hair?: { pixels: number; seconds: number; from: number };
+}
 export interface CharacterManifest<State extends string = AnimationState> {
   name: string;
   atlas: string;
@@ -44,6 +48,7 @@ export interface CharacterManifest<State extends string = AnimationState> {
   animations: Record<State, AnimationClip>;
   pixelsPerUnit?: number;
   frames?: Record<Direction, readonly SpriteFrame[]>;
+  secondaryMotion?: SpriteMotionOptions;
 }
 export interface PlayableCharacterManifest extends CharacterManifest {
   palette: {

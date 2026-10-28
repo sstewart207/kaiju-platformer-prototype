@@ -1,5 +1,11 @@
 # QA results — October 27, 2026
 
+## Idle breathing and walking hair
+
+Solargon and human zombies have subtle upper-body breathing while idle. Zombie hair crowns sway by up to two render pixels while walking, then settle. The lower legs/feet remain fixed; action and dash poses clear the deformation. Artwork, frame UVs, physics and controls are unchanged. Both visible and wall-occluded sprites share the same subdivided geometry.
+
+40 unit/physics tests and 12 relevant local browser checks pass, including fixed lower vertices, bounded crown motion, exact pause, pixel-identical rendered feet, all 88 atlas crops, combat, controller input and wall occlusion. Production build passes. Active 1080p enemy scene measured 144.01 FPS / 7.1 ms p95 on this laptop; no console errors. This was a short scene check, not a repeated full-course benchmark. [Measurements](art/playtest/performance/secondary-motion-fight.json) · [Rest](art/playtest/secondary-motion-rest.png) · [Breathing/hair motion](art/playtest/secondary-motion-inhale.png).
+
 ## Solargon combat and human zombies
 
 Solargon now has J/Circle swipes and K/R2 solar beams. Three bipedal human zombies patrol, chase and use telegraphed swipes/fireballs. Their art is separate from behavior and remains replaceable. Three-hit player health has one shared damage-protection window; defeat briefly shows a pose before checkpoint recovery. Restart clears all encounters and attack state. Walking, jumping, rapid dash and stage geometry are unchanged.

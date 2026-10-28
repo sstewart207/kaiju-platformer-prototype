@@ -6,6 +6,10 @@ import atlas from "../art/human-zombie-atlas-v1.audit.json";
 
 export const HUMAN_ZOMBIE: CharacterManifest<EnemyAction> = {
   name: "Zombie",
+  secondaryMotion: {
+    breathing: { pixels: 1.25, seconds: 2.8 },
+    hair: { pixels: 2, seconds: 0.36, from: 0.66 },
+  },
   atlas: `${import.meta.env.BASE_URL}assets/human-zombie-atlas-v1.png`,
   columns: 8,
   rows: 4,

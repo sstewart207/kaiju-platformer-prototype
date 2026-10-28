@@ -1,0 +1,9 @@
+{
+  "fps": 144.0057602304092,
+  "p95": 7.099999999999454,
+  "samples": 600,
+  "shots": 2,
+  "health": 1,
+  "browser": "Edge headless, 1920x1080 viewport and render buffer",
+  "errors": []
+}

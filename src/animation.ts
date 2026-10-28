@@ -7,10 +7,12 @@ import type {
   Vec3,
 } from "./types";
 import auditedAtlas from "../art/solargon-atlas-v2.audit.json";
+import { SpriteMotion } from "./sprite-motion";
 
 export const SOLARGON: PlayableCharacterManifest = {
   name: "Solargon",
   palette: { primary: "#f4c45a", highlight: "#fff4cf" },
+  secondaryMotion: { breathing: { pixels: 1.25, seconds: 8 / 3 } },
   atlas: `${import.meta.env.BASE_URL}assets/solargon-atlas-v2.png`,
   columns: 8,
   rows: 4,
@@ -21,7 +23,7 @@ export const SOLARGON: PlayableCharacterManifest = {
   frames: auditedAtlas.frames,
   directions: { right: 0, left: 1, front: 2, back: 3 },
   animations: {
-    idle: { frames: [0, 1], fps: 2, loop: true },
+    idle: { frames: [0, 1], fps: 0.75, loop: true },
     running: { frames: [2, 3, 4, 5], fps: 10, loop: true },
     dashing: { frames: [7], fps: 1, loop: false },
     jumping: { frames: [6], fps: 1, loop: false },
@@ -35,6 +37,7 @@ export class CharacterSprite<State extends string = AnimationState> {
   private projected = new THREE.Vector3();
   private time = 0;
   private state: State | null = null;
+  private motion: SpriteMotion | null = null;
   constructor(
     private manifest: CharacterManifest<State>,
     private texture: THREE.Texture,
@@ -71,6 +74,11 @@ export class CharacterSprite<State extends string = AnimationState> {
       }),
     );
     this.occludedSprite.renderOrder = 1;
+    if (manifest.secondaryMotion) {
+      this.motion = new SpriteMotion(manifest.secondaryMotion);
+      this.sprite.geometry = this.occludedSprite.geometry =
+        this.motion.geometry;
+    }
   }
   update(
     position: Vec3,
@@ -124,6 +132,15 @@ export class CharacterSprite<State extends string = AnimationState> {
           insetY,
       );
     }
+    this.motion?.update(
+      state,
+      direction,
+      dt,
+      pixelSize,
+      this.sprite.scale,
+      this.sprite.center.y,
+      position,
+    );
     const projected = this.projected
       .set(position.x, position.y, position.z)
       .applyMatrix4(camera.matrixWorldInverse);

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Secondary motion check</title>
+    <style>
+      body {
+        margin: 0;
+        background: #263b48;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import * as THREE from "three";
+      import { CharacterSprite, SOLARGON } from "/src/animation.ts";
+      import { HUMAN_ZOMBIE } from "/src/enemy-view.ts";
+      const renderer = new THREE.WebGLRenderer({
+        antialias: false,
+        preserveDrawingBuffer: true,
+      });
+      renderer.setSize(840, 420);
+      renderer.setClearColor("#263b48");
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      document.body.append(renderer.domElement);
+      const scene = new THREE.Scene(),
+        camera = new THREE.OrthographicCamera(-3.5, 3.5, 3.2, -0.3, 0.1, 100);
+      camera.position.z = 10;
+      camera.updateMatrixWorld();
+      const actors = [];
+      for (const [manifest, state, x] of [
+        [SOLARGON, "idle", -1.7],
+        [HUMAN_ZOMBIE, "walking", 1.7],
+      ]) {
+        const texture = await new THREE.TextureLoader().loadAsync(
+          manifest.atlas,
+        );
+        // Hold a source pose to isolate breathing/hair from atlas-frame changes.
+        const actor = new CharacterSprite(
+          {
+            ...manifest,
+            animations: { [state]: { frames: [0], fps: 1, loop: true } },
+          },
+          texture,
+        );
+        actors.push({ actor, state, x });
+        scene.add(actor.sprite);
+      }
+      window.motionStep = (dt) => {
+        for (const { actor, state, x } of actors)
+          actor.update(
+            { x, y: 0, z: 0 },
+            state,
+            "front",
+            dt,
+            camera,
+            18 / 1080,
+          );
+        renderer.render(scene, camera);
+      };
+      window.motionStep(0);
+      window.motionReady = true;
+    </script>
+  </body>
+</html>

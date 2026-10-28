@@ -27,6 +27,8 @@ The course screenshot establishes camera composition, character-to-platform scal
 
 Ground dash uses the existing low landing pose (frame 7) as a steady horizontal dash pose, without cycling the bouncy running frames. This is a draft pose reuse; future dash art should preserve ground anchors and a stable silhouette. Jumping/falling keep their existing airborne poses.
 
+Living sprites can use the manifest's optional `secondaryMotion`: a gentle one-pixel upper-body breathing cycle while idle, and up to two pixels of crown/hair sway while walking. Solargon breathes on a roughly 2.7-second cycle; the human zombie breathes on a 2.8-second cycle and has hair motion. Keep feet/lower legs fixed, preserve nearest-neighbor sampling and frame UVs, and clear the deformation for dash, attack, hurt and defeat poses. The faint wall-occlusion sprite must share the same deformation. These are small runtime motions, not replacements for proper walk or attack frames. Future characters should enable hair motion only where their actual artwork has hair; do not automatically bend horns or wings.
+
 Dash feedback uses six small tapered speed lines behind the character, aligned to the projected movement direction. **Derive the colors from the current playable character's palette**, using its primary color and a lighter highlight. Define these in the playable character manifest and pass that palette to the dash effect; never hardcode Solargon's colors in the shared effect. Solargon uses gold (`#f4c45a`) and cream (`#fff4cf`). Follow each other character's established palette below when their playable assets are implemented.
 
 Keep the lines close to the silhouette, visible only during the burst and depth-tested against the world. Avoid full-screen streaks or extra text.
