@@ -9,7 +9,7 @@ import "@fontsource/space-mono/latin-700.css";
 import * as THREE from "three";
 import RAPIER from "@dimforge/rapier3d-compat";
 import { Physics, FIXED_DT } from "./physics";
-import { Player, FOOT_OFFSET } from "./player";
+import { Player, FOOT_OFFSET, MOVEMENT } from "./player";
 import { Input } from "./input";
 import { FollowCamera } from "./camera";
 import { RuinsWorld } from "./world";
@@ -282,7 +282,7 @@ async function boot() {
       physics,
       renderFocus.set(position.x, position.y, position.z),
     );
-    ui.update(player.dashCooldown, player.dashing);
+    ui.update(player.dashCooldown, player.dashing, MOVEMENT.dashCooldown);
     renderer.render(world.scene, camera.camera);
   }
   function frame(now: number) {

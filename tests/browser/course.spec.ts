@@ -411,12 +411,19 @@ test("keyboard dash can be spammed and jump-dash stays collision safe", async ({
     window.__solargon.teleport({ x: -70, y: 0.8, z: 40 }),
   );
   await advance(page, 20);
+  const groundHeight = (await state(page)).position.y;
   await page.keyboard.down("KeyD");
   await page.keyboard.down("ShiftLeft");
   await advance(page, 8);
   await page.keyboard.up("ShiftLeft");
   expect((await state(page)).dashes).toBe(1);
   expect((await state(page)).dashing).toBe(true);
+  expect((await state(page)).animation).toBe("dashing");
+  expect(Math.abs((await state(page)).position.y - groundHeight)).toBeLessThan(
+    0.025,
+  );
+  expect((await state(page)).jumps).toBe(0);
+  await page.screenshot({ path: "art/playtest/ground-dash.png" });
   await advance(page, 25);
   await page.keyboard.down("Space");
   await page.keyboard.down("ShiftLeft");

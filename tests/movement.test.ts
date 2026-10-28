@@ -21,6 +21,7 @@ function fixture() {
         ...idle,
         ...input,
         jumpPressed: i === 0 && !!input.jumpPressed,
+        dashPressed: i === 0 && !!input.dashPressed,
       });
       physics.step();
     }
@@ -253,8 +254,6 @@ test("dash bursts forward, respects cooldown and stops after release", () => {
   const burst = player.position.x - start;
   assert.ok(burst > 3 && burst < 4.5, `${burst}`);
   assert.equal(player.dashes, 1);
-  step({ dashPressed: true });
-  assert.equal(player.dashes, 1);
   step({}, 40);
   const stopped = player.position.x;
   step({}, 90);
@@ -267,10 +266,42 @@ test("rapid dash presses repeat after cooldown without gaining vertical flight",
   player.reset({ x: -70, y: 0.8, z: 40 });
   physics.step();
   step({}, 20);
-  for (let frame = 0; frame < 120; frame++)
+  const groundHeight = player.position.y;
+  for (let frame = 0; frame < 120; frame++) {
     step({ x: 1, dashPressed: frame % 6 === 0 });
-  assert.ok(player.dashes >= 4 && player.dashes <= 5, `${player.dashes}`);
-  assert.ok(player.position.x > -46);
+    // Stay within the controller's 0.025-unit contact skin, never a jump arc.
+    assert.ok(
+      Math.abs(player.position.y - groundHeight) < 0.025,
+      JSON.stringify({
+        frame,
+        groundHeight,
+        position: player.position,
+        grounded: player.grounded,
+      }),
+    );
+    assert.equal(player.grounded, true);
+    if (player.dashing) assert.equal(player.animation, "dashing");
+  }
+  assert.ok(player.dashes >= 8 && player.dashes <= 9, `${player.dashes}`);
+  assert.ok(player.position.x > -34);
+  assert.equal(player.jumps, 0);
+  assert.equal(player.grounded, true);
+  physics.dispose();
+});
+
+test("an early dash tap buffers the next burst and takes its new direction", () => {
+  const { physics, player, step } = fixture();
+  player.reset({ x: -70, y: 0.8, z: 40 });
+  physics.step();
+  step({}, 20);
+  step({ x: 1, dashPressed: true }, 8);
+  step({ x: -1, dashPressed: true });
+  assert.equal(player.dashes, 1);
+  assert.equal(player.direction, "right");
+  step({ x: -1 }, 6);
+  assert.equal(player.dashes, 2);
+  assert.equal(player.direction, "left");
+  assert.ok(player.velocity.x < 0);
   assert.equal(player.grounded, true);
   physics.dispose();
 });

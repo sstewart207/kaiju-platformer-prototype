@@ -1,5 +1,11 @@
 # QA results — October 27, 2026
 
+## Rapid horizontal dash
+
+Dash now uses a steady low pose, 22 units/second for 0.18 seconds and 0.23 seconds between starts, with a 0.12-second early-tap buffer. The fixed step permits a burst every 14 ticks (about 4.3 per second). Direction is committed within a burst; queued bursts take the latest movement direction. Normal walking, jumping, gravity and collision dimensions are unchanged.
+
+32 unit/physics tests and 18 local browser checks pass; strict TypeScript/production build passes. Repeated flat-ground dash taps remain grounded, stay within the controller contact skin and produce zero jumps. Tests cover buffered reversal, keyboard and synthetic Square/R1 chaining, jump-dash, thin walls, both walking routes, shuttle/recovery/checkpoints, pause/restart and sprite boundaries. [Ground dash capture](art/playtest/ground-dash.png) was inspected. The short rendering check measured 144 FPS / 7 ms p95 at 1080p; the full-course hardware benchmark was not repeated. This dash revision has not yet had a physical-controller feel test.
+
 ## Sprite frame fix (#3)
 
 Reproduced neighboring-frame fragments on the left/back rows. The generated atlas has uneven horizontal spacing, but its old metadata divided every row into equal eighths. Updated each row's cuts between complete silhouettes and retained constant source-pixel scale. Original artwork, movement and controls are unchanged.

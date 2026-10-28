@@ -112,14 +112,14 @@ export class UI {
     this.updateFooter();
     element("primary-button").focus();
   }
-  update(dashCooldown = 0, dashing = false) {
+  update(dashCooldown = 0, dashing = false, rechargeDuration = 0.23) {
     element("dash-status").textContent = dashing
       ? "DASH"
       : dashCooldown > 0.001
         ? "DASH …"
         : "DASH READY";
     element("dash-meter").style.width =
-      `${(1 - Math.min(1, dashCooldown / 0.45)) * 100}%`;
+      `${(1 - Math.min(1, dashCooldown / rechargeDuration)) * 100}%`;
   }
   async respawnFlash() {
     element("fade").style.opacity = ".85";

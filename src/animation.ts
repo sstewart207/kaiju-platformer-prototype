@@ -21,6 +21,7 @@ export const SOLARGON: CharacterManifest = {
   animations: {
     idle: { frames: [0, 1], fps: 2, loop: true },
     running: { frames: [2, 3, 4, 5], fps: 10, loop: true },
+    dashing: { frames: [7], fps: 1, loop: false },
     jumping: { frames: [6], fps: 1, loop: false },
     falling: { frames: [6], fps: 1, loop: false },
     landing: { frames: [7], fps: 10, loop: false },

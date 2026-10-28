@@ -25,6 +25,8 @@ Use an elevated orthographic camera aligned to the movement axes, substantial re
 
 The course screenshot establishes camera composition, character-to-platform scale, texture density and lighting. The Solargon atlas establishes the gold/brown outline treatment and broad sprite proportions. Compare new art in the live scene, not just against an enlarged sprite.
 
+Ground dash uses the existing low landing pose (frame 7) as a steady horizontal dash pose, without cycling the bouncy running frames. This is a draft pose reuse; future dash art should preserve ground anchors and a stable silhouette. Jumping/falling keep their existing airborne poses.
+
 ### Rendering constants
 
 | Item | Current implementation |

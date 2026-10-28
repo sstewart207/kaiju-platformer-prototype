@@ -200,8 +200,13 @@ test("DualSense Square and R1 dash with a short repeatable cooldown", async ({
   await sample(page, [], [0, 0], 20);
   await sample(page, [2], [1, 0], 8);
   expect((await page.evaluate(() => window.__solargon.state())).dashes).toBe(1);
-  await sample(page, [], [1, 0], 24);
-  await sample(page, [5], [1, 0], 8);
+  const burst = await page.evaluate(() => window.__solargon.state());
+  expect(burst.grounded).toBe(true);
+  expect(burst.animation).toBe("dashing");
+  expect(burst.jumps).toBe(0);
+  await sample(page, [], [1, 0], 1);
+  await sample(page, [5], [1, 0], 1);
+  await sample(page, [], [1, 0], 5);
   expect((await page.evaluate(() => window.__solargon.state())).dashes).toBe(2);
   await expect(page.locator("#controls")).toContainText("DASH");
   await sample(page, [], [0, 0], 90);

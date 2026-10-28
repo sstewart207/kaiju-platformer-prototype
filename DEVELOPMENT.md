@@ -51,7 +51,7 @@ Prompts switch between keyboard and controller. Disconnecting the active control
 
 The redesigned ruins has a weaving gallery route, jumpable central breaks, raised shuttle docks, a longer lower-garden alternative and final hurdles with a side lane. The shuttle has no walkable bridge beneath it. Missing a shortcut lands on safe grass. Blue floor markers must be passed in order before finishing. See [LEVEL_DESIGN.md](LEVEL_DESIGN.md) for the layout and shared collision data.
 
-Movement is **8.5 units/second**, up from 5.8. Dash is **16.5 units/second for 0.22 seconds**, with a **0.45-second interval between starts** and a small press buffer. Use **Shift** or DualSense **Square / R1**. Dash direction is committed for that burst; normal steering returns afterward. Jump-dash works, gravity/collision remain active, and holding a dash button does not auto-repeat. The HUD shows elapsed time and dash readiness.
+Movement is **8.5 units/second**. Dash is **22 units/second for 0.18 seconds**, with a **0.23-second interval between starts** (14 fixed ticks, about 4.3 bursts/second). Use **Shift** or DualSense **Square / R1**. Early taps buffer for 0.12 seconds; a new burst takes the current input direction. Each burst commits its direction. Ground dash uses a steady low pose instead of cycling running frames. Dash adds no upward velocity; jump-dash keeps normal gravity/collision, and holding a dash button does not auto-repeat. The HUD shows dash readiness, with no visible timer.
 
 The extended walking route is verified at **152.10 seconds** with no jumps or falls. The earlier 39.50-second walking / 37.35-second shortcut measurements describe the superseded short layout. These scripted runs are geometry/input checks, not measured human playtime. See LEVEL_DESIGN.md and QA_RESULTS.md for the current layout and validation.
 
@@ -79,7 +79,7 @@ It reads the PNG and writes frame rectangles, measured ground anchors and edge-c
 ## Verified checkpoint
 
 - Production build and strict TypeScript checks pass.
-- **31 unit/physics tests pass**, covering movement, collision, platform carry, render-rate independence, controller input, idle stability, dash distance, repeat/cooldown behavior, thin-wall collision, grass recovery and enemy melee/fireball behavior.
+- **32 unit/physics tests pass**, covering movement, collision, platform carry, render-rate independence, controller input, idle stability, horizontal dash chaining/early-tap buffering, thin-wall collision, grass recovery and enemy melee/fireball behavior.
 - Browser checks cover both keyboard routes, the faster jump/dash/shuttle route, missed-shuttle recovery to the finish, ordered route checks, performance, compact UI and synthetic DualSense input. A visual capture checks character occlusion. Hosted launch and the full-course hardware benchmark are opt-in. Physical USB/Bluetooth playtesting remains pending.
 - The console-error/page-error capture in the live rendering test is empty. The live in-app browser was also checked for movement, jumping and presentation.
 - Full-course 1080p benchmark: **143.9 FPS average**, **7.0 ms p95**, no frames over 33.4 ms in the measured run. Edge headless, 1920 × 1080 viewport/render buffer, RTX 5070 Ti Laptop GPU. This is this laptop's result; Chromebook performance remains untested. Measurements and visual comparisons are in [QA_RESULTS.md](QA_RESULTS.md).

@@ -13,6 +13,7 @@ export interface MovementInput {
 export type AnimationState =
   | "idle"
   | "running"
+  | "dashing"
   | "jumping"
   | "falling"
   | "landing";

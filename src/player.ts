@@ -15,10 +15,10 @@ export const MOVEMENT = {
   bufferTime: 0.13,
   radius: 0.34,
   halfHeight: 0.4,
-  dashSpeed: 16.5,
-  dashDuration: 0.22,
-  dashCooldown: 0.45,
-  dashBuffer: 0.1,
+  dashSpeed: 22,
+  dashDuration: 0.18,
+  dashCooldown: 0.23,
+  dashBuffer: 0.12,
 };
 export const FOOT_OFFSET = MOVEMENT.radius + MOVEMENT.halfHeight;
 const RIGHT = { x: 1, z: 0 };
@@ -251,19 +251,22 @@ export class Player {
       }
     }
     this.landingTime = Math.max(0, this.landingTime - dt);
-    if (hasInput) {
-      if (Math.abs(input.x) >= Math.abs(input.z))
-        this.direction = input.x > 0 ? "right" : "left";
-      else this.direction = input.z > 0 ? "front" : "back";
+    if (hasInput || this.dashing) {
+      const facing = this.dashing ? this.dashDirection : input;
+      if (Math.abs(facing.x) >= Math.abs(facing.z))
+        this.direction = facing.x > 0 ? "right" : "left";
+      else this.direction = facing.z > 0 ? "front" : "back";
     }
     this.animation = !this.grounded
       ? this.velocity.y > 0
         ? "jumping"
         : "falling"
-      : this.landingTime > 0
-        ? "landing"
-        : Math.hypot(this.velocity.x, this.velocity.z) > 0.25
-          ? "running"
-          : "idle";
+      : this.dashing
+        ? "dashing"
+        : this.landingTime > 0
+          ? "landing"
+          : Math.hypot(this.velocity.x, this.velocity.z) > 0.25
+            ? "running"
+            : "idle";
   }
 }

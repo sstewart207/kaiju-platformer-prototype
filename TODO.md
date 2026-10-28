@@ -12,6 +12,7 @@
 
 - [ ] Choose a game title together. Current labels are placeholders: Untitled Kaiju Project / Ruins.
 - [x] Increase normal movement speed and add a repeatable dash for keyboard and DualSense, with jump-dash, cooldown and collision checks. The visible timer was subsequently removed.
+- [x] Make ground dash a faster horizontal burst with a steady low pose and buffered rapid taps: 0.23 seconds between starts. Preserve normal jump height and wall collision.
 - [x] Redesign ruins as distinct gallery, shuttle/garden and hurdle sections, with a safe route and validated faster shortcuts; avoid a walkable bridge beneath the shuttle.
 
 - [ ] Add a character selection screen for the planned five-kaiju roster. Show each character's name, artwork and elemental ability; support keyboard and DualSense selection. Keep unavailable characters clearly unavailable until their gameplay assets and abilities are implemented.
