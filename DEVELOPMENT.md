@@ -79,7 +79,7 @@ It reads the PNG and writes frame rectangles, measured ground anchors and edge-c
 ## Verified checkpoint
 
 - Production build and strict TypeScript checks pass.
-- **44 unit/physics tests pass**, covering movement, collision, platform carry, render-rate independence, controller input, combat, held solar firing, kill quotas, authored enemy navigation and bounded secondary sprite motion with fixed feet and exact pause behavior.
+- **46 unit/physics tests pass**, covering movement, collision, platform carry, render-rate independence, controller input, combat, held solar firing and beam/capsule collision, kill quotas, authored enemy navigation and bounded secondary sprite motion with fixed feet and exact pause behavior.
 - Browser checks cover both keyboard routes, the faster jump/dash/shuttle route, missed-shuttle recovery to the finish, ordered route checks, performance, compact UI and synthetic DualSense input. A visual capture checks character occlusion. Hosted launch and the full-course hardware benchmark are opt-in. Physical USB/Bluetooth playtesting remains pending.
 - The console-error/page-error capture in the live rendering test is empty. The live in-app browser was also checked for movement, jumping and presentation.
 - Full-course 1080p benchmark: **143.9 FPS average**, **7.0 ms p95**, no frames over 33.4 ms in the measured run. Edge headless, 1920 × 1080 viewport/render buffer, RTX 5070 Ti Laptop GPU. This is this laptop's result; Chromebook performance remains untested. Measurements and visual comparisons are in [QA_RESULTS.md](QA_RESULTS.md).

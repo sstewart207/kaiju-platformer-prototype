@@ -46,7 +46,14 @@ export class PlayerCombatView {
       gold,
     );
     this.beam.add(
-      new THREE.Mesh(new THREE.BoxGeometry(1, 0.16, 0.2), gold),
+      new THREE.Mesh(
+        new THREE.BoxGeometry(
+          1,
+          ATTACK.solarHalfHeight * 2,
+          ATTACK.solarHalfWidth * 2,
+        ),
+        gold,
+      ),
       new THREE.Mesh(new THREE.BoxGeometry(1, 0.065, 0.08), cream),
     );
     this.charge = new THREE.Mesh(new THREE.IcosahedronGeometry(0.2, 1), cream);
@@ -99,11 +106,15 @@ export class PlayerCombatView {
     );
     this.beam.visible = attack.beamActive && attack.beamLength > 0.01;
     this.beam.position.set(
-      attack.origin.x + attack.direction.x * (0.5 + attack.beamLength / 2),
+      attack.origin.x +
+        attack.direction.x * (ATTACK.solarMuzzle + attack.beamLength / 2),
       attack.origin.y,
-      attack.origin.z + attack.direction.z * (0.5 + attack.beamLength / 2),
+      attack.origin.z +
+        attack.direction.z * (ATTACK.solarMuzzle + attack.beamLength / 2),
     );
     this.beam.rotation.y = -Math.atan2(attack.direction.z, attack.direction.x);
-    this.beam.scale.set(attack.beamLength, pulse, pulse);
+    // Keep the outer silhouette identical to the damage volume; pulse only its core.
+    this.beam.scale.set(attack.beamLength, 1, 1);
+    this.beam.children[1].scale.set(1, pulse, pulse);
   }
 }

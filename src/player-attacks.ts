@@ -21,6 +21,9 @@ export const ATTACK = {
   solarCooldown: 1.25,
   solarRange: 10,
   solarPulse: 0.4,
+  solarHalfWidth: 0.2,
+  solarHalfHeight: 0.16,
+  solarMuzzle: 0.5,
 };
 export class PlayerAttacks {
   kind: "swipe" | "solar" | null = null;
@@ -133,10 +136,40 @@ export class PlayerAttacks {
     }
     this.origin = { ...player.position, y: player.position.y + 0.45 };
     const aim = { x: this.direction.x, y: 0, z: this.direction.z };
-    const wall = this.obstacle(this.origin, aim, ATTACK.solarRange, player);
+    // Sweep the visible cross-section horizontally. A ray down to a target's
+    // center incorrectly treats low terraces as cover for a clear mouth ray.
+    const rotation = { x: 0, y: 0, z: 0, w: 1 };
+    const alongX = Math.abs(aim.x) > 0;
+    const wall = this.physics.world.castShape(
+      this.origin,
+      rotation,
+      aim,
+      new RAPIER.Cuboid(
+        alongX ? 0.001 : ATTACK.solarHalfWidth,
+        ATTACK.solarHalfHeight,
+        alongX ? ATTACK.solarHalfWidth : 0.001,
+      ),
+      0,
+      ATTACK.solarRange,
+      true,
+      RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
+      undefined,
+      undefined,
+      player.body,
+    );
     this.beamLength = Math.max(
       0,
-      (wall?.timeOfImpact ?? ATTACK.solarRange) - 0.5,
+      (wall?.time_of_impact ?? ATTACK.solarRange) - ATTACK.solarMuzzle,
+    );
+    const beamCenter = {
+      x: this.origin.x + aim.x * (ATTACK.solarMuzzle + this.beamLength / 2),
+      y: this.origin.y,
+      z: this.origin.z + aim.z * (ATTACK.solarMuzzle + this.beamLength / 2),
+    };
+    const beamShape = new RAPIER.Cuboid(
+      alongX ? this.beamLength / 2 : ATTACK.solarHalfWidth,
+      ATTACK.solarHalfHeight,
+      alongX ? ATTACK.solarHalfWidth : this.beamLength / 2,
     );
     const melee =
       this.kind === "swipe" &&
@@ -145,19 +178,24 @@ export class PlayerAttacks {
     if (!melee && !this.beamActive) return;
     for (const enemy of enemies) {
       if (enemy.hp <= 0 || this.hitEnemies.has(enemy)) continue;
+      if (this.beamActive && !melee) {
+        if (
+          this.beamLength > 0 &&
+          enemy.collider.intersectsShape(beamShape, beamCenter, rotation) &&
+          enemy.hit(2)
+        ) {
+          this.hitEnemies.add(enemy);
+          this.hits++;
+        }
+        continue;
+      }
       const p = enemy.position,
         dx = p.x - this.origin.x,
         dz = p.z - this.origin.z;
       const along = dx * aim.x + dz * aim.z,
-        across = Math.abs(dx * aim.z - dz * aim.x),
         range = Math.hypot(dx, dz);
       if (Math.abs(p.y - player.position.y) > 0.9) continue;
-      if (
-        melee
-          ? range > ATTACK.reach || along < range * 0.35
-          : along < 0 || along > this.beamLength + 0.5 || across > 0.7
-      )
-        continue;
+      if (range > ATTACK.reach || along < range * 0.35) continue;
       const length = Math.hypot(dx, p.y - this.origin.y, dz);
       const heading = {
         x: dx / (length || 1),
@@ -165,7 +203,7 @@ export class PlayerAttacks {
         z: dz / (length || 1),
       };
       if (this.obstacle(this.origin, heading, length, player)) continue;
-      if (enemy.hit(melee ? 1 : 2)) {
+      if (enemy.hit(1)) {
         this.hitEnemies.add(enemy);
         this.hits++;
       }

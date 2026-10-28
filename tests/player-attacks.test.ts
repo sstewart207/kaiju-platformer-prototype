@@ -109,6 +109,39 @@ test("solar beam stops at a thin wall, including a wall beside its origin", () =
   }
 });
 
+test("horizontal solar ray clears a low wall instead of aiming down at enemy feet", () => {
+  const { physics, enemies, step } = fixture([{ x: -65, y: 0.69, z: 40 }]);
+  physics.world.createCollider(
+    RAPIER.ColliderDesc.cuboid(0.05, 0.45, 1).setTranslation(-67, 0.45, 40),
+  );
+  physics.step();
+  step({ specialPressed: true, specialHeld: true }, 22);
+  assert.equal(enemies[0].hp, 0);
+  physics.dispose();
+});
+
+test("solar hits capsule edges at its end but misses bodies outside the visible width", () => {
+  for (const [direction, x, z] of [
+    ["right", 1, 0],
+    ["left", -1, 0],
+    ["front", 0, 1],
+    ["back", 0, -1],
+  ] as const) {
+    const { physics, player, enemies, step } = fixture([
+      { x: -70 + x * 10.2, y: 0.69, z: 40 + z * 10.2 },
+      { x: -70 + x * 5 - z * 0.7, y: 0.69, z: 40 + z * 5 + x * 0.7 },
+    ]);
+    player.direction = direction;
+    step({ specialPressed: true, specialHeld: true }, 22);
+    assert.deepEqual(
+      enemies.map((enemy) => enemy.hp),
+      [0, 2],
+      direction,
+    );
+    physics.dispose();
+  }
+});
+
 test("held solar sustains, turns, hits newly arriving targets and stops on release", () => {
   const { physics, player, enemies, attacks, step } = fixture([
     { x: -66, y: 0.69, z: 40 },

@@ -1,5 +1,9 @@
 # QA results — October 27, 2026
 
+## Solar hit detection follow-up
+
+Fixed a mismatch between the horizontal rendered ray and a downward visibility check toward zombie centers. Solar now intersects enemy capsules and clips against solid scenery using the same width/height as its visible beam. Regression tests cover low cover that the beam clears, capsule edges at maximum range, off-beam misses and nearby solid walls. Tap/hold controls and swipe behavior are unchanged.
+
 ## Kill objective, falling/death and sustained solar
 
 44 unit tests and 31 local browser checks pass; two opt-in hosted/full-course hardware checks were skipped in the local suite. Production build passes. Coverage includes both keyboard routes, all 92 directional sprite crops, the full 12-kill keyboard course clear, separate rising/falling art, death recoil/collapse, persistent checkpoint kill credit, restart and synthetic R2 hold/release/disconnect. Physical testing of the new held attack remains pending.
