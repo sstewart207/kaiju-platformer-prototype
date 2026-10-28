@@ -1,5 +1,13 @@
 # QA results — October 27, 2026
 
+## Sprite frame fix (#3)
+
+Reproduced neighboring-frame fragments on the left/back rows. The generated atlas has uneven horizontal spacing, but its old metadata divided every row into equal eighths. Updated each row's cuts between complete silhouettes and retained constant source-pixel scale. Original artwork, movement and controls are unchanged.
+
+The browser pixel regression checks all 32 crops against connected silhouettes in the actual atlas, rejecting partial characters and neighboring-character fragments. Before/after contact sheets were inspected for all directions and idle/run/jump/landing poses: [before](art/playtest/sprites-before.png), [after](art/playtest/sprites-after.png). Falling still shares the existing jump pose; anatomy polish remains separate work.
+
+Validation: 31 unit/physics tests, nine relevant browser checks and strict TypeScript/production build pass. Browser checks cover all sprite crops, synthetic controller behavior, the saved enemy preview, jump/pause/restart/focus handling and compact layout. The short 1080p rendering check measured 144 FPS with 7 ms p95; the full-course benchmark was not repeated for this artwork-metadata change.
+
 ## Release scope
 
 The longer course, two checkpoints and HUD cleanup are released together. Enemy combat is saved behind the development-only `?enemies=1` preview; production builds ignore that flag. Patrick's pending decision is dragons versus zombies, not approval of existing artwork. The earlier enemy test results below describe the prototype only.

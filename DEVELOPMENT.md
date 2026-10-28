@@ -74,7 +74,7 @@ For this generated draft, run the read-only pixel audit / metadata builder:
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-sprites.ps1
 ```
 
-It reads the PNG and writes frame rectangles, measured ground anchors and edge-contact flags to `art/solargon-atlas-v2.audit.json`. The script's row boundaries are authored specifically for this draft's irregular gutters; adjust them when replacing the atlas. It does not modify image pixels. Generation method, reference and full prompts are in `art/GENERATION.md`.
+It reads the PNG and writes frame rectangles, measured ground anchors and edge-contact flags to `art/solargon-atlas-v2.audit.json`. Both row boundaries and each row's horizontal cuts are authored for this draft's irregular spacing; adjust them when replacing the atlas. Solargon uses a constant source-pixel world scale so unequal crop widths do not resize the character. The browser sprite check verifies each crop contains one complete silhouette with no neighboring-character fragments. The audit does not modify image pixels. Generation method, reference and full prompts are in `art/GENERATION.md`.
 
 ## Verified checkpoint
 

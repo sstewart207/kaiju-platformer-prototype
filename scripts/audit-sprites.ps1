@@ -8,12 +8,20 @@ try {
   # Authored row boundaries include the original generator's uneven vertical gutters.
   $rowEdges = @(0, [int]($bitmap.Height * 240 / 887), [int]($bitmap.Height * 463 / 887), [int]($bitmap.Height * 663 / 887), $bitmap.Height)
   $directions = @('right','left','front','back')
+  # Each generated row has different horizontal spacing. Cuts sit in the gaps
+  # between complete silhouettes, not at nominal eighths of the image width.
+  $columnEdges = @(
+    @(0,231,448,669,884,1114,1338,1546,1774),
+    @(0,247,470,696,919,1142,1358,1564,1774),
+    @(0,229,443,669,893,1107,1329,1552,1774),
+    @(0,234,455,675,899,1122,1346,1556,1774)
+  )
   $frames = [ordered]@{}
   for ($row = 0; $row -lt 4; $row++) {
     $rowFrames = @()
     for ($column = 0; $column -lt 8; $column++) {
-      $left = [int][Math]::Round($column * $bitmap.Width / 8)
-      $right = [int][Math]::Round(($column + 1) * $bitmap.Width / 8)
+      $left = [int][Math]::Round($columnEdges[$row][$column] * $bitmap.Width / 1774)
+      $right = [int][Math]::Round($columnEdges[$row][$column+1] * $bitmap.Width / 1774)
       $top = $rowEdges[$row]; $bottom = $rowEdges[$row+1]
       $opaqueBottom = $top; $minX = $right; $maxX = $left
       for ($y = $top; $y -lt $bottom; $y++) {

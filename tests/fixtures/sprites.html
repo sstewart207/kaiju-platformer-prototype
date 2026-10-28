@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sprite frame check</title>
+    <style>
+      body {
+        margin: 0;
+        background: #263b48;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import * as THREE from "three";
+      import { CharacterSprite, SOLARGON } from "/src/animation.ts";
+      const renderer = new THREE.WebGLRenderer({
+        antialias: false,
+        preserveDrawingBuffer: true,
+      });
+      renderer.setSize(1920, 1080);
+      renderer.setPixelRatio(1);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.setClearColor("#263b48");
+      document.body.append(renderer.domElement);
+      const scene = new THREE.Scene();
+      const camera = new THREE.OrthographicCamera(
+        -12,
+        12,
+        6.75,
+        -6.75,
+        0.1,
+        100,
+      );
+      camera.position.z = 10;
+      camera.updateMatrixWorld();
+      const texture = await new THREE.TextureLoader().loadAsync(SOLARGON.atlas);
+      for (const [row, direction] of [
+        "right",
+        "left",
+        "front",
+        "back",
+      ].entries()) {
+        for (let frame = 0; frame < 8; frame++) {
+          const x = -10.5 + frame * 3,
+            y = 4.3 - row * 3.2;
+          const sprite = new CharacterSprite(
+            {
+              ...SOLARGON,
+              animations: { sample: { frames: [frame], fps: 1, loop: false } },
+            },
+            texture.clone(),
+          );
+          sprite.update({ x, y, z: 0 }, "sample", direction, 0, camera, 1 / 80);
+          scene.add(sprite.sprite);
+          const line = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints([
+              new THREE.Vector3(x - 1.4, y, 0),
+              new THREE.Vector3(x + 1.4, y, 0),
+            ]),
+            new THREE.LineBasicMaterial({ color: "#658494" }),
+          );
+          line.position.z = -0.1;
+          scene.add(line);
+        }
+      }
+      renderer.render(scene, camera);
+      window.spriteCheckReady = true;
+    </script>
+  </body>
+</html>

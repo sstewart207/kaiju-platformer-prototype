@@ -7,23 +7,23 @@
                                  {
                                      "x":  0,
                                      "y":  0,
-                                     "width":  222,
+                                     "width":  231,
                                      "height":  240,
                                      "groundX":  0.5,
                                      "groundY":  0.075,
-                                     "touchesSide":  true
+                                     "touchesSide":  false
                                  },
                                  {
-                                     "x":  222,
+                                     "x":  231,
                                      "y":  0,
-                                     "width":  222,
+                                     "width":  217,
                                      "height":  240,
                                      "groundX":  0.5,
                                      "groundY":  0.075,
-                                     "touchesSide":  true
+                                     "touchesSide":  false
                                  },
                                  {
-                                     "x":  444,
+                                     "x":  448,
                                      "y":  0,
                                      "width":  221,
                                      "height":  240,
@@ -32,45 +32,45 @@
                                      "touchesSide":  false
                                  },
                                  {
-                                     "x":  665,
+                                     "x":  669,
                                      "y":  0,
-                                     "width":  222,
+                                     "width":  215,
                                      "height":  240,
                                      "groundX":  0.5,
                                      "groundY":  0.06667,
                                      "touchesSide":  false
                                  },
                                  {
-                                     "x":  887,
+                                     "x":  884,
                                      "y":  0,
-                                     "width":  222,
+                                     "width":  230,
                                      "height":  240,
                                      "groundX":  0.5,
                                      "groundY":  0.0625,
                                      "touchesSide":  false
                                  },
                                  {
-                                     "x":  1109,
+                                     "x":  1114,
                                      "y":  0,
-                                     "width":  221,
+                                     "width":  224,
                                      "height":  240,
                                      "groundX":  0.5,
                                      "groundY":  0.0625,
                                      "touchesSide":  false
                                  },
                                  {
-                                     "x":  1330,
+                                     "x":  1338,
                                      "y":  0,
-                                     "width":  222,
+                                     "width":  208,
                                      "height":  240,
                                      "groundX":  0.5,
                                      "groundY":  0.13333,
                                      "touchesSide":  false
                                  },
                                  {
-                                     "x":  1552,
+                                     "x":  1546,
                                      "y":  0,
-                                     "width":  222,
+                                     "width":  228,
                                      "height":  240,
                                      "groundX":  0.5,
                                      "groundY":  0.06667,
@@ -81,135 +81,135 @@
                                 {
                                     "x":  0,
                                     "y":  240,
-                                    "width":  222,
+                                    "width":  247,
                                     "height":  223,
                                     "groundX":  0.5,
                                     "groundY":  0.13004,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  222,
+                                    "x":  247,
                                     "y":  240,
-                                    "width":  222,
+                                    "width":  223,
                                     "height":  223,
                                     "groundX":  0.5,
                                     "groundY":  0.13004,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  444,
+                                    "x":  470,
                                     "y":  240,
-                                    "width":  221,
+                                    "width":  226,
                                     "height":  223,
                                     "groundX":  0.5,
                                     "groundY":  0.13004,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  665,
+                                    "x":  696,
                                     "y":  240,
-                                    "width":  222,
+                                    "width":  223,
                                     "height":  223,
                                     "groundX":  0.5,
                                     "groundY":  0.12108,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  887,
+                                    "x":  919,
                                     "y":  240,
-                                    "width":  222,
+                                    "width":  223,
                                     "height":  223,
                                     "groundX":  0.5,
                                     "groundY":  0.12108,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  1109,
+                                    "x":  1142,
                                     "y":  240,
-                                    "width":  221,
+                                    "width":  216,
                                     "height":  223,
                                     "groundX":  0.5,
                                     "groundY":  0.12108,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  1330,
+                                    "x":  1358,
                                     "y":  240,
-                                    "width":  222,
+                                    "width":  206,
                                     "height":  223,
                                     "groundX":  0.5,
                                     "groundY":  0.19731,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  1552,
+                                    "x":  1564,
                                     "y":  240,
-                                    "width":  222,
+                                    "width":  210,
                                     "height":  223,
                                     "groundX":  0.5,
                                     "groundY":  0.11211,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 }
                             ],
                    "front":  [
                                  {
                                      "x":  0,
                                      "y":  463,
-                                     "width":  222,
+                                     "width":  229,
                                      "height":  200,
                                      "groundX":  0.5,
                                      "groundY":  0.095,
                                      "touchesSide":  false
                                  },
                                  {
-                                     "x":  222,
+                                     "x":  229,
                                      "y":  463,
-                                     "width":  222,
+                                     "width":  214,
                                      "height":  200,
                                      "groundX":  0.5,
                                      "groundY":  0.095,
                                      "touchesSide":  false
                                  },
                                  {
-                                     "x":  444,
+                                     "x":  443,
                                      "y":  463,
-                                     "width":  221,
+                                     "width":  226,
                                      "height":  200,
                                      "groundX":  0.5,
                                      "groundY":  0.085,
                                      "touchesSide":  false
                                  },
                                  {
-                                     "x":  665,
+                                     "x":  669,
                                      "y":  463,
-                                     "width":  222,
+                                     "width":  224,
                                      "height":  200,
                                      "groundX":  0.5,
                                      "groundY":  0.08,
                                      "touchesSide":  false
                                  },
                                  {
-                                     "x":  887,
+                                     "x":  893,
                                      "y":  463,
-                                     "width":  222,
+                                     "width":  214,
                                      "height":  200,
                                      "groundX":  0.5,
                                      "groundY":  0.095,
                                      "touchesSide":  false
                                  },
                                  {
-                                     "x":  1109,
+                                     "x":  1107,
                                      "y":  463,
-                                     "width":  221,
+                                     "width":  222,
                                      "height":  200,
                                      "groundX":  0.5,
                                      "groundY":  0.09,
                                      "touchesSide":  false
                                  },
                                  {
-                                     "x":  1330,
+                                     "x":  1329,
                                      "y":  463,
-                                     "width":  222,
+                                     "width":  223,
                                      "height":  200,
                                      "groundX":  0.5,
                                      "groundY":  0.17,
@@ -229,70 +229,70 @@
                                 {
                                     "x":  0,
                                     "y":  663,
-                                    "width":  222,
+                                    "width":  234,
                                     "height":  224,
                                     "groundX":  0.5,
                                     "groundY":  0.20982,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  222,
-                                    "y":  663,
-                                    "width":  222,
-                                    "height":  224,
-                                    "groundX":  0.5,
-                                    "groundY":  0.20982,
-                                    "touchesSide":  true
-                                },
-                                {
-                                    "x":  444,
+                                    "x":  234,
                                     "y":  663,
                                     "width":  221,
                                     "height":  224,
                                     "groundX":  0.5,
-                                    "groundY":  0.21429,
-                                    "touchesSide":  true
+                                    "groundY":  0.20982,
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  665,
+                                    "x":  455,
                                     "y":  663,
-                                    "width":  222,
+                                    "width":  220,
                                     "height":  224,
                                     "groundX":  0.5,
                                     "groundY":  0.21429,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  887,
+                                    "x":  675,
                                     "y":  663,
-                                    "width":  222,
+                                    "width":  224,
                                     "height":  224,
                                     "groundX":  0.5,
                                     "groundY":  0.21429,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  1109,
+                                    "x":  899,
                                     "y":  663,
-                                    "width":  221,
+                                    "width":  223,
                                     "height":  224,
                                     "groundX":  0.5,
                                     "groundY":  0.21429,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  1330,
+                                    "x":  1122,
                                     "y":  663,
-                                    "width":  222,
+                                    "width":  224,
+                                    "height":  224,
+                                    "groundX":  0.5,
+                                    "groundY":  0.21429,
+                                    "touchesSide":  false
+                                },
+                                {
+                                    "x":  1346,
+                                    "y":  663,
+                                    "width":  210,
                                     "height":  224,
                                     "groundX":  0.5,
                                     "groundY":  0.27679,
-                                    "touchesSide":  true
+                                    "touchesSide":  false
                                 },
                                 {
-                                    "x":  1552,
+                                    "x":  1556,
                                     "y":  663,
-                                    "width":  222,
+                                    "width":  218,
                                     "height":  224,
                                     "groundX":  0.5,
                                     "groundY":  0.20536,

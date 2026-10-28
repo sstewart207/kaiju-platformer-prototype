@@ -12,7 +12,7 @@ A browser platformer featuring Patrick's kaiju characters, with 3D ruins and pix
 
 The HUD has no area labels or visible timer. An enemy prototype with bite/fireball attacks is saved in development and disabled in the public game. Patrick will decide whether enemies are dragons or zombies.
 
-Course tests run around 144 FPS on the development laptop. Chromebook performance and physical DualSense testing remain pending.
+Course tests run around 144 FPS on the development laptop. Shane reports DualSense working in his October 26 playtest. Chromebook performance and USB/Bluetooth-specific checks remain pending.
 
 ## Controls
 

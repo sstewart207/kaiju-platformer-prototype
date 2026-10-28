@@ -13,6 +13,8 @@ export const SOLARGON: CharacterManifest = {
   columns: 8,
   rows: 4,
   size: 2.4,
+  // Preserve source-pixel scale when the irregular frame widths change.
+  pixelsPerUnit: 1774 / 8 / 2.4,
   groundAnchor: [0.5, 0.08],
   frames: auditedAtlas.frames,
   directions: { right: 0, left: 1, front: 2, back: 3 },
