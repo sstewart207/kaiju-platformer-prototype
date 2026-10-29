@@ -9,6 +9,9 @@ test("published game opens anonymously with assets, controls and pause", async (
     "Set PLAYTEST_URL to verify a published build.",
   );
   const target = new URL(process.env.PLAYTEST_URL!);
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, "getGamepads", { configurable: true, value: () => [] }),
+  );
   const errors: string[] = [];
   const enemyRequests: string[] = [];
   page.on("request", (request) => {
