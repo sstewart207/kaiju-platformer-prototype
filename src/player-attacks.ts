@@ -14,9 +14,11 @@ export type CombatPose =
   | "defeat";
 export const ATTACK = {
   swipeWindup: 0.1,
-  swipeActive: 0.12,
-  swipeDuration: 0.38,
-  reach: 2.1,
+  swipeActive: 0.2,
+  swipeDuration: 0.48,
+  reach: 2.8,
+  swipeHalfWidth: 1,
+  swipeHalfHeight: 0.6,
   solarCharge: 0.18,
   solarActive: 0.16,
   solarDuration: 0.54,
@@ -26,7 +28,7 @@ export const ATTACK = {
   solarHalfWidth: 0.2,
   solarHalfHeight: 0.16,
   solarMuzzle: 0.5,
-  swipeStepSpeed: 5,
+  swipeStepSpeed: 3,
   hitStop: 0.05,
   fireballWindup: 0.1,
   fireballDuration: 0.28,
@@ -49,6 +51,7 @@ export class PlayerAttacks {
   direction = { x: 1, z: 0 };
   origin: Vec3 = { x: 0, y: 0, z: 0 };
   beamLength = 0;
+  swipeLength = 0;
   swings = 0;
   beams = 0;
   hits = 0;
@@ -102,6 +105,7 @@ export class PlayerAttacks {
     this.solarCooldown = 0;
     this.queue = 0;
     this.beamLength = 0;
+    this.swipeLength = 0;
     this.hitEnemies.clear();
     this.channelHeld = false;
     this.pulseAge = 0;
@@ -117,22 +121,6 @@ export class PlayerAttacks {
         : player.direction === "back"
           ? { x: 0, z: -1 }
           : { x: 0, z: 1 };
-  }
-  private obstacle(
-    origin: Vec3,
-    direction: Vec3,
-    length: number,
-    player: Player,
-  ) {
-    return this.physics.world.castRay(
-      new RAPIER.Ray(origin, direction),
-      length,
-      true,
-      RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
-      undefined,
-      undefined,
-      player.body,
-    );
   }
   update(input: MovementInput, player: Player, enemies: readonly Combat[]) {
     this.stamina.tick();
@@ -225,6 +213,45 @@ export class PlayerAttacks {
     // center incorrectly treats low terraces as cover for a clear mouth ray.
     const rotation = { x: 0, y: 0, z: 0, w: 1 };
     const alongX = Math.abs(aim.x) > 0;
+    // Use the same broad, horizontal footprint for the rendered slash and damage.
+    // Its first contact with solid scenery clips the whole strike, including corners.
+    const swipeWall =
+      this.kind === "swipe"
+        ? this.physics.world.castShape(
+            this.origin,
+            rotation,
+            aim,
+            new RAPIER.Cuboid(
+              alongX ? 0.001 : ATTACK.swipeHalfWidth,
+              ATTACK.swipeHalfHeight,
+              alongX ? ATTACK.swipeHalfWidth : 0.001,
+            ),
+            0,
+            ATTACK.reach,
+            true,
+            RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
+            undefined,
+            undefined,
+            player.body,
+          )
+        : null;
+    this.swipeLength =
+      this.kind === "swipe"
+        ? Math.max(
+            0,
+            Math.min(ATTACK.reach, swipeWall?.time_of_impact ?? ATTACK.reach),
+          )
+        : 0;
+    const swipeCenter = {
+      x: this.origin.x + (aim.x * this.swipeLength) / 2,
+      y: this.origin.y,
+      z: this.origin.z + (aim.z * this.swipeLength) / 2,
+    };
+    const swipeShape = new RAPIER.Cuboid(
+      alongX ? this.swipeLength / 2 : ATTACK.swipeHalfWidth,
+      ATTACK.swipeHalfHeight,
+      alongX ? ATTACK.swipeHalfWidth : this.swipeLength / 2,
+    );
     const wall = this.physics.world.castShape(
       this.origin,
       rotation,
@@ -283,20 +310,15 @@ export class PlayerAttacks {
         }
         continue;
       }
-      const p = enemy.position,
-        dx = p.x - this.origin.x,
-        dz = p.z - this.origin.z;
-      const along = dx * aim.x + dz * aim.z,
-        range = Math.hypot(dx, dz);
-      if (Math.abs(p.y - player.position.y) > 0.9) continue;
-      if (range > ATTACK.reach || along < range * 0.35) continue;
-      const length = Math.hypot(dx, p.y - this.origin.y, dz);
-      const heading = {
-        x: dx / (length || 1),
-        y: (p.y - this.origin.y) / (length || 1),
-        z: dz / (length || 1),
-      };
-      if (this.obstacle(this.origin, heading, length, player)) continue;
+      const p = enemy.position;
+      const along =
+        (p.x - this.origin.x) * aim.x + (p.z - this.origin.z) * aim.z;
+      if (
+        along <= 0 ||
+        this.swipeLength <= 0 ||
+        !enemy.collider.intersectsShape(swipeShape, swipeCenter, rotation)
+      )
+        continue;
       if (enemy.hit(1, { ...this.direction, speed: 7, stop: ATTACK.hitStop })) {
         this.hitEnemies.add(enemy);
         this.hits++;

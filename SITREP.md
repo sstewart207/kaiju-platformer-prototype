@@ -4,7 +4,7 @@ October 28, 2026 · Game title undecided
 
 **Status:** Playable single-player browser prototype. Solargon is the only implemented character. The Ruins course is ready for team playtesting.
 
-**Current build:** Solargon has a swipe with knockback/impact feedback, a three-shot fireball chain, tap solar burst and held mouth ray. Attacks use stamina; the ray stops on exhaustion. Ruins has 12 human zombies in four groups; defeat all 12 to unlock the exit, then reach it. The course has two checkpoints. Kills survive checkpoint recovery; restart resets them.
+**Current build:** Solargon has a longer claw slash with knockback, a three-shot fireball chain, tap solar burst and held mouth ray. Attack effects are more visible, with shared collision/effect bounds. Attacks use stamina; the ray stops on exhaustion. Ruins has 12 human zombies in four groups; defeat all 12 to unlock the exit, then reach it. The course has two checkpoints. Kills survive checkpoint recovery; restart resets them.
 
 **Play:** https://sstewart207.github.io/kaiju-platformer-prototype/
 
@@ -14,7 +14,7 @@ October 28, 2026 · Game title undecided
 
 - Ground-based 3D ruins with pixel-art character sprites, a safe walking route, and optional jump/shuttle shortcuts. Approved default: 1920 × 1080 rendering.
 - Keyboard and DualSense controls; movement, variable-height jump, rapid dash, attacks, health/checkpoint recovery, pause, restart and replay. Swipe: J / Circle. Fireball: L / L1; tap to chain. Solar: tap K / R2 for a burst, hold for a ray. Movement/jump/dash stay free when stamina is empty. Falling uses separate directional poses; death shows recoil then collapse.
-- 1080p fireball/ray effects check: 144 FPS, 7.0 ms p95 on Shane's laptop. Full scripted combat clear: 2:48, with one checkpoint recovery; human playtime is unmeasured. Chromebook performance remains untested.
+- 1080p fireball/ray effects check: 144 FPS, 7.0 ms p95 on Shane's laptop. Full scripted combat clear: 2:43, no deaths; human playtime is unmeasured. Chromebook performance remains untested.
 - Build and automated movement, collision, combat, controller-input and route checks pass. Shane reported DualSense working on October 26; the new combat bindings and Chromebook performance still need physical testing.
 
 ## Decisions and limits

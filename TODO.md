@@ -1,5 +1,7 @@
 # Project TODOs
 
+- [x] Respond to attack-readability feedback: replace the faint ring with filled claw slashes, extend melee reach/active time without increasing lunge travel, improve fireball/ray contrast and contact audio. Sarah reviewed collision/code; capsule-edge, step, corner-cover, late-contact, visible-core and blocked-muzzle regressions are covered.
+
 - [x] Improve combat weight: stronger swipe body motion, collision-safe forward movement, directional enemy knockback/stagger, brief local hit-stop, synthesized impact sound and contact effects. Existing draft poses are reused; review feel and audio in play.
 - [x] Add a separate traveling fireball on L/L1 with swept sphere collision and a buffered three-shot chain. Preserve swipe and held solar ray; holding fireball does not repeat shots.
 - [x] Add stamina: discrete attack costs, continuous ray drain, regeneration delay and exhaustion that stops attacks without automatically restarting while held. Movement, jumping and repeatable dash remain free. Current tuning and checks: COMBAT_FEEL_PLAN.md.

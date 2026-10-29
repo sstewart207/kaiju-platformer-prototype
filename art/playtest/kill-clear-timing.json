@@ -1,6 +1,6 @@
 {
-  "simulationSeconds": 167.9500000000258,
-  "deaths": 1,
+  "simulationSeconds": 162.58333333335486,
+  "deaths": 0,
   "kills": 12,
   "method": "Scripted fixed-step keyboard navigation and attacks; no teleporting or health/kill edits in this clear run. Human playtime is unmeasured."
 }

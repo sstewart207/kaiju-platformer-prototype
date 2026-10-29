@@ -65,6 +65,90 @@ test("swipe respects facing, reach, height and solid walls", () => {
   );
   physics.dispose();
 });
+
+test("longer swipe intersects capsule edges in all directions, excluding behind/outside/high bodies", () => {
+  for (const [direction, x, z] of [
+    ["right", 1, 0],
+    ["left", -1, 0],
+    ["front", 0, 1],
+    ["back", 0, -1],
+  ] as const) {
+    const { physics, player, enemies, step } = fixture([
+      { x: -70 + x * 2.95, y: 0.69, z: 40 + z * 2.95 },
+      { x: -70 - x, y: 0.69, z: 40 - z },
+      { x: -70 + x * 2 - z * 1.55, y: 0.69, z: 40 + z * 2 + x * 1.55 },
+      { x: -70 + x * 2, y: 3, z: 40 + z * 2 },
+    ]);
+    player.direction = direction;
+    step({ attackPressed: true }, 8);
+    assert.deepEqual(
+      enemies.map((enemy) => enemy.hp),
+      [1, 2, 2, 2],
+      direction,
+    );
+    physics.dispose();
+  }
+});
+
+test("swipe clips at off-axis wall corners and cannot damage bodies behind its visible tip", () => {
+  for (const [direction, x, z] of [
+    ["right", 1, 0],
+    ["left", -1, 0],
+    ["front", 0, 1],
+    ["back", 0, -1],
+  ] as const) {
+    const { physics, player, enemies, attacks, step } = fixture([
+      { x: -70 + x * 2.5, y: 0.69, z: 40 + z * 2.5 },
+    ]);
+    physics.world.createCollider(
+      RAPIER.ColliderDesc.cuboid(0.12, 2, 0.12).setTranslation(
+        -70 + x * 1.4 - z * 0.9,
+        1,
+        40 + z * 1.4 + x * 0.9,
+      ),
+    );
+    physics.step();
+    player.direction = direction;
+    step({ attackPressed: true }, 8);
+    assert.equal(enemies[0].hp, 2, direction);
+    assert.ok(attacks.swipeLength > 0 && attacks.swipeLength < 1.5, direction);
+    physics.dispose();
+  }
+});
+
+test("swipe reaches a zombie on a shallow step without hitting a different floor", () => {
+  const { physics, enemies, step } = fixture([
+    { x: -67.5, y: 1.17, z: 40 },
+    { x: -68, y: -0.8, z: 40 },
+  ]);
+  physics.world.createCollider(
+    RAPIER.ColliderDesc.cuboid(0.5, 0.215, 1).setTranslation(-67.5, 0.215, 40),
+  );
+  physics.step();
+  step({ attackPressed: true }, 12);
+  assert.deepEqual(
+    enemies.map((enemy) => enemy.hp),
+    [1, 2],
+  );
+  physics.dispose();
+});
+
+test("the longer active window catches a late-entering moving body only once", () => {
+  const { physics, player, enemies, attacks, step } = fixture([
+    { x: -68, y: 0.69, z: 42 },
+  ]);
+  step({ attackPressed: true }, 15);
+  assert.equal(enemies[0].hp, 2);
+  assert.ok(attacks.age > 0.22 && attacks.age < 0.3);
+  const arrival = { x: player.position.x + 2, y: 0.69, z: player.position.z };
+  enemies[0].body.setTranslation(arrival, true);
+  enemies[0].body.setNextKinematicTranslation(arrival);
+  physics.world.propagateModifiedBodyPositionsToColliders();
+  step({}, 8);
+  assert.equal(enemies[0].hp, 1);
+  assert.equal(attacks.hits, 1);
+  physics.dispose();
+});
 test("solar beam charges, pierces aligned enemies once and enforces cooldown", () => {
   const { physics, enemies, attacks, step } = fixture([
     { x: -66, y: 0.69, z: 40 },

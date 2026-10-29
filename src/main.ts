@@ -293,7 +293,7 @@ async function boot() {
     }
   }
   function render(dt: number, alpha: number) {
-    if (ui.screen === "playing") impactAudio.update(attacks.impacts);
+    if (ui.screen === "playing") impactAudio.update(attacks);
     const current = player.position;
     const position = {
       x: THREE.MathUtils.lerp(player.previous.x, current.x, alpha),
@@ -493,6 +493,7 @@ async function boot() {
           stamina: attacks.stamina.value,
           fireballShots: attacks.projectiles.shots,
           fireballChain: attacks.fireballChain,
+          effects: combatView.effects.snapshot(),
           fireballs: attacks.projectiles.balls.map((ball) => ({
             ...ball,
             position: { ...ball.position },

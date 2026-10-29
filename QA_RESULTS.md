@@ -1,5 +1,15 @@
 # QA results — October 28, 2026
 
+## Attack readability and Sarah's collision review
+
+58 unit tests, 28 focused browser checks and the production build pass. Sarah (game mechanics subagent) reviewed the collision implementation and effects code. Swipe reach is 2.8 instead of 2.1; its active phase is 0.20 instead of 0.12 seconds. Total time is 0.48 seconds and forward travel remains about 0.6 units. Capsule intersections and a shared wall-clipped volume replace center-only melee checks. Corner clipping is conservative.
+
+New regressions cover capsule edges in all four directions, behind/outside/high misses, shallow steps, off-axis cover and enemies entering late. Browser checks verify active/follow-through lifetime, pause/reset, shared clipping against a real ruin wall, blocked muzzle glow and exposed cream pixels in ray/fireball cores. Sarah caught opaque nested shells hiding their cores; back-face outline hulls corrected that before release. All four claw views, projectile/ray captures and wall clipping were visually inspected.
+
+The full keyboard combat clear took **162.58 simulated seconds**, with zero deaths and no teleports or health/kill edits. Mixed fireball/ray effects measured **144.00 FPS / 7.0 ms p95**, 600 samples, 1920 × 1080 Edge headless on the RTX 5070 Ti laptop, with no console/page errors. This is a starting-area effects benchmark, not measured human playtime or Chromebook performance. Physical controller and subjective feel/audio review remain pending. Character artwork remains draft.
+
+[Claw slash](art/playtest/attack-readability-swipe-right.png) · [Fireball](art/playtest/attack-readability-fireball.png) · [Ray](art/playtest/attack-readability-ray.png) · [Wall clipping](art/playtest/attack-readability-wall.png) · [Performance](art/playtest/performance/combat-feel.json).
+
 ## Swipe impact, chainable fireball and stamina
 
 54 unit tests pass. All 38 local browser scenarios were verified: the full suite passed 37 and hit one title-screen setup timeout after controller input had already started the game; isolating keyboard scenarios from physical gamepads resolved it, and all nine affected combat scenarios passed on rerun. Hosted launch and the long full-course hardware benchmark were opt-in skips in that run. Production build passes.

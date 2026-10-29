@@ -1,12 +1,14 @@
 # Combat follow-up
 
-Status: implemented first pass, October 28, 2026. Human feel/balance review pending. Original research and targets are retained below.
+Status: second combat pass, October 28, 2026. Readability and collision changes reviewed by Sarah (game mechanics subagent). Human feel/balance review remains pending.
 
 ## Current tuning
 
-- Swipe: one damage, a 0.1-second windup, 0.12-second active phase, collision-swept step at 5 units/second and 50 ms of local hit-stop on contact. Surviving enemies recoil through their character controller; walls and ledges still block displacement. Existing draft poses use small anchored lean/compression rather than a newly drawn attack cycle. Hits add a short contact flash and synthesized sound.
+- Swipe: one damage, reach 2.8 (previously 2.1), a 0.1-second windup, 0.20-second active phase (previously 0.12), 0.48-second total action and 50 ms local hit-stop on contact. Step speed is reduced to 3 units/second to keep about 0.6 units of forward travel. An explicit volume intersects enemy capsules; its shared width/height and wall-clipped length drive the filled three-claw slash. Corner clipping is deliberately conservative. Bright cores disappear when damage ends; a dim gold follow-through lasts up to 0.12 seconds. Existing draft poses are held through contact, then ease into recovery.
 - Fireball: L/L1, one damage, 16 units/second, radius 0.23, lifetime 1.5 seconds. Swept collision includes the muzzle gap and stops at the first wall/body. Fresh taps can buffer one next shot, up to three per chain; holding does not repeat. The next chain becomes available 0.65 seconds after the last shot starts.
 - Stamina: 100 capacity, swipe 12, fireball 18, solar start 10, held ray 25/second. Regenerate 25/second after 0.6 seconds without spending. Exhaustion stops the ray and requires release plus a new press. Movement/jump/dash are free. Restart and checkpoint recovery restore stamina; pause freezes it. Death/restart clear active attacks/projectiles; pause clears pending attack inputs while preserving in-flight projectiles.
+
+Effects use a common gold/cream palette with darker outlines, exposed bright cores, a tapered non-damaging fireball trail and directional contact fragments. Ray/fireball collision dimensions are unchanged. Outline hulls use back faces so they do not hide the inner colors. Muzzle glow hides/clamps at nearby cover. Audio combines filtered air, a short impact crack and a low thump through a shared volume limiter. No downloaded audio or new character artwork is included.
 
 Automated checks cover collisions, input/reset/exhaustion, chaining and identical projectile damage/stamina at 30/60/144 Hz rendering. Physical controller and subjective audio/impact review remain pending.
 
