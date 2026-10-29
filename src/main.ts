@@ -26,6 +26,8 @@ import { PlayerAttacks, ATTACK, type CombatPose } from "./player-attacks";
 import { PlayerCombatView, SOLARGON_COMBAT } from "./player-combat-view";
 import { CHECKPOINTS } from "./course-extension";
 import { DashLines } from "./dash-lines";
+import { ImpactAudio } from "./impact-audio";
+import { STAMINA } from "./stamina";
 
 const ui = new UI();
 async function boot() {
@@ -78,6 +80,7 @@ async function boot() {
     ? enemies.map(() => new EnemyView(world.scene, enemyTexture))
     : [];
   const attacks = new PlayerAttacks(physics);
+  const impactAudio = new ImpactAudio();
   const combatView = new PlayerCombatView(world.scene, combatTexture);
   let defeatTime = 0;
   let displayPose: CombatPose | null = null;
@@ -165,6 +168,7 @@ async function boot() {
     void ui.respawnFlash();
   }
   function pause() {
+    attacks.clearBuffered();
     if (ui.screen === "playing") {
       input.clear();
       ui.show("paused");
@@ -177,6 +181,7 @@ async function boot() {
   ui.onStart = restart;
   ui.onRestart = restart;
   ui.onResume = () => {
+    attacks.clearBuffered();
     input.clear();
     clock.reset();
     ui.show("playing");
@@ -228,7 +233,7 @@ async function boot() {
     }
     if (combat.health <= 0) {
       input.clear();
-      attacks.kind = null;
+      attacks.cancel();
       return;
     }
     const position = player.position;
@@ -283,10 +288,12 @@ async function boot() {
       Math.abs(position.y - FOOT_OFFSET - FINISH.y) < 0.25
     ) {
       input.clear();
+      attacks.cancel();
       ui.show("finished", falls, objective.kills, objective.target);
     }
   }
   function render(dt: number, alpha: number) {
+    if (ui.screen === "playing") impactAudio.update(attacks.impacts);
     const current = player.position;
     const position = {
       x: THREE.MathUtils.lerp(player.previous.x, current.x, alpha),
@@ -346,12 +353,18 @@ async function boot() {
       camera.pixelSize,
       dt,
       opacity,
+      alpha,
     );
     enemyViews.forEach((view, i) =>
       view.update(enemies[i], camera.camera, camera.pixelSize, dt, alpha),
     );
     if (combatEnabled) ui.updateHealth(combat.health);
-    ui.updateSolar(attacks.solarCooldown, ATTACK.solarCooldown);
+    ui.updateSolar(
+      attacks.solarCooldown,
+      ATTACK.solarCooldown,
+      attacks.stamina.value >= STAMINA.solar,
+    );
+    ui.updateStamina(attacks.stamina.value);
     ui.updateObjective(objective.kills, objective.target);
     world.setExitUnlocked(objective.unlocked || !combatEnabled);
     const ground = physics.groundBelow(current, player.collider);
@@ -477,6 +490,14 @@ async function boot() {
           solarCooldown: attacks.solarCooldown,
           beamLength: attacks.beamLength,
           beamActive: attacks.beamActive,
+          stamina: attacks.stamina.value,
+          fireballShots: attacks.projectiles.shots,
+          fireballChain: attacks.fireballChain,
+          fireballs: attacks.projectiles.balls.map((ball) => ({
+            ...ball,
+            position: { ...ball.position },
+            previous: { ...ball.previous },
+          })),
         },
         drawCalls: renderer.info.render.calls,
         fps: samples.length
@@ -505,7 +526,7 @@ async function boot() {
           input.poll();
           tick();
         }
-        render(FIXED_DT, 1);
+        render(ui.screen === "paused" ? 0 : FIXED_DT, 1);
       },
       teleport: (position: Vec3) => {
         player.reset(position);

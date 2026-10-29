@@ -1,0 +1,7 @@
+{
+  "fps": 144.0023040368646,
+  "p95": 7.099999999999909,
+  "samples": 600,
+  "browser": "Edge headless 1920x1080, three fireballs then held ray until stamina exhaustion; starting area, 12 enemies enabled",
+  "errors": []
+}

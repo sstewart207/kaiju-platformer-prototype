@@ -228,6 +228,8 @@ export class Combat {
   private lastDash = -1;
   private aim: Vec3 = { x: 1, y: 0, z: 0 };
   private patrolIndex = 0;
+  private knockback = { x: 0, z: 0 };
+  private impactStop = 0;
   constructor(
     private physics: Physics,
     readonly definition: EnemyDefinition = { spawn: ENEMY.spawn },
@@ -288,6 +290,8 @@ export class Combat {
     this.meleeHits = 0;
     this.projectileHits = 0;
     this.wallHits = 0;
+    this.knockback = { x: 0, z: 0 };
+    this.impactStop = 0;
     if (defeated) {
       this.hp = 0;
       this.action = "defeated";
@@ -304,10 +308,20 @@ export class Combat {
   private damagePlayer() {
     return this.vitals.damage();
   }
-  hit(damage = 1) {
+  hit(
+    damage = 1,
+    impulse?: { x: number; z: number; speed: number; stop: number },
+  ) {
     if (this.hp <= 0) return false;
     this.hp = Math.max(0, this.hp - damage);
     this.setAction(this.hp ? "hurt" : "defeated");
+    if (impulse) {
+      this.knockback = {
+        x: impulse.x * impulse.speed,
+        z: impulse.z * impulse.speed,
+      };
+      this.impactStop = impulse.stop;
+    }
     if (!this.hp) {
       this.collider.setEnabled(false);
       this.projectiles = [];
@@ -334,7 +348,9 @@ export class Combat {
     const dt = FIXED_DT;
     if (this.ownsVitals) this.vitals.tick();
     this.cooldown = Math.max(0, this.cooldown - dt);
-    this.actionTime += dt;
+    const stopped = this.impactStop > 0;
+    this.impactStop = Math.max(0, this.impactStop - dt);
+    if (!stopped) this.actionTime += dt;
     const p = this.position;
     const range = distance(p, target.position);
     // The entire dash sweep counts, so fast movement cannot skip a small hurtbox.
@@ -363,7 +379,9 @@ export class Combat {
     let vx = 0,
       vz = 0;
     if (this.hp > 0) {
-      if (this.action === "hurt") {
+      if (stopped) {
+        // Only this hit victim pauses; the world and its in-flight projectiles continue.
+      } else if (this.action === "hurt") {
         if (this.actionTime >= ENEMY.hurtTime) {
           this.setAction("idle");
           this.cooldown = 0.4;
@@ -488,6 +506,12 @@ export class Combat {
                 : "back";
           if (this.action !== "walking") this.setAction("walking");
         }
+      }
+      if (!stopped) {
+        vx += this.knockback.x;
+        vz += this.knockback.z;
+        this.knockback.x *= Math.max(0, 1 - 12 * dt);
+        this.knockback.z *= Math.max(0, 1 - 12 * dt);
       }
       this.gravity = Math.max(-20, this.gravity - 26 * dt);
       this.controller.computeColliderMovement(

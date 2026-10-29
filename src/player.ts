@@ -54,6 +54,7 @@ export class Player {
   }
   jumps = 0;
   landings = 0;
+  attackMotion = { x: 0, z: 0, speed: 0, moveScale: 1 };
   constructor(private physics: Physics) {
     this.body = physics.world.createRigidBody(
       RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(
@@ -99,6 +100,7 @@ export class Player {
     this.jumps = 0;
     this.landings = 0;
     this.dashes = 0;
+    this.attackMotion = { x: 0, z: 0, speed: 0, moveScale: 1 };
   }
   update(input: MovementInput) {
     const dt = FIXED_DT;
@@ -110,13 +112,15 @@ export class Player {
       ? MOVEMENT.bufferTime
       : Math.max(0, this.buffer - dt);
     const movement = cameraMovement(input.x, input.z);
+    movement.x *= this.attackMotion.moveScale;
+    movement.z *= this.attackMotion.moveScale;
     const hasInput = input.x !== 0 || input.z !== 0;
     this.dashCooldown = Math.max(0, this.dashCooldown - dt);
     this.dashTime = Math.max(0, this.dashTime - dt);
     this.dashQueued = input.dashPressed
       ? MOVEMENT.dashBuffer
       : Math.max(0, this.dashQueued - dt);
-    if (hasInput) {
+    if (hasInput && Math.hypot(movement.x, movement.z) > 0) {
       const length = Math.hypot(movement.x, movement.z);
       this.facing = { x: movement.x / length, z: movement.z / length };
     }
@@ -145,6 +149,13 @@ export class Player {
     } else if (!hasInput && this.grounded) {
       this.velocity.x = 0;
       this.velocity.z = 0;
+    }
+    if (!this.dashing && this.attackMotion.speed > 0) {
+      this.velocity.x = this.attackMotion.x * this.attackMotion.speed;
+      this.velocity.z = this.attackMotion.z * this.attackMotion.speed;
+    }
+    if (!this.dashing && this.attackMotion.moveScale === 0) {
+      this.velocity.x = this.velocity.z = 0;
     }
     if (this.buffer > 0 && this.coyote > 0) {
       this.velocity.y = MOVEMENT.jumpSpeed;
@@ -210,7 +221,12 @@ export class Player {
     const corrected = this.controller.computedMovement();
     // Ground-contact correction on a slope must not move an idle character.
     // Platform transport has already been swept separately above.
-    if (!hasInput && wasGrounded && !this.dashing) {
+    if (
+      !hasInput &&
+      wasGrounded &&
+      !this.dashing &&
+      this.attackMotion.speed === 0
+    ) {
       corrected.x = 0;
       corrected.z = 0;
     }
@@ -261,8 +277,8 @@ export class Player {
       ? this.velocity.y > 0
         ? "jumping"
         : "falling"
-      // Keep the low pose through the brief recovery so rapid chains do not bob.
-      : this.dashing || this.dashCooldown > 0
+      : // Keep the low pose through the brief recovery so rapid chains do not bob.
+        this.dashing || this.dashCooldown > 0
         ? "dashing"
         : this.landingTime > 0
           ? "landing"

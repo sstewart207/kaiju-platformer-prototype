@@ -40,6 +40,8 @@ test("published game opens anonymously with assets, controls and pause", async (
   await expect(page.locator("#health")).toBeVisible();
   await expect(page.locator("#solar-status")).toHaveText("SOLAR READY");
   await expect(page.locator("#kill-status")).toHaveText("KILLS 0/12");
+  await expect(page.locator("#stamina")).toBeVisible();
+  await expect(page.locator("#controls")).toContainText("L FIREBALL");
   expect(
     await page.locator("#world").evaluate((el) => {
       const canvas = el as HTMLCanvasElement;
@@ -52,6 +54,7 @@ test("published game opens anonymously with assets, controls and pause", async (
   await expect(page.locator("#solar-status")).toHaveText("SOLAR …");
   await expect(page.locator("#solar-status")).toHaveText("SOLAR READY");
   await page.keyboard.press("KeyJ");
+  await page.keyboard.press("KeyL");
   await page.keyboard.down("KeyD");
   await page.keyboard.down("ShiftLeft");
   await expect(page.locator("#dash-status")).toHaveText("DASH");

@@ -23,6 +23,7 @@ function fixture(positions = [{ x: -68.5, y: 0.69, z: 40 }]) {
         ...input,
         attackPressed: i === 0 && !!input.attackPressed,
         specialPressed: i === 0 && !!input.specialPressed,
+        fireballPressed: i === 0 && !!input.fireballPressed,
       };
       player.update(controls);
       physics.step();
@@ -180,6 +181,107 @@ test("sustained solar respects walls and resets without a stuck ray", () => {
   assert.equal(attacks.pose, null);
   physics.dispose();
 });
+test("fireballs travel, stop on the first body and require a second shot to defeat", () => {
+  const { physics, enemies, attacks, step } = fixture([
+    { x: -66, y: 0.69, z: 40 },
+    { x: -63, y: 0.69, z: 40 },
+  ]);
+  step({ fireballPressed: true }, 8);
+  assert.equal(attacks.projectiles.shots, 1);
+  assert.equal(enemies[0].hp, 2);
+  assert.ok(attacks.projectiles.balls[0].position.x < -68);
+  step({}, 22);
+  assert.deepEqual(
+    enemies.map((e) => e.hp),
+    [1, 2],
+  );
+  assert.equal(attacks.projectiles.balls.length, 0);
+  step({ fireballPressed: true }, 30);
+  assert.deepEqual(
+    enemies.map((e) => e.hp),
+    [0, 2],
+  );
+  physics.dispose();
+});
+
+test("fireballs sweep thin walls and the muzzle gap in all four directions", () => {
+  for (const direction of ["right", "left", "front", "back"] as const)
+    for (const distance of [0.4, 2.8]) {
+      const dx = direction === "right" ? 1 : direction === "left" ? -1 : 0;
+      const dz = direction === "front" ? 1 : direction === "back" ? -1 : 0;
+      const { physics, player, enemies, attacks, step } = fixture([
+        { x: -70 + dx * 5, y: 0.69, z: 40 + dz * 5 },
+      ]);
+      physics.world.createCollider(
+        RAPIER.ColliderDesc.cuboid(
+          dx ? 0.005 : 2,
+          2,
+          dz ? 0.005 : 2,
+        ).setTranslation(-70 + dx * distance, 1, 40 + dz * distance),
+      );
+      physics.step();
+      player.direction = direction;
+      step({ fireballPressed: true }, 60);
+      assert.equal(enemies[0].hp, 2);
+      assert.equal(attacks.projectiles.shots, 1);
+      assert.equal(attacks.projectiles.balls.length, 0);
+      physics.dispose();
+    }
+});
+
+test("three buffered fireballs chain, charge once per shot and cannot queue a fourth", () => {
+  const { physics, attacks, step } = fixture([]);
+  for (let shot = 0; shot < 3; shot++) {
+    step({ fireballPressed: true });
+    step({}, 16);
+  }
+  assert.equal(attacks.projectiles.shots, 3);
+  assert.equal(attacks.fireballChain, 3);
+  assert.ok(Math.abs(attacks.stamina.value - 46) < 0.01);
+  step({ fireballPressed: true }, 12);
+  assert.equal(attacks.projectiles.shots, 3);
+  step({}, 70);
+  assert.equal(attacks.fireballChain, 0);
+  step({ fireballPressed: true }, 10);
+  assert.equal(attacks.projectiles.shots, 4);
+  attacks.cancel();
+  assert.equal(attacks.projectiles.balls.length, 0);
+  physics.dispose();
+});
+
+test("ray exhausts stamina, regenerates after rest but never restarts from a held button", () => {
+  const { physics, attacks, step } = fixture([]);
+  step({ specialPressed: true, specialHeld: true }, 240);
+  assert.equal(attacks.beamActive, false);
+  assert.equal(attacks.kind, null);
+  assert.ok(attacks.stamina.value < 1);
+  step({ specialHeld: true }, 300);
+  assert.equal(attacks.stamina.value, 100);
+  assert.equal(attacks.beamActive, false);
+  assert.equal(attacks.beams, 1);
+  step();
+  step({ specialPressed: true, specialHeld: true }, 20);
+  assert.equal(attacks.beams, 2);
+  assert.equal(attacks.beamActive, true);
+  attacks.reset();
+  assert.equal(attacks.stamina.value, 100);
+  physics.dispose();
+});
+
+test("insufficient stamina blocks attack windups and stale input buffers clear safely", () => {
+  const { physics, attacks, step } = fixture([]);
+  attacks.stamina.spend(100);
+  step({ attackPressed: true, fireballPressed: true, specialPressed: true });
+  assert.equal(attacks.kind, null);
+  assert.equal(attacks.swings + attacks.beams + attacks.projectiles.shots, 0);
+  attacks.clearBuffered();
+  step({}, 100);
+  assert.equal(attacks.kind, null);
+  step({ attackPressed: true });
+  assert.equal(attacks.kind, "swipe");
+  physics.dispose();
+});
+
 test("simultaneous enemy attacks share one damage protection window", () => {
   const physics = new Physics(),
     player = new Player(physics),

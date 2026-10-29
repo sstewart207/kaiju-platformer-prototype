@@ -69,8 +69,8 @@ export class UI {
     this.unsupported = unsupported;
     const controller = source === "gamepad" && connected;
     element("controls").innerHTML = controller
-      ? "<span><kbd>LEFT STICK / D-PAD</kbd> MOVE</span><span><kbd>✕</kbd> JUMP</span><span><kbd>□ / R1</kbd> DASH</span><span><kbd>○</kbd> ATTACK</span><span><kbd>R2</kbd> SOLAR</span>"
-      : "<span><kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd> MOVE</span><span><kbd>SPACE</kbd> JUMP</span><span><kbd>SHIFT</kbd> DASH</span><span><kbd>J</kbd> ATTACK</span><span><kbd>K</kbd> SOLAR</span>";
+      ? "<span><kbd>LEFT STICK / D-PAD</kbd> MOVE</span><span><kbd>✕</kbd> JUMP</span><span><kbd>□ / R1</kbd> DASH</span><span><kbd>○</kbd> ATTACK</span><span><kbd>L1</kbd> FIREBALL</span><span><kbd>R2</kbd> SOLAR</span>"
+      : "<span><kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd> MOVE</span><span><kbd>SPACE</kbd> JUMP</span><span><kbd>SHIFT</kbd> DASH</span><span><kbd>J</kbd> ATTACK</span><span><kbd>L</kbd> FIREBALL</span><span><kbd>K</kbd> SOLAR</span>";
     this.updateFooter();
   }
   private updateFooter() {
@@ -81,7 +81,7 @@ export class UI {
         ? "Controller disconnected. Reconnect or use the keyboard."
         : controller
           ? "✕ Select · ○ Back · Options Pause · △ Restart"
-          : "WASD / arrows Move · Space Jump · Shift Dash · J Attack · K Solar · Esc Pause";
+          : "WASD / arrows Move · Space Jump · Shift Dash · J Attack · L Fireball · K Solar · Esc Pause";
   }
   show(screen: Screen, falls = 0, kills = 0, target = 0) {
     this.screen = screen;
@@ -121,15 +121,21 @@ export class UI {
     element("dash-meter").style.width =
       `${(1 - Math.min(1, dashCooldown / rechargeDuration)) * 100}%`;
   }
-  updateSolar(cooldown: number, duration = 1.25) {
+  updateSolar(cooldown: number, duration = 1.25, affordable = true) {
     element("solar-status").textContent =
-      cooldown > 0.001 ? "SOLAR …" : "SOLAR READY";
+      cooldown > 0.001 || !affordable ? "SOLAR …" : "SOLAR READY";
     element("solar-meter").style.width =
       `${(1 - Math.min(1, cooldown / duration)) * 100}%`;
   }
   updateObjective(kills: number, target: number) {
     element("kill-status").textContent =
       `KILLS ${Math.min(kills, target)}/${target}`;
+  }
+  updateStamina(value: number) {
+    element("stamina-meter").style.width = `${value}%`;
+    element("stamina").setAttribute("aria-valuenow", String(Math.round(value)));
+    element("stamina-status").textContent =
+      value < 0.01 ? "STAMINA EMPTY" : "STAMINA";
   }
   async respawnFlash() {
     element("fade").style.opacity = ".85";

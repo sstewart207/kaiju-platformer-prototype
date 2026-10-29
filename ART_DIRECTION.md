@@ -33,6 +33,8 @@ Dash feedback uses six small tapered speed lines behind the character, aligned t
 
 Keep the lines close to the silhouette, visible only during the burst and depth-tested against the world. Avoid full-screen streaks or extra text.
 
+Combat feedback uses the playable palette too: Solargon's separate fireballs have a gold shell, cream core and short ember trail. Swipe uses a small anchored compression/lean over the existing draft poses, with a short forward step and a cream contact spark. Keep the outer projectile at its collision radius, render interpolation separate from physics, and effects depth-tested against scenery. This pass does not supply a newly drawn attack cycle; replacing the draft pose art remains future visual work.
+
 ### Rendering constants
 
 | Item | Current implementation |

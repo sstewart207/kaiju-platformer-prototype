@@ -60,14 +60,22 @@ async function sample(
   );
 }
 
-test("R2 sustains the solar ray and releases safely on disconnect", async ({ page }) => {
+test("R2 sustains the solar ray and releases safely on disconnect", async ({
+  page,
+}) => {
   await setup(page);
   await page.getByRole("button", { name: "START", exact: true }).click();
   await sample(page);
   await sample(page, [7], [0, 0], 120);
-  const combat = () => page.evaluate(() => (window.__solargon.state() as unknown as {
-    combat: { beamActive: boolean; beams: number }
-  }).combat);
+  const combat = () =>
+    page.evaluate(
+      () =>
+        (
+          window.__solargon.state() as unknown as {
+            combat: { beamActive: boolean; beams: number };
+          }
+        ).combat,
+    );
   expect((await combat()).beamActive).toBe(true);
   expect((await combat()).beams).toBe(1);
   await sample(page);
@@ -75,7 +83,9 @@ test("R2 sustains the solar ray and releases safely on disconnect", async ({ pag
   await sample(page, [], [0, 0], 80);
   await sample(page, [7], [0, 0], 50);
   expect((await combat()).beamActive).toBe(true);
-  await page.evaluate(() => { window.__padFixture.connected = false; });
+  await page.evaluate(() => {
+    window.__padFixture.connected = false;
+  });
   await advancePadDisconnect(page);
   await page.getByRole("button", { name: "RESUME", exact: true }).click();
   await sample(page);
@@ -85,6 +95,49 @@ test("R2 sustains the solar ray and releases safely on disconnect", async ({ pag
 async function advancePadDisconnect(page: Page) {
   await page.evaluate(() => window.__solargon.advance(1));
 }
+
+test("L1 fires a separate projectile, chains fresh taps and ignores held repeats", async ({
+  page,
+}) => {
+  await setup(page);
+  await page.getByRole("button", { name: "START", exact: true }).click();
+  await sample(page);
+  const fight = () =>
+    page.evaluate(
+      () =>
+        (
+          window.__solargon.state() as unknown as {
+            combat: {
+              fireballShots: number;
+              stamina: number;
+              beamActive: boolean;
+              fireballs: unknown[];
+            };
+          }
+        ).combat,
+    );
+  await sample(page, [4], [0, 0], 120);
+  expect((await fight()).fireballShots).toBe(1);
+  expect((await fight()).beamActive).toBe(false);
+  await sample(page);
+  await page.evaluate(() => {
+    window.__padFixture.connected = false;
+  });
+  await sample(page);
+  await page.getByRole("button", { name: "RESUME", exact: true }).click();
+  await page.keyboard.press("KeyR");
+  await page.evaluate(() => {
+    window.__padFixture.connected = true;
+  });
+  await sample(page);
+  for (let shot = 0; shot < 3; shot++) {
+    await sample(page, [4], [0, 0], 16);
+    await sample(page);
+  }
+  expect((await fight()).fireballShots).toBe(3);
+  expect((await fight()).stamina).toBeCloseTo(46);
+  await expect(page.locator("#controls")).toContainText("L1 FIREBALL");
+});
 test("DualSense start, analog/D-pad movement, jump, pause menus, restart and disconnect", async ({
   page,
 }) => {

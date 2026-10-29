@@ -12,6 +12,7 @@ export interface MovementInput {
   attackPressed?: boolean;
   specialPressed?: boolean;
   specialHeld?: boolean;
+  fireballPressed?: boolean;
 }
 export type AnimationState =
   | "idle"

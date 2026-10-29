@@ -1,4 +1,14 @@
-# QA results — October 27, 2026
+# QA results — October 28, 2026
+
+## Swipe impact, chainable fireball and stamina
+
+54 unit tests pass. All 38 local browser scenarios were verified: the full suite passed 37 and hit one title-screen setup timeout after controller input had already started the game; isolating keyboard scenarios from physical gamepads resolved it, and all nine affected combat scenarios passed on rerun. Hosted launch and the long full-course hardware benchmark were opt-in skips in that run. Production build passes.
+
+New coverage includes collision-swept attack movement and recoil, low/thin/muzzle-wall projectile collisions in all four directions, non-piercing fireballs, a three-shot input buffer, held-button suppression, stamina costs/exhaustion/recovery, free movement/dash while exhausted, pause/reset behavior, synthetic L1 input and identical projectile damage/stamina at 30/60/144 Hz rendering. This does not claim physical controller validation.
+
+Inspected the four swipe contact poses, a visible fireball in flight and a contact flash. The 12-kill keyboard course clear took **167.95 simulated seconds**, with one checkpoint recovery and no teleports or health/kill edits. Human combat feel and audio balance remain unreviewed. Draft attack poses are reused with anchored lean/compression; no new drawn attack cycle is claimed. [Timing](art/playtest/kill-clear-timing.json) · [Fireball](art/playtest/combat-feel-fireball.png) · [Contact](art/playtest/combat-feel-impact.png).
+
+Mixed effects measured **144.00 FPS / 7.0 ms p95**, 600 samples, Edge headless at 1920 × 1080 on the RTX 5070 Ti laptop. Scenario: three fireballs, then held ray until exhaustion in the starting area, with all 12 enemies enabled. No console/page errors; this was not a full-course performance benchmark. [Measurement](art/playtest/performance/combat-feel.json).
 
 ## Solar hit detection follow-up
 
