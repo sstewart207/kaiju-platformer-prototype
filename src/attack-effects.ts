@@ -1,175 +1,73 @@
 import * as THREE from "three";
-import { SOLARGON } from "./animation";
 import { ATTACK, type PlayerAttacks } from "./player-attacks";
 import { FIREBALL } from "./player-projectiles";
-
-/** A tapered claw path in the normalized forward strike footprint (X forward). */
-function clawRibbon(radius: number, span: number, thickness: number) {
-  const vertices: number[] = [],
-    indices: number[] = [];
-  const segments = 40;
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments,
-      arc = Math.sin(t * Math.PI);
-    const x = 0.04 + radius * arc;
-    const z = (t * 2 - 1) * span;
-    const width = thickness * Math.pow(arc, 0.65);
-    vertices.push(Math.max(0, x - width), 0, z, Math.min(1, x + width), 0, z);
-    if (i < segments) {
-      const p = i * 2;
-      indices.push(p, p + 1, p + 2, p + 1, p + 3, p + 2);
-    }
-  }
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute(
-    "position",
-    new THREE.Float32BufferAttribute(vertices, 3),
-  );
-  geometry.setIndex(indices);
-  return geometry;
-}
+import { PixelSheet, PixelSprite, placeRibbon } from "./pixel-fx";
 
 export class AttackEffects {
-  readonly swipe = new THREE.Group();
-  private swipeMaterials: THREE.MeshBasicMaterial[] = [];
-  private clawCores: THREE.Mesh[] = [];
-  private beam = new THREE.Group();
-  private beamStreaks: THREE.Mesh[] = [];
-  private muzzle = new THREE.Group();
-  private contacts: THREE.Group[] = [];
-  private fireballs: THREE.Group[] = [];
+  readonly swipe: THREE.Mesh;
+  private claw = new PixelSheet("solar-claw");
+  private ray = new PixelSheet("solar-ray");
+  private beam: THREE.Mesh;
+  private tip = new PixelSprite("solar-front", 0.012);
+  private muzzle = new PixelSprite("solar-mouth", 0.022);
+  private contacts = Array.from(
+    { length: 16 },
+    () => new PixelSprite("solar-hit", 0.035, { x: 0, y: -20 }),
+  );
+  private fireballs = Array.from(
+    { length: 12 },
+    () => new PixelSprite("solar-fireball", FIREBALL.radius / 6),
+  );
   private fading = 0;
+  private active = false;
   constructor(scene: THREE.Scene) {
-    const palette = SOLARGON.palette;
-    const outline = new THREE.Color(palette.primary).multiplyScalar(0.24);
-    const rim = new THREE.MeshBasicMaterial({
-      color: outline,
-      side: THREE.BackSide,
-      toneMapped: false,
-    });
-    const gold = new THREE.MeshBasicMaterial({
-      color: palette.primary,
-      side: THREE.BackSide,
-      toneMapped: false,
-    });
-    const cream = new THREE.MeshBasicMaterial({
-      color: palette.highlight,
-      toneMapped: false,
-    });
-    const trail = new THREE.MeshBasicMaterial({
-      color: palette.primary,
-      transparent: true,
-      opacity: 0.6,
-      depthWrite: false,
-      toneMapped: false,
-    });
-
-    for (let claw = 0; claw < 3; claw++) {
-      const radius = 0.86 - claw * 0.17,
-        span = 1 - claw * 0.17;
-      for (const [color, width, lift] of [
-        [outline, 0.14, 0],
-        [new THREE.Color(palette.primary), 0.105, 0.008],
-        [new THREE.Color(palette.highlight), 0.046, 0.016],
-      ] as const) {
-        const material = new THREE.MeshBasicMaterial({
-          color,
-          side: THREE.DoubleSide,
-          transparent: true,
-          opacity: 1,
-          depthWrite: false,
-          toneMapped: false,
-        });
-        const mesh = new THREE.Mesh(clawRibbon(radius, span, width), material);
-        mesh.position.y = lift;
-        this.swipe.add(mesh);
-        this.swipeMaterials.push(material);
-        if (lift > 0.01) this.clawCores.push(mesh);
-      }
-    }
-
-    // The opaque outer body matches the simulated ray; energy lines stay inside it.
-    const rayBody = new THREE.BoxGeometry(
-      1,
-      ATTACK.solarHalfHeight * 2,
-      ATTACK.solarHalfWidth * 2,
-    );
-    this.beam.add(new THREE.Mesh(rayBody, rim));
-    const sheath = new THREE.Mesh(rayBody, gold);
-    sheath.scale.set(1, 0.86, 0.86);
-    const core = new THREE.Mesh(rayBody, cream);
-    core.scale.set(1, 0.38, 0.38);
-    this.beam.add(sheath, core);
-    for (let i = 0; i < 6; i++) {
-      const streak = new THREE.Mesh(
-        new THREE.BoxGeometry(0.07, 0.025, 0.05),
-        cream,
+    const slash = new THREE.PlaneGeometry(1, 2);
+    slash.translate(0.5, 0, 0);
+    slash.rotateX(-Math.PI / 2);
+    this.swipe = new THREE.Mesh(slash, this.claw.material);
+    const ribbon = new THREE.PlaneGeometry(1, 1, 32, 1);
+    const vertices = ribbon.getAttribute("position");
+    for (let i = 0; i < vertices.count; i++) {
+      const x = vertices.getX(i) + 0.5;
+      vertices.setY(
+        i,
+        vertices.getY(i) * Math.min(1, 0.15 + x * 24, 0.15 + (1 - x) * 24),
       );
-      this.beam.add(streak);
-      this.beamStreaks.push(streak);
     }
-    const muzzleGeometry = new THREE.IcosahedronGeometry(0.18, 1);
-    this.muzzle.add(new THREE.Mesh(muzzleGeometry, gold));
-    const muzzleCore = new THREE.Mesh(muzzleGeometry, cream);
-    muzzleCore.scale.setScalar(0.7);
-    this.muzzle.add(muzzleCore);
-
-    const bodyGeometry = new THREE.IcosahedronGeometry(FIREBALL.radius, 1);
-    const tailGeometry = new THREE.ConeGeometry(FIREBALL.radius * 0.8, 1.05, 5);
-    tailGeometry.rotateZ(Math.PI / 2);
-    for (let i = 0; i < 12; i++) {
-      const ball = new THREE.Group();
-      const tail = new THREE.Mesh(tailGeometry, trail);
-      tail.position.x = -0.55;
-      ball.add(tail, new THREE.Mesh(bodyGeometry, rim));
-      const shell = new THREE.Mesh(bodyGeometry, gold);
-      shell.scale.setScalar(0.87);
-      const heart = new THREE.Mesh(bodyGeometry, cream);
-      heart.scale.setScalar(0.56);
-      ball.add(shell, heart);
-      ball.visible = false;
-      scene.add(ball);
-      this.fireballs.push(ball);
-    }
-
-    const sparkGeometry = new THREE.BoxGeometry(0.28, 0.065, 0.025);
-    for (let i = 0; i < 16; i++) {
-      const contact = new THREE.Group();
-      const flash = new THREE.Mesh(new THREE.CircleGeometry(0.13, 4), cream);
-      contact.add(flash);
-      for (let ray = 0; ray < 6; ray++) {
-        const spark = new THREE.Mesh(sparkGeometry, ray % 2 ? gold : cream);
-        spark.rotation.z = (ray * Math.PI) / 3;
-        contact.add(spark);
-      }
-      contact.visible = false;
-      scene.add(contact);
-      this.contacts.push(contact);
-    }
-    this.swipe.visible = this.beam.visible = this.muzzle.visible = false;
-    scene.add(this.swipe, this.beam, this.muzzle);
+    ribbon.translate(0.5, 0, 0);
+    this.beam = new THREE.Mesh(ribbon, this.ray.material);
+    this.beam.renderOrder = 1;
+    this.swipe.visible = this.beam.visible = false;
+    scene.add(
+      this.swipe,
+      this.beam,
+      this.tip.sprite,
+      this.muzzle.sprite,
+      ...this.contacts.map((fx) => fx.sprite),
+      ...this.fireballs.map((fx) => fx.sprite),
+    );
   }
-
   update(attack: PlayerAttacks, camera: THREE.Camera, alpha: number) {
     const end = ATTACK.swipeWindup + ATTACK.swipeActive;
-    const active =
+    this.active =
       attack.kind === "swipe" &&
       attack.age >= ATTACK.swipeWindup &&
       attack.age < end;
     const follow =
       attack.kind === "swipe" && attack.age >= end && attack.age < end + 0.12;
-    this.swipe.visible = (active || follow) && attack.swipeLength > 0.04;
-    this.fading = active
+    this.swipe.visible = (this.active || follow) && attack.swipeLength > 0.04;
+    this.fading = this.active
       ? 1
       : follow
         ? 0.42 * (1 - (attack.age - end) / 0.12)
         : 0;
-    this.swipeMaterials.forEach((material) => {
-      material.opacity = this.fading;
-    });
-    this.clawCores.forEach((mesh) => {
-      mesh.visible = active;
-    });
+    // Retimed tear, contact and closure within the existing strike and recovery.
+    this.claw.frame(
+      this.active
+        ? 0.04 + ((attack.age - ATTACK.swipeWindup) / ATTACK.swipeActive) * 0.13
+        : 0.24 + Math.max(0, attack.age - end) * 2,
+    );
+    this.claw.material.opacity = this.fading;
     this.swipe.position.set(
       attack.origin.x,
       attack.origin.y - 0.08,
@@ -178,91 +76,116 @@ export class AttackEffects {
     this.swipe.rotation.y = -Math.atan2(attack.direction.z, attack.direction.x);
     this.swipe.scale.set(attack.swipeLength, 1, ATTACK.swipeHalfWidth);
 
-    this.contacts.forEach((contact, index) => {
+    this.contacts.forEach((fx, index) => {
       const impact = attack.impacts[index];
-      contact.visible = !!impact;
+      fx.sprite.visible = !!impact;
       if (!impact) return;
-      contact.position.set(
-        impact.position.x,
-        impact.position.y,
-        impact.position.z,
-      );
-      contact.quaternion.copy(camera.quaternion);
-      const progress = Math.min(1, impact.age / 0.18);
-      contact.children[0].scale.setScalar(Math.max(0, 1 - progress * 3));
-      for (let ray = 0; ray < 6; ray++) {
-        const spark = contact.children[ray + 1];
-        const angle = (ray * Math.PI) / 3;
-        spark.position.set(
-          Math.cos(angle) * (0.12 + progress * 0.48),
-          Math.sin(angle) * (0.12 + progress * 0.48),
-          0,
-        );
-        spark.scale.set(1 - progress * 0.85, 1 - progress * 0.6, 1);
-      }
+      fx.sprite.position.copy(impact.position);
+      fx.frame(impact.age);
+      fx.aim(impact.direction, camera);
     });
 
-    this.beam.visible = attack.beamActive && attack.beamLength > 0.01;
-    this.beam.position.set(
+    const visualLength = attack.solarVisualLength;
+    this.beam.visible = visualLength > 0.01;
+    this.ray.frame(attack.solarFireAge);
+    const fading =
+      attack.solarPhase === "recover"
+        ? Math.max(0, 1 - attack.solarRecoveryProgress * 3.4)
+        : 1;
+    this.ray.material.opacity = fading;
+    const thickness = ATTACK.solarHalfHeight * 2 * attack.solarWidthScale;
+    placeRibbon(
+      this.beam,
+      new THREE.Vector3(
+        attack.origin.x + attack.direction.x * attack.solarMuzzle,
+        attack.origin.y,
+        attack.origin.z + attack.direction.z * attack.solarMuzzle,
+      ),
+      attack.direction,
+      visualLength,
+      thickness,
+      camera,
+    );
+    // The end cap follows the simulated wave front and compresses at solid cover.
+    this.tip.sprite.visible = attack.beamActive && attack.beamLength > 0.12;
+    const tipInset = Math.min(0.18, attack.beamLength / 2);
+    this.tip.sprite.position.set(
       attack.origin.x +
-        attack.direction.x * (ATTACK.solarMuzzle + attack.beamLength / 2),
+        attack.direction.x *
+          (attack.solarMuzzle + attack.beamLength - tipInset),
       attack.origin.y,
       attack.origin.z +
-        attack.direction.z * (ATTACK.solarMuzzle + attack.beamLength / 2),
+        attack.direction.z *
+          (attack.solarMuzzle + attack.beamLength - tipInset),
     );
-    this.beam.rotation.y = -Math.atan2(attack.direction.z, attack.direction.x);
-    this.beam.scale.set(attack.beamLength, 1, 1);
-    this.beamStreaks.forEach((streak, index) => {
-      streak.position.set(
-        -0.45 + ((attack.age * 3 + index / 6) % 1) * 0.9,
-        (index % 2 ? -1 : 1) * 0.075,
-        0,
-      );
-    });
-    this.muzzle.visible =
+    this.tip.frame(attack.solarFireAge * 2 + 0.4);
+    this.tip.aim(attack.direction, camera);
+    this.tip.sprite.scale.setScalar(
+      Math.min(thickness * 0.8, attack.beamLength * 0.6),
+    );
+
+    this.muzzle.sprite.visible =
       (((attack.kind === "solar" || attack.kind === "fireball") &&
         attack.pose === "charge") ||
         attack.beamActive) &&
-      attack.beamLength > 0.01;
-    this.muzzle.position.set(
-      attack.origin.x + attack.direction.x * ATTACK.solarMuzzle,
-      attack.origin.y,
+      attack.beamClearance > 0.01;
+    this.muzzle.sprite.position.set(
+      attack.origin.x +
+        attack.direction.x * attack.solarMuzzle,
+      attack.origin.y + (attack.solarPhase === "charge" ? 0.4 : 0),
       attack.origin.z + attack.direction.z * ATTACK.solarMuzzle,
     );
-    const chargeTime =
-      attack.kind === "fireball" ? ATTACK.fireballWindup : ATTACK.solarCharge;
-    this.muzzle.scale.setScalar(
-      Math.min(
-        attack.beamLength / 0.18,
-        attack.beamActive
-          ? 1.15 + Math.sin(attack.age * 18) * 0.06
-          : 0.6 + Math.min(1, attack.age / chargeTime) * 0.6,
-      ),
+    const charge =
+      attack.kind === "solar"
+        ? Math.min(1, attack.age / ATTACK.solarCharge)
+        : 1;
+    this.muzzle.frame(attack.age * 2);
+    const muzzleSize = Math.min(
+      0.25 + charge * 0.65,
+      attack.beamClearance * 1.6,
     );
+    this.muzzle.sprite.scale.set(muzzleSize, muzzleSize, 1);
 
-    this.fireballs.forEach((mesh, index) => {
+    this.fireballs.forEach((fx, index) => {
       const ball = attack.projectiles.balls[index];
-      mesh.visible = !!ball;
+      fx.sprite.visible = !!ball;
       if (!ball) return;
-      mesh.position.set(
+      // The front-facing drawing has a higher mouth in screen space. Blend
+      // its launch socket onto the simulated path within the first body-width.
+      const mouthLift = ball.direction.z > 0
+        ? 0.5 * Math.max(0, 1 - FIREBALL.speed * ball.age / FIREBALL.sideMuzzle)
+        : 0;
+      fx.sprite.position.set(
         THREE.MathUtils.lerp(ball.previous.x, ball.position.x, alpha),
-        THREE.MathUtils.lerp(ball.previous.y, ball.position.y, alpha),
+        THREE.MathUtils.lerp(ball.previous.y, ball.position.y, alpha) + mouthLift,
         THREE.MathUtils.lerp(ball.previous.z, ball.position.z, alpha),
       );
-      mesh.rotation.y = -Math.atan2(ball.direction.z, ball.direction.x);
+      fx.frame(ball.age);
+      const unitsPerPixel = FIREBALL.radius / 6;
+      fx.revealTrail(6 + FIREBALL.speed * ball.age / unitsPerPixel, unitsPerPixel);
+      fx.aim(ball.direction, camera);
     });
   }
-
   snapshot() {
     return {
       swipeVisible: this.swipe.visible,
-      swipeActive:
-        this.swipe.visible && this.clawCores.some((mesh) => mesh.visible),
+      swipeActive: this.swipe.visible && this.active,
       swipeOpacity: this.fading,
       swipeLength: this.swipe.scale.x,
       rayVisible: this.beam.visible,
-      muzzleVisible: this.muzzle.visible,
-      fireballsVisible: this.fireballs.filter((mesh) => mesh.visible).length,
+      muzzleVisible: this.muzzle.sprite.visible,
+      fireballsVisible: this.fireballs.filter((fx) => fx.sprite.visible).length,
+      library: "pixelfx",
+      clawFrame: this.claw.frameIndex,
+      rayFrame: this.ray.frameIndex,
+      fireballFrames: this.fireballs
+        .filter((fx) => fx.sprite.visible)
+        .map((fx) => fx.sheet.frameIndex),
+      contactFrames: this.contacts
+        .filter((fx) => fx.sprite.visible)
+        .map((fx) => fx.sheet.frameIndex),
+      rayLength: this.beam.scale.x,
+      rayThickness: this.beam.scale.y,
     };
   }
 }

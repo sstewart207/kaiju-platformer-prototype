@@ -1,0 +1,189 @@
+{
+  "solar-claw": {
+    "width": 55,
+    "height": 43,
+    "cellW": 57,
+    "cellH": 45,
+    "columns": 8,
+    "rows": 4,
+    "count": 27,
+    "fps": 30,
+    "duration": 0.9,
+    "loop": false,
+    "pivot": [
+      5,
+      39
+    ],
+    "source": "melee/claw-swipe"
+  },
+  "solar-fireball": {
+    "width": 102,
+    "height": 36,
+    "cellW": 104,
+    "cellH": 38,
+    "columns": 8,
+    "rows": 5,
+    "count": 36,
+    "fps": 30,
+    "duration": 1.2,
+    "loop": true,
+    "pivot": [
+      94,
+      21
+    ],
+    "source": "fire/fireball"
+  },
+  "solar-hit": {
+    "width": 93,
+    "height": 51,
+    "cellW": 95,
+    "cellH": 53,
+    "columns": 8,
+    "rows": 2,
+    "count": 15,
+    "fps": 30,
+    "duration": 0.5,
+    "loop": false,
+    "pivot": [
+      12,
+      49
+    ],
+    "source": "impacts/hit-spark"
+  },
+  "solar-charge": {
+    "width": 48,
+    "height": 48,
+    "cellW": 50,
+    "cellH": 50,
+    "columns": 8,
+    "rows": 6,
+    "count": 48,
+    "fps": 30,
+    "duration": 1.6,
+    "loop": true,
+    "pivot": [
+      9,
+      46
+    ],
+    "source": "arcane/spell-charge"
+  },
+  "solar-ray": {
+    "width": 256,
+    "height": 40,
+    "cellW": 258,
+    "cellH": 42,
+    "columns": 8,
+    "rows": 5,
+    "count": 36,
+    "fps": 30,
+    "duration": 1.2,
+    "loop": true,
+    "pivot": [
+      0,
+      20
+    ],
+    "source": "solar-stream"
+  },
+  "solar-mouth": {
+    "width": 48,
+    "height": 48,
+    "cellW": 50,
+    "cellH": 50,
+    "columns": 8,
+    "rows": 5,
+    "count": 36,
+    "fps": 30,
+    "duration": 1.2,
+    "loop": true,
+    "pivot": [
+      24,
+      24
+    ],
+    "source": "solar-mouth"
+  },
+  "solar-front": {
+    "width": 48,
+    "height": 48,
+    "cellW": 50,
+    "cellH": 50,
+    "columns": 8,
+    "rows": 5,
+    "count": 36,
+    "fps": 30,
+    "duration": 1.2,
+    "loop": true,
+    "pivot": [
+      24,
+      24
+    ],
+    "source": "solar-front"
+  },
+  "enemy-claw": {
+    "width": 55,
+    "height": 43,
+    "cellW": 57,
+    "cellH": 45,
+    "columns": 8,
+    "rows": 4,
+    "count": 27,
+    "fps": 30,
+    "duration": 0.9,
+    "loop": false,
+    "pivot": [
+      5,
+      39
+    ],
+    "source": "melee/claw-swipe"
+  },
+  "enemy-fireball": {
+    "width": 102,
+    "height": 36,
+    "cellW": 104,
+    "cellH": 38,
+    "columns": 8,
+    "rows": 5,
+    "count": 36,
+    "fps": 30,
+    "duration": 1.2,
+    "loop": true,
+    "pivot": [
+      94,
+      21
+    ],
+    "source": "fire/fireball"
+  },
+  "enemy-charge": {
+    "width": 48,
+    "height": 48,
+    "cellW": 50,
+    "cellH": 50,
+    "columns": 8,
+    "rows": 6,
+    "count": 48,
+    "fps": 30,
+    "duration": 1.6,
+    "loop": true,
+    "pivot": [
+      9,
+      46
+    ],
+    "source": "arcane/spell-charge"
+  },
+  "enemy-hit": {
+    "width": 93,
+    "height": 51,
+    "cellW": 95,
+    "cellH": 53,
+    "columns": 8,
+    "rows": 2,
+    "count": 15,
+    "fps": 30,
+    "duration": 0.5,
+    "loop": false,
+    "pivot": [
+      12,
+      49
+    ],
+    "source": "impacts/hit-spark"
+  }
+}

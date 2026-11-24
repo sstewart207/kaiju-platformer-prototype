@@ -37,3 +37,4 @@ def audit(source, output, columns, standing_height):
 
 audit('public/assets/human-zombie-atlas-v1.png','art/human-zombie-atlas-v1.audit.json',8,2.1)
 audit('public/assets/solargon-combat-v1.png','art/solargon-combat-v1.audit.json',6,1.75)
+audit('public/assets/solargon-solar-v2.png','art/solargon-solar-v2.audit.json',8,1.75)

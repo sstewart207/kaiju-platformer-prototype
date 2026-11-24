@@ -80,7 +80,7 @@ test("R2 sustains the solar ray and releases safely on disconnect", async ({
   expect((await combat()).beams).toBe(1);
   await sample(page);
   expect((await combat()).beamActive).toBe(false);
-  await sample(page, [], [0, 0], 80);
+  await sample(page, [], [0, 0], 96);
   await sample(page, [7], [0, 0], 50);
   expect((await combat()).beamActive).toBe(true);
   await page.evaluate(() => {
@@ -318,8 +318,18 @@ test("DualSense Circle attacks and R2 fires solar without held-button repeats", 
   expect((await fight()).enemyHp).toBe(1);
   await sample(page, [1], [0, 0], 25);
   expect((await fight()).swings).toBe(1);
+  // Move out of the flanking zombie's incoming shot before the longer windup.
+  await page.evaluate(() => {
+    const p = (
+      window.__solargon.state() as unknown as {
+        combat: { enemyPosition: { x: number; z: number } };
+      }
+    ).combat.enemyPosition;
+    window.__solargon.teleport({ x: p.x, y: 0.75, z: p.z + 5 });
+  });
+  await sample(page, [], [0, -1], 1);
   await sample(page, [], [0, 0], 1);
-  await sample(page, [7], [0, 0], 15);
+  await sample(page, [7], [0, 0], 34);
   expect((await fight()).enemyHp).toBe(0);
   await sample(page, [7], [0, 0], 100);
   expect((await fight()).beams).toBe(1);

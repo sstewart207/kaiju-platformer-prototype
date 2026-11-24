@@ -46,6 +46,7 @@ export const SOLARGON: PlayableCharacterManifest = {
   },
 };
 export class CharacterSprite<State extends string = AnimationState> {
+  frameIndex = 0;
   readonly sprite: THREE.Sprite;
   readonly occludedSprite: THREE.Sprite;
   private projected = new THREE.Vector3();
@@ -107,6 +108,7 @@ export class CharacterSprite<State extends string = AnimationState> {
     dt: number,
     camera: THREE.Camera,
     pixelSize: number,
+    animationTime?: number,
   ) {
     if (state !== this.state) {
       this.state = state;
@@ -114,13 +116,14 @@ export class CharacterSprite<State extends string = AnimationState> {
     }
     this.time += dt;
     const clip = this.manifest.animations[state];
-    const index = Math.floor(this.time * clip.fps);
+    const index = Math.floor((animationTime ?? this.time) * clip.fps);
     const frame =
       clip.frames[
         clip.loop
           ? index % clip.frames.length
           : Math.min(index, clip.frames.length - 1)
       ];
+    this.frameIndex = frame;
     const alternate = this.manifest.stateAtlases?.[state];
     if (alternate && !this.stateTextures[state])
       throw new Error(`Missing ${state} texture for ${this.manifest.name}`);

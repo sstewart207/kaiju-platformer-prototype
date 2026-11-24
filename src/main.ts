@@ -23,20 +23,22 @@ import { RENDER_WIDTH, RENDER_HEIGHT } from "./rendering";
 import { Combat, ENCOUNTERS, ENEMY, PlayerVitals } from "./combat";
 import { EnemyView, HUMAN_ZOMBIE } from "./enemy-view";
 import { PlayerAttacks, ATTACK, type CombatPose } from "./player-attacks";
-import { PlayerCombatView, SOLARGON_COMBAT } from "./player-combat-view";
+import { PlayerCombatView, SOLARGON_COMBAT, SOLARGON_SOLAR } from "./player-combat-view";
 import { CHECKPOINTS } from "./course-extension";
 import { DashLines } from "./dash-lines";
 import { ImpactAudio } from "./impact-audio";
 import { STAMINA } from "./stamina";
+import { loadPixelFx } from "./pixel-fx";
 
 const ui = new UI();
 async function boot() {
   await RAPIER.init();
+  await loadPixelFx();
   // Isolate movement regressions locally; public builds always include combat.
   const combatEnabled = !(
     import.meta.env.DEV && new URLSearchParams(location.search).has("peaceful")
   );
-  const [texture, enemyTexture, combatTexture, fallTexture] = await Promise.all(
+  const [texture, enemyTexture, combatTexture, fallTexture, solarTexture] = await Promise.all(
     [
       new THREE.TextureLoader().loadAsync(SOLARGON.atlas),
       combatEnabled
@@ -44,6 +46,7 @@ async function boot() {
         : Promise.resolve(null),
       new THREE.TextureLoader().loadAsync(SOLARGON_COMBAT.atlas),
       new THREE.TextureLoader().loadAsync(SOLARGON_FALL.atlas),
+      new THREE.TextureLoader().loadAsync(SOLARGON_SOLAR.atlas),
     ],
   );
   const canvas = document.getElementById("world") as HTMLCanvasElement;
@@ -81,7 +84,7 @@ async function boot() {
     : [];
   const attacks = new PlayerAttacks(physics);
   const impactAudio = new ImpactAudio();
-  const combatView = new PlayerCombatView(world.scene, combatTexture);
+  const combatView = new PlayerCombatView(world.scene, combatTexture, solarTexture);
   let defeatTime = 0;
   let displayPose: CombatPose | null = null;
   if (!combatEnabled)
@@ -225,8 +228,10 @@ async function boot() {
     physics.step();
     attacks.update(controls, player, combatEnabled ? enemies : []);
     if (combatEnabled) {
+      const healthBeforeEnemies = vitals.health;
       vitals.tick();
       enemies.forEach((enemy) => enemy.update(player));
+      if (vitals.health < healthBeforeEnemies) attacks.interruptSolar(player);
       enemies.forEach((enemy, index) => {
         if (enemy.hp <= 0) objective.record(index);
       });
@@ -293,7 +298,7 @@ async function boot() {
     }
   }
   function render(dt: number, alpha: number) {
-    if (ui.screen === "playing") impactAudio.update(attacks);
+    impactAudio.update(attacks, ui.screen === "playing");
     const current = player.position;
     const position = {
       x: THREE.MathUtils.lerp(player.previous.x, current.x, alpha),
@@ -490,10 +495,17 @@ async function boot() {
           solarCooldown: attacks.solarCooldown,
           beamLength: attacks.beamLength,
           beamActive: attacks.beamActive,
+          solarPhase: attacks.solarPhase,
+          solarFireAge: attacks.solarFireAge,
+          animationFrame: combatView.character.frameIndex,
+          solarFires: attacks.solarFires,
+          beamClearance: attacks.beamClearance,
+          attackDirection: { ...attacks.direction },
           stamina: attacks.stamina.value,
           fireballShots: attacks.projectiles.shots,
           fireballChain: attacks.fireballChain,
           effects: combatView.effects.snapshot(),
+          enemyEffects: enemyViews[0]?.snapshot(),
           fireballs: attacks.projectiles.balls.map((ball) => ({
             ...ball,
             position: { ...ball.position },

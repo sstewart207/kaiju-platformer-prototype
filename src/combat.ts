@@ -21,6 +21,7 @@ export const ENEMY = {
   aggro: 8,
   leash: 7,
   meleeRange: 1.6,
+  meleeHalfWidth: 0.6,
   meleeWindup: 0.45,
   meleeActive: 0.16,
   charge: 0.65,
@@ -218,6 +219,12 @@ export class Combat {
   }
   actionTime = 0;
   projectiles: Fireball[] = [];
+  impacts: { position: Vec3; direction: Vec3; age: number }[] = [];
+  meleeVisualLength = ENEMY.meleeRange;
+  muzzleClear = false;
+  get attackDirection() {
+    return { ...this.aim };
+  }
   shots = 0;
   meleeHits = 0;
   projectileHits = 0;
@@ -286,6 +293,9 @@ export class Combat {
     this.facing = "front";
     this.lastDash = -1;
     this.projectiles = [];
+    this.impacts = [];
+    this.muzzleClear = false;
+    this.meleeVisualLength = ENEMY.meleeRange;
     this.shots = 0;
     this.meleeHits = 0;
     this.projectileHits = 0;
@@ -346,12 +356,41 @@ export class Combat {
   }
   update(target: CombatTarget) {
     const dt = FIXED_DT;
+    this.impacts = this.impacts.filter((impact) => (impact.age += dt) < 0.5);
     if (this.ownsVitals) this.vitals.tick();
     this.cooldown = Math.max(0, this.cooldown - dt);
     const stopped = this.impactStop > 0;
     this.impactStop = Math.max(0, this.impactStop - dt);
     if (!stopped) this.actionTime += dt;
     const p = this.position;
+    const effectOrigin = { ...p, y: p.y + 0.25 };
+    this.muzzleClear =
+      this.hp > 0 &&
+      this.action === "charging" &&
+      !this.worldHit(effectOrigin, this.aim, 0.9, target);
+    this.meleeVisualLength = ENEMY.meleeRange;
+    // Sweep the whole visible width, including thin cover between centre and edge.
+    if (this.hp > 0 && this.action === "melee") {
+      const angle = -Math.atan2(this.aim.z, this.aim.x);
+      const hit = this.physics.world.castShape(
+        { ...p, y: p.y + 0.15 },
+        { x: 0, y: Math.sin(angle / 2), z: 0, w: Math.cos(angle / 2) },
+        this.aim,
+        new RAPIER.Cuboid(0.02, 0.05, ENEMY.meleeHalfWidth),
+        0,
+        ENEMY.meleeRange,
+        true,
+        RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
+        undefined,
+        this.collider,
+        target.body,
+      );
+      if (hit)
+        this.meleeVisualLength = Math.min(
+          this.meleeVisualLength,
+          Math.max(0, hit.time_of_impact - 0.04),
+        );
+    }
     const range = distance(p, target.position);
     // The entire dash sweep counts, so fast movement cannot skip a small hurtbox.
     const dashStart = { ...target.previous, y: 0 },
@@ -394,12 +433,17 @@ export class Combat {
         ) {
           this.hitThisSwing = true;
           const toward = direction(p, target.position);
+          const dx = target.position.x - p.x,
+            dz = target.position.z - p.z;
+          const forward = dx * this.aim.x + dz * this.aim.z;
+          const sideways = -dx * this.aim.z + dz * this.aim.x;
           if (
-            range < ENEMY.meleeRange + 0.2 &&
+            forward >= 0 &&
+            forward <= this.meleeVisualLength + MOVEMENT.radius &&
+            Math.abs(sideways) <= ENEMY.meleeHalfWidth + MOVEMENT.radius &&
             Math.abs(
               target.position.y - FOOT_OFFSET - (p.y - ENEMY.footOffset),
             ) < 0.8 &&
-            toward.x * this.aim.x + toward.z * this.aim.z > 0.25 &&
             !this.worldHit(
               p,
               toward,
@@ -411,7 +455,14 @@ export class Combat {
               target,
             )
           ) {
-            if (this.damagePlayer()) this.meleeHits++;
+            if (this.damagePlayer()) {
+              this.meleeHits++;
+              this.impacts.push({
+                position: { ...target.position, y: target.position.y + 0.25 },
+                direction: { ...this.aim },
+                age: 0,
+              });
+            }
           }
         }
         if (this.actionTime >= 1.1) {
@@ -570,10 +621,20 @@ export class Combat {
         MOVEMENT.radius + ENEMY.fireballRadius
       ) {
         if (this.damagePlayer()) this.projectileHits++;
+        this.impacts.push({
+          position: { ...endpoint },
+          direction: { ...ball.direction },
+          age: 0,
+        });
         return false;
       }
       if (hit) {
         this.wallHits++;
+        this.impacts.push({
+          position: { ...endpoint },
+          direction: { ...ball.direction },
+          age: 0,
+        });
         return false;
       }
       ball.position = end;

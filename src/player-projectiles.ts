@@ -9,6 +9,7 @@ export const FIREBALL = {
   lifetime: 1.5,
   damage: 1,
   muzzle: 0.5,
+  sideMuzzle: 0.85,
 };
 export interface PlayerFireball {
   id: number;
@@ -23,7 +24,7 @@ export class PlayerProjectiles {
   private id = 0;
   constructor(
     private physics: Physics,
-    private onImpact: (position: Vec3) => void,
+    private onImpact: (position: Vec3, direction: Vec3) => void,
   ) {}
   reset() {
     this.balls = [];
@@ -44,8 +45,13 @@ export class PlayerProjectiles {
       age: 0,
     };
     // Sweep the muzzle gap too, so walls close to the mouth cannot be skipped.
-    if (this.move(ball, FIREBALL.muzzle, player, enemies))
+    const muzzle = Math.abs(direction.x) > 0.5 ? FIREBALL.sideMuzzle : FIREBALL.muzzle;
+    if (this.move(ball, muzzle, player, enemies)) {
+      // A newborn projectile interpolates from its mouth position, after the
+      // body-to-mouth sweep has checked nearby cover.
+      ball.previous = { ...ball.position };
       this.balls.push(ball);
+    }
   }
   update(player: Player, enemies: readonly Combat[]) {
     this.balls = this.balls.filter((ball) => {
@@ -98,7 +104,7 @@ export class PlayerProjectiles {
         speed: 3,
         stop: 0.025,
       });
-    this.onImpact(ball.position);
+    this.onImpact(ball.position, ball.direction);
     return false;
   }
 }

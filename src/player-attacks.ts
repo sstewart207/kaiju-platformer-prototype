@@ -10,23 +10,26 @@ export type CombatPose =
   | "swipe"
   | "charge"
   | "beam"
+  | "recover"
   | "hurt"
   | "defeat";
 export const ATTACK = {
   swipeWindup: 0.1,
   swipeActive: 0.2,
   swipeDuration: 0.48,
-  reach: 2.8,
+  reach: 3.1,
   swipeHalfWidth: 1,
   swipeHalfHeight: 0.6,
-  solarCharge: 0.18,
-  solarActive: 0.16,
-  solarDuration: 0.54,
+  solarCharge: 0.35,
+  solarActive: 0.2,
+  solarRecovery: 0.24,
+  solarDuration: 0.79,
   solarCooldown: 1.25,
   solarRange: 10,
   solarPulse: 0.4,
-  solarHalfWidth: 0.2,
-  solarHalfHeight: 0.16,
+  solarHalfWidth: 0.28,
+  solarHalfHeight: 0.3,
+  solarFrontSpeed: 64,
   solarMuzzle: 0.5,
   swipeStepSpeed: 3,
   hitStop: 0.05,
@@ -40,6 +43,7 @@ export interface AttackImpact {
   position: Vec3;
   age: number;
   kind: "swipe" | "solar" | "fireball";
+  direction: { x: number; z: number };
 }
 export class PlayerAttacks {
   kind: "swipe" | "solar" | "fireball" | null = null;
@@ -51,9 +55,16 @@ export class PlayerAttacks {
   direction = { x: 1, z: 0 };
   origin: Vec3 = { x: 0, y: 0, z: 0 };
   beamLength = 0;
+  beamClearance = 0;
   swipeLength = 0;
   swings = 0;
   beams = 0;
+  solarFires = 0;
+  private solarEndedAt: number | null = null;
+  private solarFired = false;
+  private solarTap = false;
+  private solarFadeLength = 0;
+  private solarInterruptedInput = false;
   hits = 0;
   private queue = 0;
   private hitEnemies = new Set<Combat>();
@@ -70,30 +81,67 @@ export class PlayerAttacks {
   private fireballReleased = false;
   private solarExhausted = false;
   constructor(private physics: Physics) {
-    this.projectiles = new PlayerProjectiles(physics, (position) =>
-      this.impactAt(position, "fireball"),
+    this.projectiles = new PlayerProjectiles(physics, (position, direction) =>
+      this.impactAt(position, "fireball", direction),
     );
   }
   get pose(): CombatPose | null {
+    if (this.kind === "solar")
+      return this.solarPhase === "charge"
+        ? "charge"
+        : this.solarPhase === "recover"
+          ? "recover"
+          : "beam";
     return this.kind === "swipe"
       ? this.age < ATTACK.swipeWindup
         ? "swipeWindup"
         : "swipe"
-      : this.kind === "solar" || this.kind === "fireball"
-        ? this.age <
-          (this.kind === "fireball"
-            ? ATTACK.fireballWindup
-            : ATTACK.solarCharge)
+      : this.kind === "fireball"
+        ? this.age < ATTACK.fireballWindup
           ? "charge"
           : "beam"
         : null;
   }
   get beamActive() {
-    return (
-      this.kind === "solar" &&
-      this.age >= ATTACK.solarCharge &&
-      (this.channelHeld || this.age < ATTACK.solarCharge + ATTACK.solarActive)
-    );
+    return this.solarPhase === "fire";
+  }
+  get solarPhase(): "idle" | "charge" | "fire" | "recover" {
+    return this.kind !== "solar"
+      ? "idle"
+      : this.solarEndedAt !== null
+        ? "recover"
+        : this.age < ATTACK.solarCharge
+          ? "charge"
+          : "fire";
+  }
+  get solarFireAge() {
+    return Math.max(0, this.age - ATTACK.solarCharge);
+  }
+  get solarMuzzle() {
+    return Math.abs(this.direction.x) > 0 ? 0.85 : ATTACK.solarMuzzle;
+  }
+  get solarRecoveryProgress() {
+    return this.solarEndedAt === null
+      ? 0
+      : Math.min(1, (this.age - this.solarEndedAt) / ATTACK.solarRecovery);
+  }
+  get solarVisualLength() {
+    return this.beamActive
+      ? this.beamLength
+      : this.solarPhase === "recover"
+        ? Math.min(
+            this.beamClearance,
+            this.solarFadeLength *
+              Math.max(
+                0,
+                1 - (this.solarRecoveryProgress * ATTACK.solarRecovery) / 0.07,
+              ),
+          )
+        : 0;
+  }
+  get solarWidthScale() {
+    const t = Math.min(1, this.solarFireAge / 0.08);
+    return 0.35 + 0.65 * t * t * (3 - 2 * t);
   }
   reset() {
     this.stamina.reset();
@@ -105,6 +153,12 @@ export class PlayerAttacks {
     this.solarCooldown = 0;
     this.queue = 0;
     this.beamLength = 0;
+    this.beamClearance = 0;
+    this.solarEndedAt = null;
+    this.solarFired = this.solarTap = false;
+    this.solarFadeLength = 0;
+    this.solarFires = 0;
+    this.solarInterruptedInput = false;
     this.swipeLength = 0;
     this.hitEnemies.clear();
     this.channelHeld = false;
@@ -132,7 +186,7 @@ export class PlayerAttacks {
       ? ATTACK.fireballBuffer
       : Math.max(0, this.fireballQueue - FIXED_DT);
     this.impacts = this.impacts.filter(
-      (impact) => (impact.age += FIXED_DT) < 0.18,
+      (impact) => (impact.age += FIXED_DT) < 0.5,
     );
     const stopped = this.impactStop > 0;
     this.impactStop = Math.max(0, this.impactStop - FIXED_DT);
@@ -144,13 +198,19 @@ export class PlayerAttacks {
       : Math.max(0, this.queue - FIXED_DT);
     if (
       this.kind &&
-      !(this.kind === "solar" && this.channelHeld) &&
+      this.kind !== "solar" &&
       this.age >=
         (this.kind === "swipe"
           ? ATTACK.swipeDuration
           : this.kind === "fireball"
             ? ATTACK.fireballDuration
             : ATTACK.solarDuration)
+    )
+      this.kind = null;
+    if (
+      this.kind === "solar" &&
+      this.solarEndedAt !== null &&
+      this.age >= this.solarEndedAt + ATTACK.solarRecovery
     )
       this.kind = null;
     if (!this.kind) {
@@ -163,6 +223,10 @@ export class PlayerAttacks {
         this.kind = "solar";
         this.solarCooldown = ATTACK.solarCooldown;
         this.beams++;
+        this.solarEndedAt = null;
+        this.solarFired = this.solarTap = false;
+        this.solarFadeLength = 0;
+        this.solarInterruptedInput = false;
       } else if (
         this.fireballQueue > 0 &&
         this.fireballChain < 3 &&
@@ -185,21 +249,50 @@ export class PlayerAttacks {
         this.direction = this.facing(player);
       }
     }
-    if (this.kind === "solar" && this.channelHeld) {
-      this.direction = this.facing(player);
+    if (this.kind === "solar") {
       this.solarCooldown = ATTACK.solarCooldown;
-      if (this.age >= ATTACK.solarCharge && !this.stamina.drainRay()) {
-        this.kind = null;
-        this.solarExhausted = true;
-        this.channelHeld = false;
+      if (
+        this.solarInterruptedInput ||
+        input.dashPressed ||
+        input.jumpPressed ||
+        player.dashing
+      ) {
+        this.interruptSolar(player);
+      } else {
+        // Releasing a quick tap fires its burst now. Only a held breath waits
+        // for the full charge; a tap must not leave the player braced afterward.
+        if (this.solarPhase === "charge" && !this.channelHeld) {
+          this.age = ATTACK.solarCharge;
+        }
+        if (this.solarPhase === "fire") {
+          if (!this.solarFired) {
+            this.solarFired = true;
+            this.solarTap = !this.channelHeld;
+            this.solarFires++;
+          }
+          if (
+            (!this.solarTap && !this.channelHeld) ||
+            (this.solarTap && this.solarFireAge >= ATTACK.solarActive) ||
+            (this.channelHeld && !this.stamina.drainRay())
+          ) {
+            this.solarFadeLength = this.beamLength;
+            this.solarEndedAt = this.age;
+            if (this.channelHeld) this.solarExhausted = true;
+          }
+        }
       }
-      this.pulseAge += FIXED_DT;
-      if (this.pulseAge >= ATTACK.solarPulse) {
-        this.hitEnemies.clear();
-        this.pulseAge = 0;
+      if (this.beamActive) {
+        this.pulseAge += FIXED_DT;
+        if (this.pulseAge >= ATTACK.solarPulse) {
+          this.hitEnemies.clear();
+          this.pulseAge = 0;
+        }
       }
     }
-    this.origin = { ...player.position, y: player.position.y + 0.45 };
+    this.origin = {
+      ...player.position,
+      y: player.position.y + (this.kind === "solar" || this.kind === "fireball" ? 0.55 : 0.45),
+    };
     if (
       this.kind === "fireball" &&
       !this.fireballReleased &&
@@ -257,9 +350,9 @@ export class PlayerAttacks {
       rotation,
       aim,
       new RAPIER.Cuboid(
-        alongX ? 0.001 : ATTACK.solarHalfWidth,
-        ATTACK.solarHalfHeight,
-        alongX ? ATTACK.solarHalfWidth : 0.001,
+        alongX ? 0.001 : ATTACK.solarHalfWidth * this.solarWidthScale,
+        ATTACK.solarHalfHeight * this.solarWidthScale,
+        alongX ? ATTACK.solarHalfWidth * this.solarWidthScale : 0.001,
       ),
       0,
       ATTACK.solarRange,
@@ -269,19 +362,26 @@ export class PlayerAttacks {
       undefined,
       player.body,
     );
-    this.beamLength = Math.max(
+    this.beamClearance = Math.max(
       0,
-      (wall?.time_of_impact ?? ATTACK.solarRange) - ATTACK.solarMuzzle,
+      (wall?.time_of_impact ?? ATTACK.solarRange) - this.solarMuzzle,
     );
+    this.beamLength = this.beamActive
+      ? Math.min(this.beamClearance, this.solarFireAge * ATTACK.solarFrontSpeed)
+      : 0;
     const beamCenter = {
-      x: this.origin.x + aim.x * (ATTACK.solarMuzzle + this.beamLength / 2),
+      x: this.origin.x + aim.x * (this.solarMuzzle + this.beamLength / 2),
       y: this.origin.y,
-      z: this.origin.z + aim.z * (ATTACK.solarMuzzle + this.beamLength / 2),
+      z: this.origin.z + aim.z * (this.solarMuzzle + this.beamLength / 2),
     };
     const beamShape = new RAPIER.Cuboid(
-      alongX ? this.beamLength / 2 : ATTACK.solarHalfWidth,
-      ATTACK.solarHalfHeight,
-      alongX ? ATTACK.solarHalfWidth : this.beamLength / 2,
+      alongX
+        ? this.beamLength / 2
+        : ATTACK.solarHalfWidth * this.solarWidthScale,
+      ATTACK.solarHalfHeight * this.solarWidthScale,
+      alongX
+        ? ATTACK.solarHalfWidth * this.solarWidthScale
+        : this.beamLength / 2,
     );
     const melee =
       this.kind === "swipe" &&
@@ -294,15 +394,27 @@ export class PlayerAttacks {
             speed: melee && !stopped ? ATTACK.swipeStepSpeed : 0,
             moveScale: stopped ? 0 : this.age < ATTACK.swipeWindup ? 0.2 : 0.65,
           }
-        : { x: 0, z: 0, speed: 0, moveScale: 1 };
+        : {
+            x: 0,
+            z: 0,
+            speed: 0,
+            moveScale:
+              this.kind === "solar"
+                ? this.solarTap
+                  ? 1
+                  : this.solarPhase === "recover"
+                  ? 0.3
+                  : 0
+                : 1,
+          };
     if (!melee && !this.beamActive) return;
     for (const enemy of enemies) {
       if (enemy.hp <= 0 || this.hitEnemies.has(enemy)) continue;
       if (this.beamActive && !melee) {
         if (
-          this.beamLength > 0 &&
+          this.beamLength > 0.01 &&
           enemy.collider.intersectsShape(beamShape, beamCenter, rotation) &&
-          enemy.hit(2)
+          enemy.hit(2, { ...this.direction, speed: 4, stop: 0.035 })
         ) {
           this.hitEnemies.add(enemy);
           this.hits++;
@@ -332,12 +444,17 @@ export class PlayerAttacks {
   private impact(enemy: Combat, kind: AttackImpact["kind"]) {
     this.impactAt({ ...enemy.position, y: enemy.position.y + 0.25 }, kind);
   }
-  private impactAt(position: Vec3, kind: AttackImpact["kind"]) {
+  private impactAt(
+    position: Vec3,
+    kind: AttackImpact["kind"],
+    direction = this.direction,
+  ) {
     this.impacts.push({
       id: ++this.impactId,
       position: { ...position },
       age: 0,
       kind,
+      direction: { ...direction },
     });
     if (this.impacts.length > 16) this.impacts.shift();
   }
@@ -347,8 +464,21 @@ export class PlayerAttacks {
     this.projectiles.balls = [];
     this.impacts = [];
     this.chainTime = this.fireballChain = 0;
+    this.beamLength = 0;
+    this.solarEndedAt = null;
+  }
+  interruptSolar(player: Player) {
+    if (this.kind !== "solar") return;
+    this.kind = null;
+    this.beamLength = 0;
+    this.channelHeld = false;
+    this.solarExhausted = true;
+    this.solarCooldown = ATTACK.solarCooldown;
+    player.attackMotion = { x: 0, z: 0, speed: 0, moveScale: 1 };
   }
   clearBuffered() {
     this.queue = this.fireballQueue = 0;
+    if (this.kind === "solar" && this.channelHeld)
+      this.solarInterruptedInput = true;
   }
 }

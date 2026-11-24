@@ -1,7 +1,7 @@
 {
-  "fps": 144.0057602304092,
-  "p95": 7,
-  "samples": 600,
+  "fps": 233.30508096533882,
+  "p95": 4.2999999999999545,
+  "samples": 523,
   "browser": "Edge headless, 1920x1080 viewport/render buffer; sustained ray at start, 12 enemies enabled",
   "errors": []
 }

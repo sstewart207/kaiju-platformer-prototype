@@ -79,7 +79,7 @@ test("claw slash has a readable active phase, dim follow-through and exact pause
     const active = await effects(page);
     expect(active.swipeActive).toBe(true);
     expect(active.swipeOpacity).toBe(1);
-    expect(active.swipeLength).toBeGreaterThan(2.7);
+    expect(active.swipeLength).toBeCloseTo(3.1, 4);
     await page.screenshot({
       path: `art/playtest/attack-readability-swipe-${direction}.png`,
     });
@@ -122,7 +122,7 @@ test("fireball and ray stay distinct and clear on restart", async ({
   await advance(page, 1);
   await page.keyboard.up("KeyD");
   await page.keyboard.down("KeyK");
-  await advance(page, 25);
+  await advance(page, 34);
   expect((await effects(page)).rayVisible).toBe(true);
   expect((await effects(page)).fireballsVisible).toBe(0);
   await page.screenshot({ path: "art/playtest/attack-readability-ray.png" });

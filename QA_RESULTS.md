@@ -1,5 +1,37 @@
 # QA results — October 28, 2026
 
+## November 24 — browser combat release
+
+The release passed 63 unit tests, the production build, and all 48 enabled browser tests in an isolated worktree. The two opt-in checks for hosted deployment and the hardware course benchmark were skipped in this local suite. Tests cover complete keyboard routes, checkpoints, combat, effects, synthetic controllers, solar phases, sprite crops and pause/restart. The production build uses the GitHub Pages repository base path. Block/shield source, input mappings, UI and tests are excluded from this release. Physical controller and Chromebook checks remain pending.
+
+## November 5 — slightly longer claw reach
+
+Shane approved the tap response during playtest and requested a slightly longer claw that hits accordingly. Reach increased from 2.8 to 3.1 world units (about 11%). The existing shared wall-clipped `swipeLength` drives both visible slash length and damage shape; width, damage, timing, and lunge are unchanged.
+
+The expanded capsule-edge regression failed before the increase and now verifies hits at the new edge in all four directions, with farther/behind/side/high targets excluded. All 62 unit tests, the production build, and all three attack-readability browser checks passed, including exact 3.1-unit rendered reach and wall clipping. Human approval of the extended claw remains pending; local preview rebuilt, not published.
+
+## November 5 — retail Windows playtest: K input delay
+
+Shane reported K feeling delayed, followed by dying during play. The existing implementation imposed the held breath's 0.35-second charge and movement brace even on a quick tap. This explains a built-in response delay; no graphics-stutter cause has been established.
+
+Quick release now starts the tap burst immediately and restores full movement through its burst/recovery. Holding K/R2 retains the braced 0.35-second charge, committed aim, and existing interrupt rules. Local only; no GitHub deployment or commit made.
+
+The new tap regression failed before the fix. Afterward, 62 unit tests, the production build, and two focused Edge browser checks passed (tap release/movement and damage/pause interruption). Human confirmation of responsiveness and survivability remains pending. Reload the production preview at http://127.0.0.1:4173/ before retesting.
+
+## November 2 — braced solar breath follow-up
+
+User selected a braced held breath after rejecting the cosmetic-only ray pass. **61 unit tests, 27 focused browser checks and the production build pass.** New checks cover damage-free charge, a front that reaches nearer targets before distant targets, committed aim and planted movement, all four rendered directions, damage-free collapse, recovery, dash/jump escape, incoming-damage interruption and pause/disconnect during windup/firing. Existing collision, stamina, fireball, swipe and synthetic DualSense checks pass with the updated timing contract. The complete scripted keyboard run cleared 12 enemies and the route in **170.18 simulated seconds with zero deaths**; human playtime is unmeasured.
+
+Sustained breath measured **141.77 FPS / 7.1 ms p95** at 1920 × 1080 in Edge headless, 318 samples, no page/console errors. Charge, front propagation, firing in all four directions and collapse captures under `art/playtest/solar-breath-*.png` were inspected. The character still uses draft pose artwork. Physical controller, Chromebook and subjective combat/audio approval remain pending.
+
+## November 2, 2026 — local PixelFX combat pass
+
+59 unit tests and 21 focused browser checks pass; the production build and one additional production-preview launch/control/pause check pass. Browser coverage includes PixelFX frame advancement in all four projectile directions, exact pause, contact onset/dispersal, enemy windup/strike/recovery, restart cleanup, wall-clipped attacks, stamina/chaining and synthetic DualSense controls. The enemy collision regression checks a sidestep plus thin cover at both edges and between the centre/edges of the claw footprint. The entire width is swept against scenery, and the same clipped length drives rendering and damage.
+
+The mixed fireball/ray test measured **144.00 FPS / 7.0 ms p95**, 600 samples in Edge headless at 1920 × 1080 on the development laptop. PNG atlases add approximately 706 KiB and bake from pinned MIT source; no PixelFX rasterizer runs in gameplay. Source, licenses, metadata and reproduction parameters are in `art/effects/README.md`.
+
+Visually inspected all four player claw directions, fireball/ray, contact, enemy charge, enemy claw and enemy fireball captures. New captures use `art/playtest/pixelfx-*.png`; existing attack-readability captures are refreshed by their tests. This is visual/automated QA, not a physical-controller or human combat-feel approval. Physical USB/Bluetooth, Chromebook and subjective animation/audio review remain pending. Character limb cycles remain the existing drafts.
+
 ## Attack readability and Sarah's collision review
 
 58 unit tests, 28 focused browser checks and the production build pass. Sarah (game mechanics subagent) reviewed the collision implementation and effects code. Swipe reach is 2.8 instead of 2.1; its active phase is 0.20 instead of 0.12 seconds. Total time is 0.48 seconds and forward travel remains about 0.6 units. Capsule intersections and a shared wall-clipped volume replace center-only melee checks. Corner clipping is conservative.

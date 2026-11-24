@@ -1,4 +1,5 @@
 import type { PlayerAttacks } from "./player-attacks";
+import { ATTACK } from "./player-attacks";
 
 /** Layered air/impact sounds generated locally, with a shared volume limiter. */
 export class ImpactAudio {
@@ -9,6 +10,13 @@ export class ImpactAudio {
   private swings = 0;
   private shots = 0;
   private beams = 0;
+  private fires = 0;
+  private breath: {
+    source: AudioBufferSourceNode;
+    tone: OscillatorNode;
+    gain: GainNode;
+    filter: BiquadFilterNode;
+  } | null = null;
   constructor() {
     const unlock = () => {
       if (!this.context) {
@@ -31,13 +39,18 @@ export class ImpactAudio {
     window.addEventListener("pointerdown", unlock);
     window.addEventListener("keydown", unlock);
   }
-  update(attacks: PlayerAttacks) {
+  update(attacks: PlayerAttacks, playing = true) {
+    this.breathSound(playing && attacks.beamActive, attacks.solarFireAge);
+    if (!playing) return;
     if (attacks.swings > this.swings) this.air(1400, 500, 0.11, 0.07);
     if (attacks.projectiles.shots > this.shots) this.air(2200, 850, 0.14, 0.09);
-    if (attacks.beams > this.beams) this.air(500, 2000, 0.18, 0.055);
+    if (attacks.beams > this.beams)
+      this.air(220, 1100, ATTACK.solarCharge, 0.045);
+    if (attacks.solarFires > this.fires) this.air(1600, 280, 0.16, 0.13);
     this.swings = attacks.swings;
     this.shots = attacks.projectiles.shots;
     this.beams = attacks.beams;
+    this.fires = attacks.solarFires;
     for (const impact of attacks.impacts) {
       if (impact.id <= this.lastImpact) continue;
       this.lastImpact = impact.id;
@@ -70,6 +83,58 @@ export class ImpactAudio {
         gain.disconnect();
       };
     }
+  }
+  private breathSound(active: boolean, age: number) {
+    const context = this.context;
+    if (
+      !active ||
+      !context ||
+      context.state !== "running" ||
+      !this.output ||
+      !this.noise
+    ) {
+      if (this.breath && context) {
+        const nodes = this.breath;
+        this.breath = null;
+        const now = context.currentTime;
+        nodes.gain.gain.cancelScheduledValues(now);
+        nodes.gain.gain.setTargetAtTime(0, now, 0.015);
+        nodes.source.stop(now + 0.08);
+        nodes.tone.stop(now + 0.08);
+        nodes.source.onended = () => {
+          nodes.source.disconnect();
+          nodes.tone.disconnect();
+          nodes.filter.disconnect();
+          nodes.gain.disconnect();
+        };
+      }
+      return;
+    }
+    if (!this.breath) {
+      const source = context.createBufferSource(),
+        tone = context.createOscillator(),
+        gain = context.createGain(),
+        filter = context.createBiquadFilter();
+      source.buffer = this.noise;
+      source.loop = true;
+      filter.type = "lowpass";
+      filter.frequency.value = 650;
+      tone.type = "sine";
+      tone.frequency.value = 62;
+      gain.gain.value = 0;
+      source.connect(filter).connect(gain);
+      tone.connect(gain);
+      gain.connect(this.output);
+      source.start();
+      tone.start();
+      this.breath = { source, tone, gain, filter };
+    }
+    const now = context.currentTime;
+    this.breath.gain.gain.setTargetAtTime(
+      0.05 * (0.94 + Math.sin(age * 28) * 0.06),
+      now,
+      0.025,
+    );
   }
   private air(from: number, to: number, duration: number, volume: number) {
     const context = this.context;

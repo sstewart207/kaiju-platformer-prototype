@@ -112,7 +112,7 @@ test("ray exhaustion stops held fire and allows free movement while stamina reco
   await page.keyboard.up("KeyK");
   await advance(page, 1);
   await page.keyboard.down("KeyK");
-  await advance(page, 20);
+  await advance(page, 30);
   expect((await fight(page)).beams).toBe(2);
   expect((await fight(page)).beamActive).toBe(true);
   await page.keyboard.up("KeyK");

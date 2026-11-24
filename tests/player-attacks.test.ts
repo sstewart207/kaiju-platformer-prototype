@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { Physics, RAPIER } from "../src/physics";
 import { Player } from "../src/player";
 import { Combat, PlayerVitals } from "../src/combat";
-import { PlayerAttacks } from "../src/player-attacks";
+import { PlayerAttacks, ATTACK } from "../src/player-attacks";
 import type { MovementInput } from "../src/types";
 await RAPIER.init();
 function fixture(positions = [{ x: -68.5, y: 0.69, z: 40 }]) {
@@ -74,16 +74,17 @@ test("longer swipe intersects capsule edges in all directions, excluding behind/
     ["back", 0, -1],
   ] as const) {
     const { physics, player, enemies, step } = fixture([
-      { x: -70 + x * 2.95, y: 0.69, z: 40 + z * 2.95 },
+      { x: -70 + x * 3.4, y: 0.69, z: 40 + z * 3.4 },
       { x: -70 - x, y: 0.69, z: 40 - z },
       { x: -70 + x * 2 - z * 1.55, y: 0.69, z: 40 + z * 2 + x * 1.55 },
       { x: -70 + x * 2, y: 3, z: 40 + z * 2 },
+      { x: -70 + x * 4.2, y: 0.69, z: 40 + z * 4.2 },
     ]);
     player.direction = direction;
     step({ attackPressed: true }, 8);
     assert.deepEqual(
       enemies.map((enemy) => enemy.hp),
-      [1, 2, 2, 2],
+      [1, 2, 2, 2, 2],
       direction,
     );
     physics.dispose();
@@ -149,18 +150,37 @@ test("the longer active window catches a late-entering moving body only once", (
   assert.equal(attacks.hits, 1);
   physics.dispose();
 });
+test("a quick solar tap fires on release without the held breath's charge delay", () => {
+  const { physics, player, enemies, attacks, step } = fixture([
+    { x: -66, y: 0.69, z: 40 },
+  ]);
+  step({ specialPressed: true, specialHeld: true }, 4);
+  assert.equal(attacks.solarPhase, "charge");
+  assert.equal(enemies[0].hp, 2);
+  step();
+  assert.equal(attacks.solarPhase, "fire");
+  assert.equal(attacks.solarFires, 1);
+  assert.equal(player.attackMotion.moveScale, 1);
+  step({}, 4);
+  assert.equal(enemies[0].hp, 0);
+  step({}, 15);
+  assert.equal(attacks.beamActive, false);
+  assert.equal(player.attackMotion.moveScale, 1);
+  physics.dispose();
+});
+
 test("solar beam charges, pierces aligned enemies once and enforces cooldown", () => {
   const { physics, enemies, attacks, step } = fixture([
     { x: -66, y: 0.69, z: 40 },
     { x: -62, y: 0.69, z: 40 },
     { x: -66, y: 0.69, z: 42 },
   ]);
-  step({ specialPressed: true }, 9);
+  step({ specialPressed: true, specialHeld: true }, 9);
   assert.deepEqual(
     enemies.map((e) => e.hp),
     [2, 2, 2],
   );
-  step({}, 15);
+  step({}, 25);
   assert.deepEqual(
     enemies.map((e) => e.hp),
     [0, 0, 2],
@@ -169,8 +189,8 @@ test("solar beam charges, pierces aligned enemies once and enforces cooldown", (
   step({}, 12);
   step({ specialPressed: true });
   assert.equal(attacks.beams, 1);
-  // Recast on the exact 75th recharge tick, not one frame after READY.
-  step({}, 38);
+  // Recharge starts after the braced attack's recovery, rather than at windup.
+  step({}, Math.ceil((ATTACK.solarDuration + ATTACK.solarCooldown) * 60));
   step({ specialPressed: true });
   assert.equal(attacks.beams, 2);
   attacks.reset();
@@ -200,7 +220,7 @@ test("horizontal solar ray clears a low wall instead of aiming down at enemy fee
     RAPIER.ColliderDesc.cuboid(0.05, 0.45, 1).setTranslation(-67, 0.45, 40),
   );
   physics.step();
-  step({ specialPressed: true, specialHeld: true }, 22);
+  step({ specialPressed: true, specialHeld: true }, 34);
   assert.equal(enemies[0].hp, 0);
   physics.dispose();
 });
@@ -217,7 +237,7 @@ test("solar hits capsule edges at its end but misses bodies outside the visible 
       { x: -70 + x * 5 - z * 0.7, y: 0.69, z: 40 + z * 5 + x * 0.7 },
     ]);
     player.direction = direction;
-    step({ specialPressed: true, specialHeld: true }, 22);
+    step({ specialPressed: true, specialHeld: true }, 34);
     assert.deepEqual(
       enemies.map((enemy) => enemy.hp),
       [0, 2],
@@ -227,7 +247,7 @@ test("solar hits capsule edges at its end but misses bodies outside the visible 
   }
 });
 
-test("held solar sustains, turns, hits newly arriving targets and stops on release", () => {
+test("held solar braces movement, commits aim and stops damage on release", () => {
   const { physics, player, enemies, attacks, step } = fixture([
     { x: -66, y: 0.69, z: 40 },
     { x: -70, y: 0.69, z: 44 },
@@ -237,16 +257,77 @@ test("held solar sustains, turns, hits newly arriving targets and stops on relea
   assert.equal(attacks.beams, 1);
   assert.equal(enemies[0].hp, 0);
   assert.equal(enemies[1].hp, 2);
+  const planted = { ...player.position };
   player.direction = "front";
-  step({ specialHeld: true }, 2);
-  assert.equal(enemies[1].hp, 0);
-  assert.deepEqual(attacks.direction, { x: 0, z: 1 });
+  step({ specialHeld: true, x: 1, z: 1 }, 12);
+  assert.equal(enemies[1].hp, 2);
+  assert.deepEqual(attacks.direction, { x: 1, z: 0 });
+  assert.ok(
+    Math.hypot(player.position.x - planted.x, player.position.z - planted.z) <
+      0.01,
+  );
   step();
   assert.equal(attacks.beamActive, false);
+  assert.equal(attacks.solarPhase, "recover");
+  assert.ok(attacks.solarVisualLength > 0);
   assert.ok(attacks.solarCooldown > 1.2);
   step({ specialPressed: true, specialHeld: true }, 4);
   assert.equal(attacks.beams, 1);
   physics.dispose();
+});
+
+test("solar wave front reaches near targets before distant targets; charge has no damage", () => {
+  const { physics, enemies, attacks, step } = fixture([
+    { x: -66, y: 0.69, z: 40 },
+    { x: -62, y: 0.69, z: 40 },
+  ]);
+  step({ specialPressed: true, specialHeld: true }, 20);
+  assert.equal(attacks.solarPhase, "charge");
+  assert.equal(attacks.beamLength, 0);
+  assert.deepEqual(
+    enemies.map((e) => e.hp),
+    [2, 2],
+  );
+  step({ specialHeld: true }, 6);
+  assert.equal(attacks.solarPhase, "fire");
+  assert.ok(attacks.beamLength > 0 && attacks.beamLength < 6);
+  assert.deepEqual(
+    enemies.map((e) => e.hp),
+    [0, 2],
+  );
+  step({ specialHeld: true }, 8);
+  assert.deepEqual(
+    enemies.map((e) => e.hp),
+    [0, 0],
+  );
+  step();
+  assert.equal(attacks.beamLength, 0);
+  step({}, 5);
+  assert.equal(attacks.solarVisualLength, 0);
+  physics.dispose();
+});
+
+test("dash and jump break out of solar windup or firing without restarting from held input", () => {
+  for (const duringCharge of [true, false])
+    for (const escape of ["dash", "jump"]) {
+      const { physics, player, attacks, step } = fixture([]);
+      step({ specialPressed: true, specialHeld: true }, duringCharge ? 8 : 40);
+      step({
+        specialHeld: true,
+        x: 1,
+        dashPressed: escape === "dash",
+        jumpPressed: escape === "jump",
+        jumpHeld: escape === "jump",
+      });
+      assert.equal(attacks.kind, null);
+      assert.equal(attacks.beamActive, false);
+      assert.equal(player.attackMotion.moveScale, 1);
+      assert.ok(escape === "dash" ? player.dashing : player.velocity.y > 0);
+      step({ specialHeld: true }, 100);
+      assert.equal(attacks.beams, 1);
+      assert.equal(attacks.beamActive, false);
+      physics.dispose();
+    }
 });
 
 test("sustained solar respects walls and resets without a stuck ray", () => {
@@ -265,6 +346,25 @@ test("sustained solar respects walls and resets without a stuck ray", () => {
   assert.equal(attacks.pose, null);
   physics.dispose();
 });
+test("new fireballs interpolate from the mouth in all four directions", () => {
+  for (const direction of ["right", "left", "front", "back"] as const) {
+    const { physics, player, attacks, step } = fixture([]);
+    player.direction = direction;
+    step({ fireballPressed: true });
+    for (let tick = 0; tick < 12 && attacks.projectiles.shots === 0; tick++) step();
+    assert.equal(attacks.projectiles.shots, 1);
+    const ball = attacks.projectiles.balls[0];
+    assert.deepEqual(ball.previous, ball.position);
+    const dx = direction === "right" ? 1 : direction === "left" ? -1 : 0;
+    const dz = direction === "front" ? 1 : direction === "back" ? -1 : 0;
+    const distance = dx === 0 ? 0.5 : 0.85;
+    assert.ok(Math.abs(ball.position.x - player.position.x - dx * distance) < 0.001);
+    assert.ok(Math.abs(ball.position.z - player.position.z - dz * distance) < 0.001);
+    assert.ok(Math.abs(ball.position.y - player.position.y - 0.55) < 0.001);
+    physics.dispose();
+  }
+});
+
 test("fireballs travel, stop on the first body and require a second shot to defeat", () => {
   const { physics, enemies, attacks, step } = fixture([
     { x: -66, y: 0.69, z: 40 },
@@ -337,14 +437,14 @@ test("ray exhausts stamina, regenerates after rest but never restarts from a hel
   const { physics, attacks, step } = fixture([]);
   step({ specialPressed: true, specialHeld: true }, 240);
   assert.equal(attacks.beamActive, false);
-  assert.equal(attacks.kind, null);
+  assert.equal(attacks.solarPhase, "recover");
   assert.ok(attacks.stamina.value < 1);
   step({ specialHeld: true }, 300);
   assert.equal(attacks.stamina.value, 100);
   assert.equal(attacks.beamActive, false);
   assert.equal(attacks.beams, 1);
   step();
-  step({ specialPressed: true, specialHeld: true }, 20);
+  step({ specialPressed: true, specialHeld: true }, 30);
   assert.equal(attacks.beams, 2);
   assert.equal(attacks.beamActive, true);
   attacks.reset();

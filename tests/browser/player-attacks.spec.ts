@@ -68,7 +68,13 @@ test("keyboard swipe and solar beam defeat zombies, pause safely and reset", asy
   expect((await fight(page)).enemyHp).toBe(0);
   await page.keyboard.press("KeyR");
   await advance(page, 20);
-  await approach(page, 5);
+  // Charge from the open front; the left-side spot is in a squadmate's melee range.
+  await page.evaluate(() =>
+    window.__solargon.teleport({ x: 18, y: 0.75, z: -5 }),
+  );
+  await page.keyboard.down("KeyW");
+  await advance(page, 1);
+  await page.keyboard.up("KeyW");
   await page.keyboard.press("KeyK");
   await advance(page, 5);
   expect((await fight(page)).enemyHp).toBe(2);
@@ -77,9 +83,10 @@ test("keyboard swipe and solar beam defeat zombies, pause safely and reset", asy
   await advance(page, 90);
   expect(await fight(page)).toEqual(paused);
   await page.getByRole("button", { name: "RESUME", exact: true }).click();
-  await advance(page, 8);
+  await advance(page, 25);
   expect((await fight(page)).enemyHp).toBe(0);
-  expect((await fight(page)).beamActive).toBe(true);
+  // A quick press is the approved tap burst and has ended by this point.
+  expect((await fight(page)).beamActive).toBe(false);
   await page.screenshot({ path: "art/playtest/solargon-solar-beam.png" });
   await advance(page, 25);
   await page.keyboard.press("KeyK");

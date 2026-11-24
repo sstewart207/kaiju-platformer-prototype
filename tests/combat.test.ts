@@ -71,6 +71,33 @@ test("fireball has a charge and damages the player only once", () => {
   assert.equal(combat.projectiles.length, 0);
   physics.dispose();
 });
+
+test("enemy claw misses a sidestep outside its visible width and clips off-axis cover", () => {
+  for (const offset of [null, -0.6, -0.3, 0.3, 0.6]) {
+    const { physics, combat, step, stand } = fixture();
+    stand(19.2);
+    step(15);
+    assert.equal(combat.action, "melee");
+    if (offset !== null) {
+      // An edge of the rake hits this wall even though the centre ray is clear.
+      physics.world.createCollider(
+        RAPIER.ColliderDesc.cuboid(0.03, 1, 0.1).setTranslation(
+          18.5,
+          1,
+          -11 + offset,
+        ),
+      );
+      physics.step();
+    } else {
+      stand(19.1, -9.8);
+    }
+    step(20);
+    assert.equal(combat.health, 3);
+    assert.equal(combat.meleeHits, 0);
+    if (offset !== null) assert.ok(combat.meleeVisualLength < 0.6);
+    physics.dispose();
+  }
+});
 test("a fireball hits a thin wall added after aiming instead of passing through", () => {
   const { physics, combat, step, stand } = fixture();
   stand(24);

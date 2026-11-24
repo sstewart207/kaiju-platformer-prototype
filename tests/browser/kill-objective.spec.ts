@@ -80,7 +80,7 @@ test("kill credit survives the recoil/collapse death sequence; restart clears it
   });
   await face(page, 1, 0);
   await page.keyboard.press("KeyK");
-  await advance(page, 18);
+  await advance(page, 34);
   const credited = await state(page);
   expect(credited.kills).toBeGreaterThan(0);
   expect(credited.exitUnlocked).toBe(false);

@@ -1,6 +1,12 @@
 # Kaiju project status
 
-October 28, 2026 · Game title undecided
+November 24, 2026 · Game title undecided
+
+**Browser combat release — November 24:** Solargon has a four-direction solar animation sheet with inhale, release, firing and recovery poses. The gold ray uses separate stream, mouth and front effects. Fireballs start at the directional mouth socket and reveal their trail as they travel. Zombies have PixelFX attacks and impacts, contact-timed strike poses and wall-clipped melee coverage. Quick solar taps fire immediately on release; held breath charges, commits aim and braces the player. The shared build includes these browser changes. The block/shield prototype remains in Shane's local test copy pending human playtesting. The next art milestone is Graviton's 2D preview, followed by black-hole level planning. Human approval of generated attack artwork, physical combat controller testing and Chromebook performance remain pending.
+
+**Earlier local revision — November 2:** The user rejected the cosmetic-only ray and chose braced held breath. K/R2 now charges for 0.35 seconds, commits aim and braces movement while the thicker beam extends outward. Release stops damage, collapses the effect and settles into recovery; dash/jump escape and incoming damage interrupt it. Tap burst and the separate fireballs remain. 61 unit tests, 27 focused browser checks and production build pass; the full scripted course clear passed with 12 kills and no deaths. User feel/audio approval is still pending. Preview: `http://127.0.0.1:4173/` while the local preview server is running.
+
+**Local update — November 2:** PixelFX is integrated for both sides: animated claw rakes, flame trails, charge motes, a streaming solar ray and directional contact sparks. Zombies select their strike pose at contact, and melee damage follows the visible wall-clipped footprint. 59 unit tests, 21 focused browser checks, production build and a production-preview smoke check pass. Mixed effects remain about 144 FPS at 1080p on the development laptop. This local pass is available with `npm run build` then `npm run preview`; the public link below describes the previously published build. Character attack art remains draft poses, with human feel/physical-controller/Chromebook review pending. Details: `art/effects/README.md`.
 
 **Status:** Playable single-player browser prototype. Solargon is the only implemented character. The Ruins course is ready for team playtesting.
 
